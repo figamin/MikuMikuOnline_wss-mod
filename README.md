@@ -13,3 +13,10 @@ This repository contains all the dependencies you need to build both client and 
 - The **original** branch will contain the unmodified code from the wss branch
 
 Note that the v8_base.x64 library was too big to upload as is so it is compressed in src\boost_1_58_0\x64\stage\lib. You must uncompress it in order to build the client (it is around 350mb uncompressed).
+
+## How to run the client:
+
+You will need the rest of the MMO models and maps from MikuMikuTogether[https://mikumikutogether.neocities.org/pages/dl]
+
+## How to run the server
+The server requires separate files which will be uploaded soon.
