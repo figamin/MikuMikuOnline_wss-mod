@@ -1,9 +1,78 @@
-﻿Build started 26-Nov-23 17:49:10.
-     1>Project "C:\mikumikuonline_src\client\client.vcxproj" on node 2 (clean target(s)).
-     1>_PrepareForClean:
-         Deleting file "C:\mikumikuonline_src\client\Win32\Release\client.lastbuildstate".
-     1>Done Building Project "C:\mikumikuonline_src\client\client.vcxproj" (clean target(s)).
+﻿Build started 12/7/2025 10:58:07 PM.
+     1>Project "C:\Users\figamin\MikuMikuOnline_wss-mod\client\client.vcxproj" on node 2 (build target(s)).
+     1>InitializeBuildStatus:
+         Touching "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\client.unsuccessfulbuild".
+       ClCompile:
+         All outputs are up-to-date.
+         All outputs are up-to-date.
+         All outputs are up-to-date.
+       ResourceCompile:
+         All outputs are up-to-date.
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\figamin\MikuMikuOnline_wss-mod\client_wss-mod_beta21.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:"C:\Users\figamin\MikuMikuOnline_wss-mod\src\cryptopp562\Win32\Output\Release" /LIBPATH:"C:\Users\figamin\MikuMikuOnline_wss-mod\src\boost_1_58_0\stage\lib" /LIBPATH:"C:\Users\figamin\MikuMikuOnline_wss-mod\src\DxLibMake3_22e\Win32\Release" /LIBPATH:"C:\Users\figamin\MikuMikuOnline_wss-mod\src\DxLibNoneSoftDrawCode_VC_3_22e" /LIBPATH:"C:\Users\figamin\MikuMikuOnline_wss-mod\src\build" /LIBPATH:"C:\Users\figamin\MikuMikuOnline_wss-mod\src\v8_3_18_Win32\build\Release\lib" "C:\Users\figamin\MikuMikuOnline_wss-mod\src\DX06\Lib\x86\d3dx.lib" "C:\Users\figamin\MikuMikuOnline_wss-mod\src\DX06\Lib\x86\ddraw.lib" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\client_wss-mod_beta21.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /PDB:"C:\Users\figamin\MikuMikuOnline_wss-mod\client_wss-mod_beta21.pdb" /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\figamin\MikuMikuOnline_wss-mod\client_wss-mod_beta21.lib" /MACHINE:X86 "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\resourse.res"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\Command.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\Encrypter.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\lz4.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\Session.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\Signature.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\Utils.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\unicode.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\CharacterManager.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\FieldPlayer.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\gameloop.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\MotionPlayer.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\PlayerCharacter.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\PMDLoader.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\Stage.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\Timer.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\AccountManager.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\Card.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\CardManager.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\Client.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\CommandManager.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\ConfigManager.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\Core.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\GenerateJSON.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\InputManager.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\Language.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\Lobby.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\main.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\ManagerAccessor.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\MiniMap.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\Music.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\Player.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\PlayerManager.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\Profiler.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\ResourceManager.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\Base.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\ChannelChange.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\Connect.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\Dashboard.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\Init.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\MainLoop.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\Option.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\ServerChange.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\Title.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\ScriptEnvironment.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\ServerLauncher.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\SocketServerManager.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\stdafx.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\tlsf.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\Input.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\InputBox.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\UIBase.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\UIBoard.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\UIButton.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\UICustom.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\UIGroup.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\UILabel.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\UIList.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\UISuper.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\WindowManager.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\client\Win32\Release\WorldManager.obj"
+     1>LINK : fatal error LNK1104: cannot open file 'v8_base.ia32.lib'
+     1>Done Building Project "C:\Users\figamin\MikuMikuOnline_wss-mod\client\client.vcxproj" (build target(s)) -- FAILED.
 
-Build succeeded.
+Build FAILED.
 
-Time Elapsed 00:00:00.02
+Time Elapsed 00:00:03.18

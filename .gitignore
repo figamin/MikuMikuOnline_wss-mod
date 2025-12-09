@@ -1,0 +1,64 @@
+# Visual Studio 2010 specific files
+*.aps
+*.ncb
+*.suo
+*.user
+*.ilk
+*.obj
+*.pdb
+*.ipch
+*.log
+*.tlog
+*.exp
+*.lib
+*.dll
+*.exe
+*.manifest
+*.res
+*.sdf
+*.VC.opendb
+*.VC.db
+
+# Build directories
+Debug/
+Release/
+x64/
+Win32/
+
+# User-specific settings and cache
+.vs/
+ipch/
+*.VC.db
+*.VC.opendb
+
+# Precompiled headers
+*.pch
+*.gch
+
+# External dependencies (if not managed by a package manager and committed)
+# For example, if you have a 'libs' folder with pre-built libraries:
+# libs/
+
+# Other common ignored files
+*~
+*.bak
+*.sbr
+*.bsc
+*.vsp
+*.vshost.*
+*.testsettings
+*.trx
+*.vspscc
+*.vssscc
+_UpgradeReport_Files/
+
+log/
+client/Win32/
+client/x64/
+server/Win32/
+server/x64/
+client_wss-mod_beta21_64.exe
+client_wss-mod_beta21_64.exp
+client_wss-mod_beta21_64.lib
+MikuMikuOnline.opensdf
+MikuMikuOnline.sdf

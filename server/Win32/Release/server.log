@@ -1,9 +1,105 @@
-﻿Build started 26-Nov-23 13:08:18.
-     1>Project "C:\mikumikuonline_src\server\server.vcxproj" on node 2 (clean target(s)).
-     1>_PrepareForClean:
-         Deleting file "C:\mikumikuonline_src\server\Win32\Release\server.lastbuildstate".
-     1>Done Building Project "C:\mikumikuonline_src\server\server.vcxproj" (clean target(s)).
+﻿Build started 12/7/2025 10:20:42 PM.
+     1>Project "C:\Users\figamin\MikuMikuOnline_wss-mod\server\server.vcxproj" on node 2 (build target(s)).
+     1>InitializeBuildStatus:
+         Touching "C:\Users\figamin\MikuMikuOnline_wss-mod\server\Win32\Release\server.unsuccessfulbuild".
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Users\figamin\MikuMikuOnline_wss-mod\src\cryptopp562" /I"C:\Users\figamin\MikuMikuOnline_wss-mod\src\boost_1_58_0" /Zi /nologo /W3 /WX- /MP /Ox /Ob2 /Oi /Ot /Oy /GT /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _MBCS /GF /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yc"stdafx.h" /Fp"C:\Users\figamin\MikuMikuOnline_wss-mod\server\Win32\Release\server.pch" /Fo"C:\Users\figamin\MikuMikuOnline_wss-mod\server\Win32\Release\\" /Fd"C:\Users\figamin\MikuMikuOnline_wss-mod\server\Win32\Release\vc100.pdb" /Gd /TP /FIstdafx.h /analyze- /errorReport:prompt stdafx.cpp -D_WIN32_WINNT=0x0501 -Zm200 
+         stdafx.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Users\figamin\MikuMikuOnline_wss-mod\src\cryptopp562" /I"C:\Users\figamin\MikuMikuOnline_wss-mod\src\boost_1_58_0" /Zi /nologo /W3 /WX- /MP /Ox /Ob2 /Oi /Ot /Oy /GT /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _MBCS /GF /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"C:\Users\figamin\MikuMikuOnline_wss-mod\server\Win32\Release\server.pch" /Fo"C:\Users\figamin\MikuMikuOnline_wss-mod\server\Win32\Release\\" /Fd"C:\Users\figamin\MikuMikuOnline_wss-mod\server\Win32\Release\vc100.pdb" /Gd /TP /FIstdafx.h /analyze- /errorReport:prompt ..\common\network\Command.cpp ..\common\network\Encrypter.cpp ..\common\network\Session.cpp ..\common\network\Signature.cpp ..\common\network\Utils.cpp ..\common\unicode.cpp Account.cpp Channel.cpp Config.cpp main.cpp Server.cpp -D_WIN32_WINNT=0x0501 -Zm200 
+         Command.cpp
+         Encrypter.cpp
+         Session.cpp
+         Signature.cpp
+         Utils.cpp
+         unicode.cpp
+         Account.cpp
+         Channel.cpp
+     1>c:\users\figamin\mikumikuonline_wss-mod\common\network\Utils.hpp(33): warning C4800: 'char' : forcing value to bool 'true' or 'false' (performance warning)
+     1>c:\users\figamin\mikumikuonline_wss-mod\common\network\Utils.hpp(33): warning C4800: 'char' : forcing value to bool 'true' or 'false' (performance warning)
+     1>c:\users\figamin\mikumikuonline_wss-mod\common\network\Utils.hpp(33): warning C4800: 'char' : forcing value to bool 'true' or 'false' (performance warning)
+     1>c:\users\figamin\mikumikuonline_wss-mod\common\network\Utils.hpp(33): warning C4800: 'char' : forcing value to bool 'true' or 'false' (performance warning)
+     1>..\common\network\Utils.cpp(31): warning C4244: 'argument' : conversion from 'double' to 'unsigned int', possible loss of data
+     1>c:\users\figamin\mikumikuonline_wss-mod\common\network\Utils.hpp(33): warning C4800: 'char' : forcing value to bool 'true' or 'false' (performance warning)
+     1>c:\users\figamin\mikumikuonline_wss-mod\server\../common/network/Utils.hpp(33): warning C4800: 'char' : forcing value to bool 'true' or 'false' (performance warning)
+     1>..\common\network\Utils.cpp(220): warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
+         Config.cpp
+         main.cpp
+     1>c:\users\figamin\mikumikuonline_wss-mod\common\network\Utils.hpp(33): warning C4800: 'char' : forcing value to bool 'true' or 'false' (performance warning)
+         Server.cpp
+     1>c:\users\figamin\mikumikuonline_wss-mod\common\network\Utils.hpp(33): warning C4800: 'char' : forcing value to bool 'true' or 'false' (performance warning)
+     1>Config.cpp(55): warning C4566: character represented by universal-character-name '\u30B1' cannot be represented in the current code page (1252)
+     1>Config.cpp(55): warning C4566: character represented by universal-character-name '\u30ED' cannot be represented in the current code page (1252)
+     1>Config.cpp(55): warning C4566: character represented by universal-character-name '\u30EA' cannot be represented in the current code page (1252)
+     1>Config.cpp(55): warning C4566: character represented by universal-character-name '\u30F3' cannot be represented in the current code page (1252)
+     1>Config.cpp(55): warning C4566: character represented by universal-character-name '\u753A' cannot be represented in the current code page (1252)
+     1>main.cpp(422): warning C4101: 'e' : unreferenced local variable
+     1>main.cpp(436): warning C4101: 'e' : unreferenced local variable
+     1>C:\Users\figamin\MikuMikuOnline_wss-mod\src\boost_1_58_0\boost/mpl/print.hpp(52): warning C4308: negative integral constant converted to unsigned type
+                 C:\Users\figamin\MikuMikuOnline_wss-mod\src\boost_1_58_0\boost/serialization/static_warning.hpp(93) : see reference to class template instantiation 'boost::mpl::print<T>' being compiled
+                 with
+                 [
+                     T=boost::serialization::BOOST_SERIALIZATION_STATIC_WARNING_LINE<98>
+                 ]
+                 C:\Users\figamin\MikuMikuOnline_wss-mod\src\boost_1_58_0\boost/archive/detail/check.hpp(98) : see reference to class template instantiation 'boost::serialization::static_warning_test<B,L>' being compiled
+                 with
+                 [
+                     B=false,
+                     L=98
+                 ]
+                 C:\Users\figamin\MikuMikuOnline_wss-mod\src\boost_1_58_0\boost/archive/detail/oserializer.hpp(313) : see reference to function template instantiation 'void boost::archive::detail::check_object_tracking<T>(void)' being compiled
+                 with
+                 [
+                     T=boost::property_tree::ptree
+                 ]
+                 C:\Users\figamin\MikuMikuOnline_wss-mod\src\boost_1_58_0\boost/archive/detail/oserializer.hpp(525) : see reference to function template instantiation 'void boost::archive::detail::save_non_pointer_type<Archive>::invoke<T>(Archive &,T &)' being compiled
+                 with
+                 [
+                     Archive=boost::archive::text_oarchive,
+                     T=boost::property_tree::ptree
+                 ]
+                 C:\Users\figamin\MikuMikuOnline_wss-mod\src\boost_1_58_0\boost/archive/detail/common_oarchive.hpp(69) : see reference to function template instantiation 'void boost::archive::save<Archive,T>(Archive &,T &)' being compiled
+                 with
+                 [
+                     Archive=boost::archive::text_oarchive,
+                     T=boost::property_tree::ptree
+                 ]
+                 C:\Users\figamin\MikuMikuOnline_wss-mod\src\boost_1_58_0\boost/archive/basic_text_oarchive.hpp(84) : see reference to function template instantiation 'void boost::archive::detail::common_oarchive<Archive>::save_override<T>(T &,int)' being compiled
+                 with
+                 [
+                     Archive=boost::archive::text_oarchive,
+                     T=boost::property_tree::ptree
+                 ]
+                 C:\Users\figamin\MikuMikuOnline_wss-mod\src\boost_1_58_0\boost/archive/detail/interface_oarchive.hpp(63) : see reference to function template instantiation 'void boost::archive::basic_text_oarchive<Archive>::save_override<T>(T &,int)' being compiled
+                 with
+                 [
+                     Archive=boost::archive::text_oarchive,
+                     T=boost::property_tree::ptree
+                 ]
+                 Server.cpp(155) : see reference to function template instantiation 'Archive &boost::archive::detail::interface_oarchive<Archive>::operator <<<boost::property_tree::ptree>(T &)' being compiled
+                 with
+                 [
+                     Archive=boost::archive::text_oarchive,
+                     T=boost::property_tree::ptree
+                 ]
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Users\figamin\MikuMikuOnline_wss-mod\src\cryptopp562" /I"C:\Users\figamin\MikuMikuOnline_wss-mod\src\boost_1_58_0" /Zi /nologo /W3 /WX- /MP /Ox /Ob2 /Oi /Ot /Oy /GT /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _MBCS /GF /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"C:\Users\figamin\MikuMikuOnline_wss-mod\server\Win32\Release\\" /Fd"C:\Users\figamin\MikuMikuOnline_wss-mod\server\Win32\Release\vc100.pdb" /Gd /TC /analyze- /errorReport:prompt ..\common\network\lz4\lz4.c -D_WIN32_WINNT=0x0501 -Zm200 
+         lz4.c
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\figamin\MikuMikuOnline_wss-mod\server.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:"C:\Users\figamin\MikuMikuOnline_wss-mod\src\cryptopp562\Win32\Output\Release" /LIBPATH:"C:\Users\figamin\MikuMikuOnline_wss-mod\src\boost_1_58_0\Win32\stage\lib" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"C:\Users\figamin\MikuMikuOnline_wss-mod\server\Win32\Release\server.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /PDB:"C:\Users\figamin\MikuMikuOnline_wss-mod\server.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\figamin\MikuMikuOnline_wss-mod\server.lib" /MACHINE:X86 "C:\Users\figamin\MikuMikuOnline_wss-mod\server\Win32\Release\Command.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\server\Win32\Release\Encrypter.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\server\Win32\Release\lz4.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\server\Win32\Release\Session.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\server\Win32\Release\Signature.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\server\Win32\Release\Utils.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\server\Win32\Release\unicode.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\server\Win32\Release\Account.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\server\Win32\Release\Channel.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\server\Win32\Release\Config.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\server\Win32\Release\main.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\server\Win32\Release\Server.obj"
+         "C:\Users\figamin\MikuMikuOnline_wss-mod\server\Win32\Release\stdafx.obj"
+     1>LINK : fatal error LNK1104: cannot open file 'libboost_system-vc100-mt-s-1_58.lib'
+     1>Done Building Project "C:\Users\figamin\MikuMikuOnline_wss-mod\server\server.vcxproj" (build target(s)) -- FAILED.
 
-Build succeeded.
+Build FAILED.
 
-Time Elapsed 00:00:00.00
+Time Elapsed 00:00:14.75

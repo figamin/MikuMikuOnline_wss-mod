@@ -1,5 +1,5 @@
 ﻿Build started 03-Sep-23 01:45:01.
-     1>Project "F:\mikumikuonline_src\src\cryptopp562\cryptlib.vcxproj" on node 2 (build target(s)).
+     1>Project "C:\Users\figamin\MikuMikuOnline_wss-mod\src\cryptopp562\cryptlib.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Win32\cryptlib\Debug\cryptlib.unsuccessfulbuild" because "AlwaysCreate" was specified.
        CustomBuild:
@@ -76,7 +76,7 @@
          Generating Code...
          Compiling...
          mqueue.cpp
-     1>Done Building Project "F:\mikumikuonline_src\src\cryptopp562\cryptlib.vcxproj" (build target(s)) -- FAILED.
+     1>Done Building Project "C:\Users\figamin\MikuMikuOnline_wss-mod\src\cryptopp562\cryptlib.vcxproj" (build target(s)) -- FAILED.
 
 Build FAILED.
 

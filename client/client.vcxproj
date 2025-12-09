@@ -1,4 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Note that the directories are absolutely stated instead of relative for now. -->
+<!-- This will be fixed soon. -->
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -88,7 +90,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>F:\mikumikuonline_src\src\boost_1_58_0;F:\mikumikuonline_src\src\cryptopp562;F:\mikumikuonline_src\src\DxLibMake3_22e;F:\mikumikuonline_src\src\v8_3_18_$(Platform)\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\figamin\MikuMikuOnline_wss-mod\src\boost_1_58_0;C:\Users\figamin\MikuMikuOnline_wss-mod\src\cryptopp562;C:\Users\figamin\MikuMikuOnline_wss-mod\src\DxLibMake3_22e;C:\Users\figamin\MikuMikuOnline_wss-mod\src\v8_3_18_$(Platform)\include</AdditionalIncludeDirectories>
       <AdditionalUsingDirectories>
       </AdditionalUsingDirectories>
       <ForcedUsingFiles>
@@ -105,7 +107,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>F:\mikumikuonline_src\src\cryptopp562\$(Platform)\Output\$(Configuration);F:\mikumikuonline_src\src\boost_1_58_0\$(Platform)\stage\lib;F:\mikumikuonline_src\src\DxLibMake3_22e\$(Platform)\$(Configuration);F:\mikumikuonline_src\src\DxLibNoneSoftDrawCode_VC_3_22e;F:\mikumikuonline_src\src\v8_3_18_$(Platform)\build\$(Configuration)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\figamin\MikuMikuOnline_wss-mod\src\cryptopp562\$(Platform)\Output\$(Configuration);C:\Users\figamin\MikuMikuOnline_wss-mod\src\boost_1_58_0\$(Platform)\stage\lib;C:\Users\figamin\MikuMikuOnline_wss-mod\src\DxLibMake3_22e\$(Platform)\$(Configuration);C:\Users\figamin\MikuMikuOnline_wss-mod\src\DxLibNoneSoftDrawCode_VC_3_22e;C:\Users\figamin\MikuMikuOnline_wss-mod\src\v8_3_18_$(Platform)\build\$(Configuration)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ShowProgress>
       </ShowProgress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -116,7 +118,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>\src\boost_1_58_0;\src\cryptopp562;\src\DxLibMake3_22e;\src\v8_3_18_$(Platform)\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\figamin\MikuMikuOnline_wss-mod\src\boost_1_58_0;C:\Users\figamin\MikuMikuOnline_wss-mod\src\cryptopp562;C:\Users\figamin\MikuMikuOnline_wss-mod\src\DxLibMake3_22e;C:\Users\figamin\MikuMikuOnline_wss-mod\src\v8_3_18_$(Platform)\include</AdditionalIncludeDirectories>
       <AdditionalUsingDirectories>
       </AdditionalUsingDirectories>
       <ForcedUsingFiles>
@@ -133,7 +135,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>\src\cryptopp562\$(Platform)\Output\$(Configuration);\src\boost_1_58_0\$(Platform)\stage\lib;\src\DxLibMake3_22e\$(Platform)\$(Configuration);\src\DxLibNoneSoftDrawCode_VC_3_22e;\src\v8_3_18_$(Platform)\build\$(Configuration)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\figamin\MikuMikuOnline_wss-mod\src\cryptopp562\$(Platform)\Output\$(Configuration);C:\Users\figamin\MikuMikuOnline_wss-mod\src\boost_1_58_0\$(Platform)\stage\lib;C:\Users\figamin\MikuMikuOnline_wss-mod\src\DxLibMake3_22e\$(Platform)\$(Configuration);C:\Users\figamin\MikuMikuOnline_wss-mod\src\DxLibNoneSoftDrawCode_VC_3_22e;C:\Users\figamin\MikuMikuOnline_wss-mod\src\v8_3_18_$(Platform)\build\$(Configuration)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ShowProgress>
       </ShowProgress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -145,7 +147,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <AdditionalIncludeDirectories>R:\DXSDKDEC06\lib\x86;F:\mikumikuonline_src\src\boost_1_58_0;F:\mikumikuonline_src\src\cryptopp562;F:\mikumikuonline_src\src\DxLibMake3_22e;F:\mikumikuonline_src\src\v8_3_18_$(Platform)\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\figamin\MikuMikuOnline_wss-mod\src\DX06\Lib\x86;C:\Users\figamin\MikuMikuOnline_wss-mod\src\boost_1_58_0;C:\Users\figamin\MikuMikuOnline_wss-mod\src\cryptopp562;C:\Users\figamin\MikuMikuOnline_wss-mod\src\DxLibMake3_22e;C:\Users\figamin\MikuMikuOnline_wss-mod\src\v8_3_18_$(Platform)\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <Optimization>MaxSpeed</Optimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -164,14 +166,14 @@
     </ClCompile>
     <Link>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>F:\mikumikuonline_src\src\cryptopp562\$(Platform)\Output\$(Configuration);F:\mikumikuonline_src\src\boost_1_58_0\stage\lib;F:\mikumikuonline_src\src\DxLibMake3_22e\$(Platform)\$(Configuration);F:\mikumikuonline_src\src\DxLibNoneSoftDrawCode_VC_3_22e;F:\mikumikuonline_src\src\build;F:\mikumikuonline_src\src\v8_3_18_$(Platform)\build\$(Configuration)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\figamin\MikuMikuOnline_wss-mod\src\cryptopp562\$(Platform)\Output\$(Configuration);C:\Users\figamin\MikuMikuOnline_wss-mod\src\boost_1_58_0\stage\lib;C:\Users\figamin\MikuMikuOnline_wss-mod\src\DxLibMake3_22e\$(Platform)\$(Configuration);C:\Users\figamin\MikuMikuOnline_wss-mod\src\DxLibNoneSoftDrawCode_VC_3_22e;C:\Users\figamin\MikuMikuOnline_wss-mod\src\build;C:\Users\figamin\MikuMikuOnline_wss-mod\src\v8_3_18_$(Platform)\build\$(Configuration)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <ShowProgress>
       </ShowProgress>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <AdditionalDependencies>R:\DXSDKDEC06\Lib\x86\d3dx.lib;R:\DXSDKDEC06\Lib\x86\ddraw.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib</AdditionalDependencies>
+      <AdditionalDependencies>C:\Users\figamin\MikuMikuOnline_wss-mod\src\DX06\Lib\x86\d3dx.lib;C:\Users\figamin\MikuMikuOnline_wss-mod\src\DX06\Lib\x86\ddraw.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib</AdditionalDependencies>
     </Link>
     <ResourceCompile>
       <Culture>0x0411</Culture>
@@ -180,7 +182,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <AdditionalIncludeDirectories>\src\boost_1_58_0;\src\cryptopp562;\src\DxLibMake3_22e;\src\v8_3_18_$(Platform)\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\figamin\MikuMikuOnline_wss-mod\src\boost_1_58_0;C:\Users\figamin\MikuMikuOnline_wss-mod\src\cryptopp562;C:\Users\figamin\MikuMikuOnline_wss-mod\src\DxLibMake3_22e;C:\Users\figamin\MikuMikuOnline_wss-mod\src\v8_3_18_$(Platform)\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <Optimization>Full</Optimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -198,7 +200,7 @@
       <StringPooling>true</StringPooling>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>\src\cryptopp562\$(Platform)\Output\$(Configuration);\src\boost_1_58_0\$(Platform)\stage\lib;\src\DxLibMake3_22e\$(Platform)\$(Configuration);\src\DxLibNoneSoftDrawCode_VC_3_22e;\src\v8_3_18_$(Platform)\build\$(Configuration)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>\src\cryptopp562\$(Platform)\Output\$(Configuration);C:\Users\figamin\MikuMikuOnline_wss-mod\src\boost_1_58_0\$(Platform)\stage\lib;C:\Users\figamin\MikuMikuOnline_wss-mod\src\DxLibMake3_22e\$(Platform)\$(Configuration);C:\Users\figamin\MikuMikuOnline_wss-mod\src\DxLibNoneSoftDrawCode_VC_3_22e;C:\Users\figamin\MikuMikuOnline_wss-mod\src\v8_3_18_$(Platform)\build\$(Configuration)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <ShowProgress>
