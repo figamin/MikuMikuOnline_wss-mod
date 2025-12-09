@@ -16,7 +16,7 @@ Note that the v8_base.x64 library was too big to upload as is so it is compresse
 
 ## How to run the client:
 
-You will need the rest of the MMO models and maps from MikuMikuTogether[https://mikumikutogether.neocities.org/pages/dl]. Just swap out **client_wss-mod_beta21_64.exe**.
+You will need the rest of the MMO models and maps from [MikuMikuTogether](https://mikumikutogether.neocities.org/pages/dl). Just swap out **client_wss-mod_beta21_64.exe**.
 
 ## How to run the server
 The server requires separate files which will be uploaded soon.
