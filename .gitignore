@@ -10,7 +10,6 @@
 *.log
 *.tlog
 *.exp
-*.lib
 *.dll
 *.exe
 *.manifest
@@ -22,8 +21,6 @@
 # Build directories
 Debug/
 Release/
-x64/
-Win32/
 
 # User-specific settings and cache
 .vs/
@@ -57,8 +54,7 @@ client/Win32/
 client/x64/
 server/Win32/
 server/x64/
-client_wss-mod_beta21_64.exe
-client_wss-mod_beta21_64.exp
 client_wss-mod_beta21_64.lib
+server_64.lib
 MikuMikuOnline.opensdf
 MikuMikuOnline.sdf
