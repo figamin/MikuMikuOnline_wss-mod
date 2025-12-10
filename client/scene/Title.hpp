@@ -43,6 +43,15 @@ class Title : public Base {
         bool connect_flag_;
         int screen_count_;
 
+        int title_image_handle_;
+        bool about_open_;
+        UILabel about_open_label_;
+        UIButton about_open_button_;
+        UILabel about_close_label_;
+        UIButton about_close_button_;
+        tstring about_message_;
+
+        
 	private:
         std::array<ImageHandlePtr,4> base_image_handle_;
         const static int BASE_BLOCK_SIZE;
