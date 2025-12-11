@@ -23,8 +23,8 @@
 #include "Profiler.hpp"
 #include "GenerateJSON.hpp"
 #include "Music.hpp"
-#include "3d/PlayerCharacter.hpp"  // ※ 他プレイヤーのモーションを変更できるようにするために追加(MODクライアント互換)
-#include "ConfigManager.hpp"       // ※ キャラクタ読み込み方法の設定を参照するために追加
+#include "3d/PlayerCharacter.hpp"  // Allows other players to change their animations
+#include "ConfigManager.hpp"       
 
 //#pragma comment(lib,"libctemplate.lib")
 
@@ -64,21 +64,22 @@ Card::Card(
     using namespace v8;
 
 	icon_base_handle_  = ResourceManager::LoadCachedGraph(_T("system/images/gui/gui_icon_base.png"));
-//	icon_base_close_handle_  = ResourceManager::LoadCachedGraph(_T("system/images/gui/gui_icon_base_close.png")); // 使われておらずファイルも存在しないのでコメント
+    // icon_base_close_handle_  = ResourceManager::LoadCachedGraph(_T("system/images/gui/gui_icon_base_close.png"));
+    // This is unused and the file does not exist
 
-    // 入力ウィンドウのセットアップ
+    // Input setup
     inputbox.enable_ = true;
     inputbox.tabname_ = name_;
 
-    // Cardへのポインタをコンテキストに保持
+    // Store card pointer in the context
     script_.With([&](const Handle<Context>& context){
         Handle<ObjectTemplate> script_template = ObjectTemplate::New();
         script_template->SetInternalFieldCount(1);
         auto script_object = script_template->NewInstance();
-//      script_object->SetPointerInInternalField(0, this);
+        // script_object->SetPointerInInternalField(0, this);
 		script_object->SetInternalField(0, External::New(this));
 
-        // デバッグ用にコンテキストに登録したポインタを記録
+        // Pointers recorded in the context for debugging
         ptr_set.insert(this);
 
         context->Global()->Set(String::New("Network"),  script_object->Clone());
@@ -94,26 +95,26 @@ Card::Card(
         context->Global()->Set(String::New("UI"),      script_object->Clone());
     });
 
-    // 関数を登録
+    // Set functions
 	script_.With([&](const Handle<Context>& context){
 		HandleScope scope;
 		SetFunctions();
 	});
 
-    // 補助スクリプトをロード
+    // Load javascript (v8))
     script_.Load("mmo.js");
 
-    // ストレージを読み込み
+    // Load Storage
     LoadStorage();
 
-    // UIBoardをセット
+    // Setup UI Board
 	if (!ui_board_) {
 		script_.Execute("(new UI.Board)", "",
 				[&](const Handle<Value>& value, const std::string error) {
 					ui_board_obj_ = Persistent<Object>::New(value->ToObject());
 					assert(!ui_board_obj_.IsEmpty() && ui_board_obj_->IsObject());
 				});
-//		ui_board_ = *static_cast<UISuperPtr*>(ui_board_obj_->GetPointerFromInternalField(0));
+        // ui_board_ = *static_cast<UISuperPtr*>(ui_board_obj_->GetPointerFromInternalField(0));
 		script_.With([&](const Handle<Context>& context){
 			ui_board_ = *static_cast<UISuperPtr*>(Local<External>::Cast(ui_board_obj_->GetInternalField(0))->Value());
 		});
@@ -136,13 +137,13 @@ Card::Card(
 	};
 
 
-//	auto ui_board_tmp = *static_cast<UIBoardPtr*>(ui_board_obj_->GetPointerFromInternalField(0));
-//	auto str_array = sprit(type,",");
-//	BOOST_FOREACH(auto str,str_array)
-//	{
-//		if(str == "plugin")ui_board_tmp->set_boardvisible(false);
-//		if(str == "uiplugin")ui_board_tmp->set_boardvisible(true);
-//	}
+    // auto ui_board_tmp = *static_cast<UIBoardPtr*>(ui_board_obj_->GetPointerFromInternalField(0));
+    // auto str_array = sprit(type,",");
+    // BOOST_FOREACH(auto str,str_array)
+    // {
+    //  if(str == "plugin")ui_board_tmp->set_boardvisible(false);
+    //	if(str == "uiplugin")ui_board_tmp->set_boardvisible(true);
+    // }
 	script_.With([&](const Handle<Context>& context){
 			auto ui_board_tmp = *static_cast<UIBoardPtr*>(Local<External>::Cast(ui_board_obj_->GetInternalField(0))->Value());
 			auto str_array = sprit(type,",");
@@ -178,12 +179,12 @@ Handle<Value> Card::Function_Network_online(const Arguments& args)
 
 Handle<Value> Card::Function_Network_sendJSONAll(const Arguments& args)
 {
-//  auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
 	HandleScope handle;
     auto self = static_cast<Card*>(Local<External>::Cast(args.Holder()->GetInternalField(0))->Value());
 
 	if (args.Length() > 0) {
-//      HandleScope handle;
+    // HandleScope handle;
         v8::String::Utf8Value utf8(args[0]);
 
         if (auto command_manager = self->manager_accessor_->command_manager().lock()) {
@@ -209,7 +210,7 @@ Handle<Value> Card::Function_Model_all(const Arguments& args)
 
 Handle<Value> Card::Function_Player_all(const Arguments& args)
 {
-//  auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
 
     HandleScope handle;
 	auto self = static_cast<Card*>(Local<External>::Cast(args.Holder()->GetInternalField(0))->Value());
@@ -229,7 +230,7 @@ Handle<Value> Card::Function_Player_all(const Arguments& args)
 
 Handle<Value> Card::Function_Player_getFromId(const Arguments& args)
 {
-//  auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
     HandleScope handle;
 	auto self = static_cast<Card*>(Local<External>::Cast(args.Holder()->GetInternalField(0))->Value());
 
@@ -245,7 +246,7 @@ Handle<Value> Card::Function_Player_getFromId(const Arguments& args)
 
 Handle<Value> Card::Function_Player_escape(const Arguments& args)
 {
-//  auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
     HandleScope handle;
 	auto self = static_cast<Card*>(Local<External>::Cast(args.Holder()->GetInternalField(0))->Value());
     auto world_manager = self->manager_accessor_->world_manager().lock();
@@ -256,7 +257,7 @@ Handle<Value> Card::Function_Player_escape(const Arguments& args)
 
 Handle<Value> Card::Function_Player_playMotion(const Arguments& args)
 {
-//  auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
     HandleScope handle;
 	auto self = static_cast<Card*>(Local<External>::Cast(args.Holder()->GetInternalField(0))->Value());
 
@@ -273,7 +274,7 @@ Handle<Value> Card::Function_Player_playMotion(const Arguments& args)
 Handle<Value> Card::Function_Player_stopMotion(const Arguments& args)
 {
 
-//  auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
     HandleScope handle;
 	auto self = static_cast<Card*>(Local<External>::Cast(args.Holder()->GetInternalField(0))->Value());
     auto world_manager = self->manager_accessor_->world_manager().lock();
@@ -282,10 +283,10 @@ Handle<Value> Card::Function_Player_stopMotion(const Arguments& args)
     return Undefined();
 }
 
-// ※ 他プレイヤーのモーションを変更できるように追加(MODクライアント互換)
+// Allows players to change their animations
 Handle<Value> Card::Function_Player_playMotionId(const Arguments& args)
 {
-//  auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
+// auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
     HandleScope handle;
 	auto self = static_cast<Card*>(Local<External>::Cast(args.Holder()->GetInternalField(0))->Value());
 
@@ -297,7 +298,7 @@ Handle<Value> Card::Function_Player_playMotionId(const Arguments& args)
 		auto charmgr = player_manager->charmgr();
 		auto selectedid = args[0]->Uint32Value();
 		if (selectedid==0 || selectedid==myid) {
-			// 自分のキャラ
+			// The player
 			auto myself = std::dynamic_pointer_cast<FieldPlayer>(charmgr->Get(charmgr->my_character_id()));
 			if (std::string(*String::Utf8Value(args[2]->ToString()))=="false") {
 				myself->PlayMotion(unicode::ToTString(name),false);
@@ -305,7 +306,7 @@ Handle<Value> Card::Function_Player_playMotionId(const Arguments& args)
 				myself->PlayMotion(unicode::ToTString(name),true);
 			}
 		} else {
-			// 他のキャラ
+			// Other players
 			auto selectedplayer = std::dynamic_pointer_cast<PlayerCharacter>(charmgr->Get(selectedid));
 			selectedplayer->PlayMotion(unicode::ToTString(name));
 		}
@@ -313,7 +314,7 @@ Handle<Value> Card::Function_Player_playMotionId(const Arguments& args)
 
 	return Undefined();
 }
-// ここまで
+// Undefined behavior if the previous if statement is not met
 
 Handle<Value> Card::Function_Music_playBGM(const Arguments& args)
 {
@@ -389,7 +390,7 @@ Handle<Value> Card::Function_Music_IsLoadingDone(const Arguments& args)
 
 Handle<Value> Card::Function_Plugin_Run(const Arguments& args)
 {
-//  auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
     HandleScope handle;
 	auto self = static_cast<Card*>(Local<External>::Cast(args.Holder()->GetInternalField(0))->Value());
     if (auto card_manager = self->manager_accessor_->card_manager().lock()) {
@@ -411,7 +412,7 @@ Handle<Value> Card::Function_Plugin_Run(const Arguments& args)
 
 Handle<Value> Card::Function_Account_id(const Arguments& args)
 {
-//  auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
     HandleScope handle;
 	auto self = static_cast<Card*>(Local<External>::Cast(args.Holder()->GetInternalField(0))->Value());
 
@@ -424,7 +425,7 @@ Handle<Value> Card::Function_Account_id(const Arguments& args)
 
 Handle<Value> Card::Function_Account_name(const Arguments& args)
 {
-//  auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
     HandleScope handle;
 	auto self = static_cast<Card*>(Local<External>::Cast(args.Holder()->GetInternalField(0))->Value());
 
@@ -443,7 +444,7 @@ Handle<Value> Card::Function_Account_name(const Arguments& args)
 
 Handle<Value> Card::Function_Account_updateName(const Arguments& args)
 {
-//  auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
     HandleScope handle;
 	auto self = static_cast<Card*>(Local<External>::Cast(args.Holder()->GetInternalField(0))->Value());
 
@@ -460,7 +461,7 @@ Handle<Value> Card::Function_Account_updateName(const Arguments& args)
 
 Handle<Value> Card::Function_Account_modelName(const Arguments& args)
 {
-//  auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
     HandleScope handle;
 	auto self = static_cast<Card*>(Local<External>::Cast(args.Holder()->GetInternalField(0))->Value());
 
@@ -473,21 +474,23 @@ Handle<Value> Card::Function_Account_modelName(const Arguments& args)
 
 Handle<Value> Card::Function_Account_updateModelName(const Arguments& args)
 {
-//  auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
     HandleScope handle;
 	auto self = static_cast<Card*>(Local<External>::Cast(args.Holder()->GetInternalField(0))->Value());
 
     if (args.Length() >= 1 && args[0]->IsString()) {
         auto name = std::string(*String::Utf8Value(args[0]->ToString()));
-// ※ 非同期読み込みを可能するのと同じキャラへの変更を無効にするため修正
-//      if (auto world_manager = self->manager_accessor_->world_manager().lock()) {
-//          world_manager->myself()->LoadModel(unicode::ToTString(name));
-//			world_manager->myself()->ResetMotion();
-//      }
-//      auto account_manager = self->manager_accessor_->account_manager().lock();
-//      auto command_manager = self->manager_accessor_->command_manager().lock();
-//      account_manager->set_model_name(name);
-//      command_manager->Write(network::ServerUpdateAccountProperty(MODEL_NAME, name));
+// Disabling changes to the same character to allow async loading of models
+/*
+        if (auto world_manager = self->manager_accessor_->world_manager().lock()) {
+            world_manager->myself()->LoadModel(unicode::ToTString(name));
+  			world_manager->myself()->ResetMotion();
+        }
+        auto account_manager = self->manager_accessor_->account_manager().lock();
+        auto command_manager = self->manager_accessor_->command_manager().lock();
+        account_manager->set_model_name(name);
+        command_manager->Write(network::ServerUpdateAccountProperty(MODEL_NAME, name));
+*/
         auto account_manager = self->manager_accessor_->account_manager().lock();
         if (account_manager->model_name()!= name) {
             if (auto world_manager = self->manager_accessor_->world_manager().lock()) {
@@ -507,14 +510,14 @@ Handle<Value> Card::Function_Account_updateModelName(const Arguments& args)
 		        // world_manager->myself()->ResetMotion();
             }
         }
-// ※ ここまで
+    // Undefined behavior if the previous if statement is not met
     }
     return Undefined();
 }
 
 Handle<Value> Card::Function_Account_trip(const Arguments& args)
 {
-//  auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
     HandleScope handle;
 	auto self = static_cast<Card*>(Local<External>::Cast(args.Holder()->GetInternalField(0))->Value());
 
@@ -533,7 +536,7 @@ Handle<Value> Card::Function_Account_trip(const Arguments& args)
 
 Handle<Value> Card::Function_Account_updateTrip(const Arguments& args)
 {
-//  auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
     HandleScope handle;
 	auto self = static_cast<Card*>(Local<External>::Cast(args.Holder()->GetInternalField(0))->Value());
 
@@ -556,7 +559,7 @@ Handle<Value> Card::Function_Account_updateTrip(const Arguments& args)
 
 Handle<Value> Card::Function_Account_channel(const Arguments& args)
 {
-//  auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
     HandleScope handle;
 	auto self = static_cast<Card*>(Local<External>::Cast(args.Holder()->GetInternalField(0))->Value());
 
@@ -575,7 +578,7 @@ Handle<Value> Card::Function_Account_channel(const Arguments& args)
 
 Handle<Value> Card::Function_Account_updateChannel(const Arguments& args)
 {
-//  auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
     HandleScope handle;
 	auto self = static_cast<Card*>(Local<External>::Cast(args.Holder()->GetInternalField(0))->Value());
 
@@ -625,7 +628,7 @@ Handle<Value> Card::Function_Screen_mouse_y(const Arguments& args)
 
 Handle<Value> Card::Function_Screen_player_focus(const Arguments& args)
 {
-//  auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
     HandleScope handle;
 	auto self = static_cast<Card*>(Local<External>::Cast(args.Holder()->GetInternalField(0))->Value());
 
@@ -640,22 +643,22 @@ Handle<Value> Card::Function_Model_Rebuild(const Arguments& args)
     HandleScope handle;
 	JsonGen jsongen;
 	ResourceManager::BuildModelFileTree();
-//  auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
 	auto self = static_cast<Card*>(Local<External>::Cast(args.Holder()->GetInternalField(0))->Value());
-	// ※ 代替モデルを使っていた場合はモデルチェンジさせるためにカレントモデルを消す　ここから
+	// If using an alternative model, delete the current model so it can be changed
     if (auto player_manager = self->manager_accessor_->player_manager().lock()) {
 		auto players = player_manager->GetAll();
 		for (auto it = players.begin(); it != players.end(); ++it) {
 			auto player = *it;
 			auto current_model_name = player->current_model_name();
-			// 代替モデルはBuildModelFileTree()の際にキャッシュフラグ消去済みなのでそれで調べる
+            // The alternative model had its cache flag cleared in BuildModelFileTree(), so we check it using that
 			auto test = unicode::ToTString(current_model_name);
 			if (ResourceManager::IsCachedModelName(unicode::ToTString(current_model_name)) == false) {
 				player->set_current_model_name("");
 			}
 		}
 	}
-	// ※ ここまで
+	// Undefined behavior if the previous if statement is not met
     if (auto card_manager = self->manager_accessor_->card_manager().lock()) {
 		card_manager->OnModelReload();
     }
@@ -666,7 +669,7 @@ Handle<Value> Card::Function_Music_Rebuild(const Arguments& args)
 {
 	ResourceManager::music()->Init();
 
-//  auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
     HandleScope handle;
 	auto self = static_cast<Card*>(Local<External>::Cast(args.Holder()->GetInternalField(0))->Value());
     if (auto card_manager = self->manager_accessor_->card_manager().lock()) {
@@ -681,16 +684,16 @@ Handle<Value> Card::Function_Socket_reply(const Arguments& args)
 	if (args.Length() > 0 && args[0]->IsString()) {
 	    HandleScope handle;
 		std::string str = *String::Utf8Value(args[0]->ToString());
-//		auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
+        // auto self = static_cast<Card*>(args.Holder()->GetPointerFromInternalField(0));
 		auto self = static_cast<Card*>(Local<External>::Cast(args.Holder()->GetInternalField(0))->Value());
 		if (self && self->on_socket_reply_) {
-// ※ ソケットへの書き込みが失敗した場合は以降処理しないように修正 ここから
-//			(*self->on_socket_reply_)(str);
+            // If the socket write failed, set a null pointer
+            // (*self->on_socket_reply_)(str);
 			if((*self->on_socket_reply_)(str) == false) {
-				// ソケットの書き込みに失敗した場合は以降コールバックさせない
+				// This prevents future callbacks
 				self->set_on_socket_reply(nullptr);
 			}
-// ※ ここまで
+	    // Undefined behavior if the previous if statement is not met
 		}
 	}
 
@@ -705,7 +708,7 @@ Handle<Value> Card::Property_global(Local<String> property, const AccessorInfo &
 Handle<Value> Card::Property_onReceiveJSON(Local<String> property, const AccessorInfo &info)
 {
     assert(info.Holder()->InternalFieldCount() > 0);
-//  auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
     HandleScope handle;
 	auto self = static_cast<Card*>(Local<External>::Cast(info.Holder()->GetInternalField(0))->Value());
     assert(ptr_set.find(self) != ptr_set.end());
@@ -718,7 +721,7 @@ void Card::Property_set_onReceiveJSON(Local<String> property, Local<Value> value
     if (value->IsFunction()) {
 	    HandleScope handle;
 		assert(info.Holder()->InternalFieldCount() > 0);
-//      auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
+        // auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
 		auto self = static_cast<Card*>(Local<External>::Cast(info.Holder()->GetInternalField(0))->Value());
         assert(ptr_set.find(self) != ptr_set.end());
 
@@ -729,7 +732,7 @@ void Card::Property_set_onReceiveJSON(Local<String> property, Local<Value> value
 Handle<Value> Card::Property_onLogin(Local<String> property, const AccessorInfo &info)
 {
     assert(info.Holder()->InternalFieldCount() > 0);
-//  auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
     HandleScope handle;
 	auto self = static_cast<Card*>(Local<External>::Cast(info.Holder()->GetInternalField(0))->Value());
     return self->player.on_login_;
@@ -739,7 +742,7 @@ void Card::Property_set_onLogin(Local<String> property, Local<Value> value, cons
 {
     if (value->IsFunction()) {
         assert(info.Holder()->InternalFieldCount() > 0);
-//      auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
+        // auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
 	    HandleScope handle;
 		auto self = static_cast<Card*>(Local<External>::Cast(info.Holder()->GetInternalField(0))->Value());
         self->player.on_login_ = Persistent<Function>::New(value.As<Function>());
@@ -749,7 +752,7 @@ void Card::Property_set_onLogin(Local<String> property, Local<Value> value, cons
 Handle<Value> Card::Property_onLogout(Local<String> property, const AccessorInfo &info)
 {
     assert(info.Holder()->InternalFieldCount() > 0);
-//  auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
     HandleScope handle;
 	auto self = static_cast<Card*>(Local<External>::Cast(info.Holder()->GetInternalField(0))->Value());
     return self->player.on_logout_;
@@ -759,7 +762,7 @@ void Card::Property_set_onLogout(Local<String> property, Local<Value> value, con
 {
     if (value->IsFunction()) {
         assert(info.Holder()->InternalFieldCount() > 0);
-//      auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
+        // auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
 	    HandleScope handle;
 		auto self = static_cast<Card*>(Local<External>::Cast(info.Holder()->GetInternalField(0))->Value());
         self->player.on_logout_ = Persistent<Function>::New(value.As<Function>());
@@ -769,7 +772,7 @@ void Card::Property_set_onLogout(Local<String> property, Local<Value> value, con
 Handle<Value> Card::Property_Card_board(Local<String> property, const AccessorInfo &info)
 {
     assert(info.Holder()->InternalFieldCount() > 0);
-//  auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
     HandleScope handle;
 	auto self = static_cast<Card*>(Local<External>::Cast(info.Holder()->GetInternalField(0))->Value());
     assert(ptr_set.find(self) != ptr_set.end());
@@ -780,7 +783,7 @@ Handle<Value> Card::Property_Card_board(Local<String> property, const AccessorIn
 void Card::Property_set_Card_board(Local<String> property, Local<Value> value, const AccessorInfo& info)
 {
     assert(info.Holder()->InternalFieldCount() > 0);
-//  auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
     HandleScope handle;
 	auto self = static_cast<Card*>(Local<External>::Cast(info.Holder()->GetInternalField(0))->Value());
     assert(ptr_set.find(self) != ptr_set.end());
@@ -789,7 +792,7 @@ void Card::Property_set_Card_board(Local<String> property, Local<Value> value, c
 Handle<Value> Card::Property_InputBox_onEnter(Local<String> property, const AccessorInfo &info)
 {
     assert(info.Holder()->InternalFieldCount() > 0);
-//  auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
     HandleScope handle;
 	auto self = static_cast<Card*>(Local<External>::Cast(info.Holder()->GetInternalField(0))->Value());
     return self->inputbox.on_enter_;
@@ -799,7 +802,7 @@ void Card::Property_set_InputBox_onEnter(Local<String> property, Local<Value> va
 {
     if (value->IsFunction()) {
         assert(info.Holder()->InternalFieldCount() > 0);
-//      auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
+        // auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
 	    HandleScope handle;
 		auto self = static_cast<Card*>(Local<External>::Cast(info.Holder()->GetInternalField(0))->Value());
         self->inputbox.on_enter_ = Persistent<Function>::New(value.As<Function>());
@@ -809,7 +812,7 @@ void Card::Property_set_InputBox_onEnter(Local<String> property, Local<Value> va
 Handle<Value> Card::Property_InputBox_enable(Local<String> property, const AccessorInfo &info)
 {
     assert(info.Holder()->InternalFieldCount() > 0);
-//  auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
     HandleScope handle;
 	auto self = static_cast<Card*>(Local<External>::Cast(info.Holder()->GetInternalField(0))->Value());
     return Boolean::New(self->inputbox.enable_);
@@ -818,7 +821,7 @@ Handle<Value> Card::Property_InputBox_enable(Local<String> property, const Acces
 void Card::Property_set_InputBox_enable(Local<String> property, Local<Value> value, const AccessorInfo& info)
 {
     assert(info.Holder()->InternalFieldCount() > 0);
-//  auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
     HandleScope handle;
 	auto self = static_cast<Card*>(Local<External>::Cast(info.Holder()->GetInternalField(0))->Value());
     self->inputbox.enable_ = value->ToBoolean()->BooleanValue();
@@ -827,7 +830,7 @@ void Card::Property_set_InputBox_enable(Local<String> property, Local<Value> val
 Handle<Value> Card::Property_InputBox_message(Local<String> property, const AccessorInfo &info)
 {
     assert(info.Holder()->InternalFieldCount() > 0);
-//  auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
     HandleScope handle;
 	auto self = static_cast<Card*>(Local<External>::Cast(info.Holder()->GetInternalField(0))->Value());
     return String::New(self->inputbox.message_.c_str());
@@ -836,7 +839,7 @@ Handle<Value> Card::Property_InputBox_message(Local<String> property, const Acce
 void Card::Property_set_InputBox_message(Local<String> property, Local<Value> value, const AccessorInfo& info)
 {
     assert(info.Holder()->InternalFieldCount() > 0);
-//  auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
     HandleScope handle;
 	auto self = static_cast<Card*>(Local<External>::Cast(info.Holder()->GetInternalField(0))->Value());
     self->inputbox.message_ = *String::Utf8Value(value->ToString());
@@ -845,7 +848,7 @@ void Card::Property_set_InputBox_message(Local<String> property, Local<Value> va
 Handle<Value> Card::Property_Model_onReload(Local<String> property, const AccessorInfo &info)
 {
     assert(info.Holder()->InternalFieldCount() > 0);
-//  auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
     HandleScope handle;
 	auto self = static_cast<Card*>(Local<External>::Cast(info.Holder()->GetInternalField(0))->Value());
 	return self->model.on_reload_;
@@ -855,7 +858,7 @@ void Card::Property_set_Model_onReload(Local<String> property, Local<Value> valu
 {
     if (value->IsFunction()) {
         assert(info.Holder()->InternalFieldCount() > 0);
-//      auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
+        // auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
 	    HandleScope handle;
 		auto self = static_cast<Card*>(Local<External>::Cast(info.Holder()->GetInternalField(0))->Value());
         self->model.on_reload_ = Persistent<Function>::New(value.As<Function>());
@@ -865,7 +868,7 @@ void Card::Property_set_Model_onReload(Local<String> property, Local<Value> valu
 Handle<Value> Card::Property_Music_onReload(Local<String> property, const AccessorInfo &info)
 {
     assert(info.Holder()->InternalFieldCount() > 0);
-//  auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
     HandleScope handle;
 	auto self = static_cast<Card*>(Local<External>::Cast(info.Holder()->GetInternalField(0))->Value());
 	return self->music.on_reload_;
@@ -875,7 +878,7 @@ void Card::Property_set_Music_onReload(Local<String> property, Local<Value> valu
 {
     if (value->IsFunction()) {
         assert(info.Holder()->InternalFieldCount() > 0);
-//      auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
+        // auto self = static_cast<Card*>(info.Holder()->GetPointerFromInternalField(0));
 	    HandleScope handle;
 		auto self = static_cast<Card*>(Local<External>::Cast(info.Holder()->GetInternalField(0))->Value());
         self->music.on_reload_ = Persistent<Function>::New(value.As<Function>());
@@ -892,26 +895,26 @@ void Card::SetFunctions()
     script_.SetProperty("global", Property_global, (AccessorSetter)0);
 
     /**
-    * スクリプト
+    * Script
     *
     * @class Script
     * @static
     */
 
     ///**
-    // * ローカルデータへのアクセサ
+    // * Local Storage Access
     // *
-    // * このオブジェクトに設定された文字列、数値、ブール値はスクリプトやクライアントが終了してもローカルに保存され、次回実行時に復元されます。
-    // *
-    // * 配列やオブジェクトはそのまま保存できないため、JSON.stringifyなどを使う必要があります。
+    // * The strings, numbers and bools in this object are saved locally, and restored the next time the script is run.
+    // * 
+    // * Arrays and objects must be converted to JSON in order to be saved.
     // *
     // * @property localStorage
     // * @type Object
     // * @example
-    // *     // 保存
+    // *     // Save
     // *     localStorage['savedata'] = "でーた";
     // *
-    // *     // JSONで保存
+    // *     // Save as JSON
     // *     localStorage['json'] = JSON.stringify({"data": 1234});
     // *
     // * @static
@@ -938,17 +941,17 @@ void Card::SetFunctions()
     //        });
 
     /**
-    * ネットワーク
+    * Network
     *
     * @class Network
     * @static
     */
 
     /**
-     * サーバーへの接続状態を返します
+     * Returns the connection status
      *
      * @method status
-     * @return {String} 接続状態
+     * @return {String} Connection Status
      * @static
      */
     script_.SetFunction("Network.online", Function_Network_online);
@@ -958,14 +961,14 @@ void Card::SetFunctions()
     script_.SetProperty("Network._onReceiveJSON", Property_onReceiveJSON, Property_set_onReceiveJSON);
 
     /**
-     * モデル
+     * Model
      *
      * @class Model
      * @static
      */
 
     /**
-     * モデル名の一覧を返します
+     * Return all model names
      *
      * @method all
      * @return {Array} 
@@ -974,7 +977,7 @@ void Card::SetFunctions()
     script_.SetFunction("Model.all", Function_Model_all);
 
     /**
-     * モデルファイルの構造を再構築します
+     * Rebuild the model structure
      *
      * @method rebuild
      * @static
@@ -984,34 +987,34 @@ void Card::SetFunctions()
     script_.SetProperty("Model.onReload", Property_Model_onReload, Property_set_Model_onReload);
 
     /**
-     * プレイヤー
+     * Player
      *
      * @class Player
      * @static
      */
 
     /**
-     * ログインしているプレイヤーの一覧を返します
+     * Return list of all logged in players
      *
      * @method all
-     * @return {Array} Playerオブジェクトの配列
+     * @return {Array} An array of players
      * @static
      */
     script_.SetFunction("Player.all", Function_Player_all);
 
     /**
-    * プレイヤーのIDからプレイヤーオブジェクトを取得します
+    * Get the player object from their ID
     *
-    * 存在しないプレイヤーやログインしていないプレイヤーの場合は Undefined を返します
+    * Returns undefined for players not on the server
     *
     * @method getFromId
-    * @param {Integer} プレイヤーのID
-    * @return {Player} プレイヤーオブジェクト
+    * @param {Integer} Player ID
+    * @return {Player} Player Object
     */
     script_.SetFunction("Player.getFromId", Function_Player_getFromId);
 
     /**
-     * プレイヤーがログインした時に呼ばれます
+     * Called when player logs in
      *
      * @event onLogin
      * @static
@@ -1019,7 +1022,7 @@ void Card::SetFunctions()
     script_.SetProperty("Player.onLogin", Property_onLogin, Property_set_onLogin);
 
     /**
-     * プレイヤーがログアウトした時に呼ばれます
+     * Called when player logs out
      *
      * @event onLogout
      * @static
@@ -1027,7 +1030,7 @@ void Card::SetFunctions()
     script_.SetProperty("Player.onLogout", Property_onLogout, Property_set_onLogout);
 
     /**
-    * 自プレイヤーの座標を初期位置にリセットします
+    * Resets a player to their initial position
     *
     * @method escape
     * @static
@@ -1035,91 +1038,90 @@ void Card::SetFunctions()
     script_.SetFunction("Player.escape", Function_Player_escape);
 
     /**
-     * モーションを再生します
+     * Plays an MMD motion
      *
      * @method playMotion
-     * @param {String} name モーション名
+     * @param {String} Motion name
      * @static
      */
     script_.SetFunction("Player.playMotion", Function_Player_playMotion);
 
     /**
-     * モーションを停止します
+     * Stops the current MMD motion
      *
-     * @method playMotion
-     * @param {String} name モーション名
+     * @method stopMotion
+     * @param {String} Motion name
      * @static
      */
     script_.SetFunction("Player.stopMotion", Function_Player_stopMotion);
 
-	//  ※ 他プレイヤーのモーションを変更できるように追加(MODクライアント互換)
+	// Allows other players to change their animations
 	/**
-     * プレイヤーIDを指定してモーションを再生します
+     * Makes the given player play an MMD motion.
      *
-     * @method playMotion
-     * @param {String} name モーション名
-     * @param {Integer} プレイヤーのID
+     * @method playMotionId
+     * @param {String} Motion name
+     * @param {Integer} Player ID
      * @static
      */
     script_.SetFunction("Player.playMotionId", Function_Player_playMotionId);
-	// ここまで
 
     /**
-     * 音楽を再生します
+     * Plays a BGM track
      *
-     * @method playMotion
-     * @param {String} name BGM名
+     * @method play
+     * @param {String} BGM track
      * @static
      */
     script_.SetFunction("Music.play", Function_Music_playBGM);
 
     /**
-     * 音楽を停止します
+     * Stops the current BGM track
      *
-     * @method playMotion
+     * @method stop
      * @param
      * @static
      */
     script_.SetFunction("Music.stop", Function_Music_stopBGM);
 
     /**
-     * MEを再生します
+     * Plays a ME (music effect?)
      *
-     * @method playMotion
-     * @param {String} name ME名
+     * @method playME
+     * @param {String} Music effect name
      * @static
      */
     script_.SetFunction("Music.playME", Function_Music_playME);
 
 	/**
-     * SEを再生します
+     * Plays a SE (sound effect?)
      *
-     * @method playMotion
-     * @param {String} name SE名
+     * @method playSE
+     * @param {String} Sound effect name
      * @static
      */
     script_.SetFunction("Music.playSE", Function_Music_playSE);
 
     /**
-     * BGM,MEのロードが終了しているかチェックします
+     * Check if the BGM/ME is done loading
      *
-     * @method playMotion
-     * @param {String} name BGM、ME名
+     * @method loadCheck
+     * @param {String} BGM/ME name
      * @static
      */
     script_.SetFunction("Music.loadCheck", Function_Music_IsLoadingDone);
 
     /**
-     * BGMのリストを返します
+     * Return a list of all BGM tracks
      *
-     * @method playMotion
+     * @method all
      * @param
      * @static
      */
     script_.SetFunction("Music.all", Function_Music_all);
 
     /**
-     * 音楽の構造を再構築します
+     * Rebuild the music structure
      *
      * @method rebuild
      * @static
@@ -1129,7 +1131,7 @@ void Card::SetFunctions()
     script_.SetProperty("Music.onReload", Property_Music_onReload, Property_set_Music_onReload);
 
     /**
-     * 非自動実行プラグインを走らせます
+     * Manually runs a plugin
      *
      * @method run
      * @static
@@ -1137,108 +1139,108 @@ void Card::SetFunctions()
 	script_.SetFunction("Plugin.run", Function_Plugin_Run);
 
 	/**
-     * アカウント
+     * Account
      *
      * @class Account
      * @static
      */
 
     /**
-     * ユーザーIDを返します
+     * Returns the account ID
      *
      * @method id
-     * @return {Integer} ユーザーID
+     * @return {Integer} Account ID
      *
      * @static
      */
     script_.SetFunction("Account.id", Function_Account_id);
 
     /**
-     * 現在のニックネームを返します
+     * Returns the current account nickname
      *
      * @method name
-     * @return {String} ニックネーム
+     * @return {String} Nickname
      *
      * @static
      */
     script_.SetFunction("Account.name", Function_Account_name);
 
     /**
-     * ニックネームを新しく設定します
+     * Sets a new nickname
      *
      * @method updateName
-     * @param {String} name 名前
+     * @param {String} Nickname
      *
      * @static
      */
     script_.SetFunction("Account.updateName", Function_Account_updateName);
 
     /**
-     * 現在のモデル名を返します
+     * Returns the current model name
      *
      * @method modelName
-     * @return {String} モデル名
+     * @return {String} Model name
      *
      * @static
      */
     script_.SetFunction("Account.modelName", Function_Account_modelName);
 
     /**
-     * モデル名を新しく設定します
+     * Sets a new model name
      *
      * @method updateModelName
-     * @param {String} name モデル名
+     * @param {String} Model name
      *
      * @static
      */
     script_.SetFunction("Account.updateModelName", Function_Account_updateModelName);
 
     /**
-     * 現在設定されているトリップを返します
+     * Returns the current tripcode
      *
-     * トリップは20文字のASCII文字列です
+     * Tripcode format is 20 ASCII characters.
      *
      * @method trip
-     * @return {String} トリップ
+     * @return {String} Tripcode
      *
      * @static
      */
     script_.SetFunction("Account.trip", Function_Account_trip);
 
     /**
-     * トリップを新しく設定します
+     * Sets a new tripcode
      *
      * @method updateTrip
-     * @param {String} password トリップパスワード
+     * @param {String} Tripcode password
      * @example
-     *     Account.updateTrip('秘密の文字列');
+     *     Account.updateTrip('SecretString');
      *
      * @static
      */
     script_.SetFunction("Account.updateTrip", Function_Account_updateTrip);
 
     /**
-     * 現在のチャンネルを返します
+     * Returns the current channel
      *
      * @method channel
-     * @return {Integer} チャンネル
+     * @return {Integer} Channel number 
      *
      * @static
      */
     script_.SetFunction("Account.channel", Function_Account_channel);
 
     /**
-     * 現在のチャンネルを設定します
+     * Sets a new channel
      *
      * @method updateChannel
-     * @param {Integer} channel チャンネル
+     * @param {Integer} Channel number 
      *
      * @static
      */
     script_.SetFunction("Account.updateChannel", Function_Account_updateChannel);
 
     /**
-     * ソケット
+     * Socket
      *
      * @class Socket
      * @static
@@ -1246,7 +1248,7 @@ void Card::SetFunctions()
 	script_.SetFunction("Socket.reply", Function_Socket_reply);
 
     /**
-     * カード
+     * Card
      *
      * @class Card
      * @static
@@ -1255,50 +1257,50 @@ void Card::SetFunctions()
     script_.SetProperty("Card.board", Property_Card_board, Property_set_Card_board);
 
     /**
-     * スクリーン情報
+     * Screen
      *
      * @class Screen
      * @static
      */
 
     /**
-     * クライアントウィンドウの幅を返します
+     * Returns the client width
      *
      * @method width
-     * @return {Integer} クライアントウィンドウの幅(px)
+     * @return {Integer} Client width in pixels
      * @static
      */
     script_.SetFunction("Screen.width", Function_Screen_width);
 
     /**
-     * クライアントウィンドウの高さを返します
+     * Returns the client height
      *
      * @method height
-     * @return {Integer} クライアントウィンドウの高さ(px)
+     * @return {Integer} Client height in pixels
      * @static
      */
     script_.SetFunction("Screen.height", Function_Screen_height);
 
     /**
-     * マウスのクライアントX座標を返します
+     * Returns the X coordinate of the mouse
      *
      * @method mouse_x
-     * @return {Integer} マウスX座標(px)
+     * @return {Integer} Mouse X coordinate 
      * @static
      */
     script_.SetFunction("Screen.mouse_x", Function_Screen_mouse_x);
 
     /**
-     * マウスのクライアントY座標を返します
+     * Returns the Y coordinate of the mouse
      *
      * @method mouse_y
-     * @return {Integer} マウスY座標(px)
+     * @return {Integer} Mouse Y coordinate
      * @static
      */
     script_.SetFunction("Screen.mouse_y", Function_Screen_mouse_y);
 
     /**
-     * プレイヤーをアクティブにして、操作できるようにします
+     * Sets the camera to focus on the player
      *
      * @method player_focus
      * @static
@@ -1306,7 +1308,7 @@ void Card::SetFunctions()
     script_.SetFunction("Screen.player_focus", Function_Screen_player_focus);
 
 //    /**
-//     * ワールド座標をスクリーン座標に変換します
+//     * Converts world coordinates to screen coordinates
 //     *
 //     * @method worldToScreen
 //     * @param {Float} x
@@ -1324,27 +1326,27 @@ void Card::SetFunctions()
 //            });
 
     /**
-     * 入力ウィンドウへのアクセスを提供するクラス
+     * Input Box
      *
      * @class InputBox
      * @static
      */
 
     /**
-     * テキストボックスの内容が確定された時に呼ばれます
+     * Called when enter is pressed in a text box
      *
      * @event onEnter
-     * @return {String} text テキストボックスの内容
+     * @return {String} Text box contents
      *
      * @static
      */
     script_.SetProperty("InputBox.onEnter", Property_InputBox_onEnter, Property_set_InputBox_onEnter);
 
     /**
-     * テキストボックスに入力できるかどうか
+     * Can you use the text box?
      *
-     * このプロパティに trueが設定されていて、
-     * 且つinputbox.onEnterに関数がセットされている場合に入力ウィンドウにタブが表示されます。
+     * If this is set to true,
+     * and there is a function set for inputbox.onEnter, tabs will be displayed in the text box.
      *
      * @property enable
      * @type Boolean
@@ -1354,7 +1356,7 @@ void Card::SetFunctions()
     script_.SetProperty("InputBox.enable", Property_InputBox_enable, Property_set_InputBox_enable);
 
     /**
-     * テキストボックスに表示するメッセージ
+     * Message displayed in the text box
      *
      * @property message
      * @type String
@@ -1363,7 +1365,7 @@ void Card::SetFunctions()
     script_.SetProperty("InputBox.message", Property_InputBox_message, Property_set_InputBox_message);
 
     /**
-     * 指定されたファンクションキーが押された時に実行される関数を指定します
+     * The function associated with each function key
      *
      * @class FunctionKey
      * @static
@@ -1491,10 +1493,10 @@ void Card::SetFunctions()
 
 
 //    /**
-//     * GUIツリーにオブジェクトを追加します
+//     * Adds an object to the GUI tree
 //     *
 //     * @method addChildren
-//     * @param {GUI} object GUIオブジェクト
+//     * @param {GUI} object 
 //     * @static
 //     */
 //    script_.SetFunction("UI.addChildren",
@@ -1510,10 +1512,10 @@ void Card::SetFunctions()
 //            });
 
 //    /**
-//    * GUIツリーからオブジェクトを削除します
+//    * Removes an object from the GUI tree
 //    *
 //    * @method removeChildren
-//    * @param {GUI} object GUIオブジェクト
+//    * @param {GUI} object
 //    * @static
 //    */
 //    script_.SetFunction("GUI.removeChildren",
@@ -1759,7 +1761,7 @@ void Card::SaveStorage()
                         std::string storage_path = std::string(STORAGE_DIR) + "/" + unicode::utf82sjis(name_) + ".json";
                         std::ofstream ofs(storage_path);
 
-                        // データ最大サイズ
+                        // Maximum length
                         int max_length = max_local_storage_size;
 
                         ofs << "{";
@@ -1866,7 +1868,7 @@ std::string Card::input_message() const
 int Card::focus_index() const
 {
     if (!ui_board_obj_.IsEmpty() && ui_board_obj_->IsObject()) {
-//      auto ptr = *static_cast<UIBasePtr*>(ui_board_obj_->GetPointerFromInternalField(0));
+        // auto ptr = *static_cast<UIBasePtr*>(ui_board_obj_->GetPointerFromInternalField(0));
 		UIBasePtr ptr;
 		script_.With([&](const Handle<Context>& context){
 		    ptr = *static_cast<UIBasePtr*>(Local<External>::Cast(ui_board_obj_->GetInternalField(0))->Value());

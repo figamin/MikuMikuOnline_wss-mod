@@ -1,5 +1,7 @@
 //
 // MiniMap.hpp
+// This file controls the minimap seen in the top right corner
+// and includes a player counter.
 //
 #pragma once
 
@@ -50,7 +52,7 @@ private:
     Rect drag_offset_rect_, drag_resize_offset_rect_;
 private:
 	static const int BASE_BLOCK_SIZE;
-	static float ZOOM_SIZE;	// î{ó¶ÅAñ¢égóp
+	static float ZOOM_SIZE;
 };
 
 typedef std::shared_ptr<MiniMap> MiniMapPtr;

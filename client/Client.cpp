@@ -26,9 +26,9 @@ Client::Client(const std::string& host,
     uint16_t udp_port = local_udp_port;
     std::string global_ip = "127.0.0.1";
 
-    // NAT越えのためにポートを開ける
+    // Opening ports for NAT traversal
     if (upnp) {
-        // TODO: VC移行のため無効化
+        // TODO: Disabled because of VC migration
         //if (PortMapper::MapUDP(&udp_port, &global_ip)) {
         //    Logger::Info("Open udp port %d", udp_port);
         //    Logger::Info("Global IP address is %s", global_ip);
@@ -79,7 +79,7 @@ Client::Client(const std::string& host,
     session_->set_global_ip(global_ip);
     session_->set_udp_port(udp_port);
 
-    // 認証鍵をセット
+    // Set public/private key pair
     auto &encrypter = session_->encrypter();
     encrypter.SetPublicKey(public_key);
     encrypter.SetPrivateKey(private_key);
@@ -96,7 +96,7 @@ Client::Client(const std::string& host,
 
                 switch (c.header()) {
 
-                    // クライアント情報要求
+                    // Client info requested
                     case network::header::ClientRequestedClientInfo:
                     {
                         if (auto session = c.session().lock()) {
@@ -114,7 +114,7 @@ Client::Client(const std::string& host,
                     }
                     break;
 
-                    // 公開鍵要求
+                    // Public key request
                     case network::header::ClientRequestedPublicKey:
                     {
                         if (auto session = c.session().lock()) {
@@ -125,7 +125,7 @@ Client::Client(const std::string& host,
                     }
                     break;
 
-                    // 共通鍵を受信
+                    // Common key received
                     case header::ClientReceiveCommonKey:
                     {
                         if (auto session = c.session().lock()) {
@@ -160,7 +160,7 @@ Client::Client(const std::string& host,
                     }
                     break;
 
-                    // 暗号化通信開始
+                    // Starting encrypted session
                     case network::header::ClientStartEncryptedSession:
                     {
                         if (auto session = c.session().lock()) {
@@ -170,7 +170,7 @@ Client::Client(const std::string& host,
                     }
                     break;
 
-                    // 通信量制限
+                    // Average limit update
                     case network::header::ClientReceiveWriteAverageLimitUpdate:
                     {
                         unsigned short byte;
@@ -180,10 +180,10 @@ Client::Client(const std::string& host,
                     }
                     break;
 
-                    // 接続拒否
+                    // Connection refused
                     case network::header::ClientReceiveServerCrowdedError:
                     {
-                        Logger::Error(_T("Server too crowded"));
+                        Logger::Error(_T("Server full"));
                     }
                     break;
 
@@ -225,8 +225,8 @@ Client::~Client()
 void Client::Write(const Command& msg)
 {
     if (session_) {
-        // 送信制限を超えていないかチェック
-         // if (GetWriteByteAverage() <= write_average_limit_) {
+        // Checking if the average limit was exceeded
+        // if (GetWriteByteAverage() <= write_average_limit_) {
         if (true) {
             session_->Send(msg);
          } else {
@@ -239,7 +239,7 @@ void Client::Write(const Command& msg)
 void Client::WriteUDP(const Command& msg)
 {
     if (session_) {
-        // 送信制限を超えていないかチェック
+        // Checking if the average limit was exceeded
         // if (GetWriteByteAverage() <= write_average_limit_) {
         if (true) {
             session_->SendUDP(msg.body());
@@ -337,10 +337,10 @@ void Client::ClientSession::Connect(const boost::system::error_code& error)
     if (!error) {
         online_ = true;
 
-        // Nagleアルゴリズムを無効化
+        // Disable Nagle's algorithm
         socket_tcp_.set_option(boost::asio::ip::tcp::no_delay(true));
 
-		// バッファサイズを変更 1MiB
+		// Change buffer size to 1MB
 		boost::asio::socket_base::receive_buffer_size option(1048576);
 		socket_tcp_.set_option(option);
 
@@ -376,7 +376,7 @@ void Client::ClientSession::ReceiveUDP(const boost::system::error_code& error, s
             boost::asio::placeholders::error,
             boost::asio::placeholders::bytes_transferred));
     } else {
-        Logger::Error(_T("UDP　Error"));
+        Logger::Error(_T("UDP Error"));
     }
 }
 

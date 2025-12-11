@@ -1,5 +1,7 @@
 ﻿//
 // MiniMap.cpp
+// This file controls the minimap seen in the top right corner
+// and includes a player counter.
 //
 
 #include "MiniMap.hpp"
@@ -37,14 +39,14 @@ void MiniMap::UpdateDrag(InputManager* input, bool resizeable)
             && absolute_y() + absolute_height() - 18 <= input->GetMouseY()
             && input->GetMouseY() <= absolute_y() + absolute_height());
 
-    // アクティブ
+    // Active
     if (hover && input->GetMouseLeftCount() == 1) {
         Focus();
     }
 
     //Logger::Log("%d, %d, %d", hover, input->GetMouseLeftCount(), drag_resize_offset_rect_.x);
 
-    // ドラッグ処理
+    // Click and Drag
     if (input->GetMouseLeft()) {
         if (input->GetMouseLeftCount() == 1) {
             if (drag_offset_rect_.x < 0 && hover
@@ -161,7 +163,8 @@ void MiniMap::Draw()
 		DrawBox( x, y, x + thickness, y + height, Color, TRUE);
 		DrawBox( x + width - thickness, y, x + width, y + height, Color, TRUE);
 		DrawBox( x, y + height - thickness, x + width, y + height, Color, TRUE);
-	};// thicknessで示した太さで縁のみの四角形を描画
+	};
+    // Draws an outlined rectangle with the specified thickness 
 
 	DrawOfOnlyEdge(x + 12, y + 12, width - 24, height - 24 - 16, GetColor(133,211,192),2);
 

@@ -1,4 +1,4 @@
-// –³‚©‚Á‚½‚Ì‚Åì¬
+// This was created because it didn't exist
 
 #define MODVER   Beta21
 #define DXLIBVER 3.22e
