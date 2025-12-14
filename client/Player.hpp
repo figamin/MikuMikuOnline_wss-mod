@@ -47,7 +47,7 @@ class Player : public std::enable_shared_from_this<Player> {
         static Handle<Value> Construct(const Arguments& args);
         static void Dispose(Persistent<Value> handle, void* parameter);
 
-        /* function */
+        // function
         static Handle<Value> Function_Player_id(const Arguments& args);
         static Handle<Value> Function_Player_name(const Arguments& args);
         static Handle<Value> Function_Player_trip(const Arguments& args);

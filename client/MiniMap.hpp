@@ -53,6 +53,7 @@ private:
 private:
 	static const int BASE_BLOCK_SIZE;
 	static float ZOOM_SIZE;
+	// Magnification, unused
 };
 
 typedef std::shared_ptr<MiniMap> MiniMapPtr;

@@ -41,7 +41,7 @@ class PlayerManager : public std::enable_shared_from_this<PlayerManager> {
         PlayerPtr GetMyself();
         std::vector<PlayerPtr> GetAll();
 
-        // プレイヤーの位置を更新
+        // Update the player's position
         void UpdatePlayerPosition(unsigned int user_id, const PlayerPosition& pos);
 
         std::shared_ptr<CharacterManager> charmgr() const;

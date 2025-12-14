@@ -21,15 +21,16 @@ LobbySession::LobbySession(boost::asio::io_service& io_service,
 
 void LobbySession::Start()
 {
-	//using namespace boost::asio::ip;
- //   try {
-	//	tcp::resolver resolver(io_service_);
- //       tcp::resolver::query query("m2op.net", "39390");
- //       endpoint_iterator_ = resolver.resolve(query);
- //   } catch (const std::exception& e) {
- //       Logger::Error(_T("%s"), unicode::ToTString(e.what()));
- //   }
-
+/*
+	using namespace boost::asio::ip;
+    try {
+		tcp::resolver resolver(io_service_);
+        tcp::resolver::query query("m2op.net", "39390");
+        endpoint_iterator_ = resolver.resolve(query);
+    } catch (const std::exception& e) {
+        Logger::Error(_T("%s"), unicode::ToTString(e.what()));
+    }
+*/
 	boost::asio::async_connect(socket_tcp_, endpoint_iterator_,
 		boost::bind(&LobbySession::Connect, this,
                 boost::asio::placeholders::error));
@@ -109,7 +110,7 @@ void Lobby::Server::Start(const std::string& host)
 
 					switch (c.header()) {
 
-						// クライアント情報要求
+						// Received full server info
 						case network::header::ClientReceiveFullServerInfo:
 						{
 							using namespace boost::property_tree;
@@ -168,7 +169,8 @@ bool Lobby::Reload(const std::string& lobby_server)
 
 	using boost::asio::ip::tcp;
 	boost::asio::io_service io_service;
-	try {  // ※ 名前解決できない場合に例外が発生するのでトラップ
+	try {  
+		// If the name cannot be resolved, an exception will be thrown
 		tcp::resolver resolver(io_service);
 		tcp::resolver::query query(tcp::v4(), lobby_server.c_str(), "39380");
 		tcp::resolver::iterator iterator = resolver.resolve(query);

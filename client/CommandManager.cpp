@@ -26,7 +26,7 @@ void CommandManager::Update()
     {
         auto command = client_->PopCommand();
 
-		// 移動コマンドが溜まっている場合は強制的に消費
+		// If there are too many movement commands, skip them to reduce lag.
 		if (client_->GetCommandSize() > 40) {
 			while (command && command->header() == network::header::ClientUpdatePlayerPosition) {
 				command = client_->PopCommand();
@@ -45,13 +45,13 @@ void CommandManager::FetchCommand(const network::Command& command)
 	CardManagerPtr card_manager = manager_accessor_->card_manager().lock();
 	PlayerManagerPtr player_manager = manager_accessor_->player_manager().lock();
 	AccountManagerPtr account_manager = manager_accessor_->account_manager().lock();
-// ※ デバッグ出力が多いのでコメント
-//	Logger::Debug(_T("Receive: 0x%08x %d byte"), header, command.body().size());
+	// This gives a lot of debug output
+	// Logger::Debug(_T("Receive: 0x%08x %d byte"), header, command.body().size());
 
 	switch (header) {
 	using namespace network::header;
 
-	// 暗号化通信を開始
+	// Encrypted session started
 	case ClientStartEncryptedSession:
 	{
 		const std::string& data = account_manager->GetSerializedData();
@@ -73,7 +73,7 @@ void CommandManager::FetchCommand(const network::Command& command)
 	}
 	break;
 
-	// サーバーデータ受信
+	// Received server info
 	case ClientReceiveServerInfo:
 	{
 		//network::Utils::Deserialize(command.body(), & stage_);
@@ -85,7 +85,7 @@ void CommandManager::FetchCommand(const network::Command& command)
 	}
 	break;
 
-	// サーバーデータ受信
+	// Received full server info
 	case ClientReceiveFullServerInfo:
 	{
 		using namespace boost::property_tree;
@@ -128,7 +128,7 @@ void CommandManager::FetchCommand(const network::Command& command)
 			channels_[id] = ptr;
 		}
 
-		// 存在しない・ステージデータがないチャンネルへのワープポイントを削除
+		// Remove warp points that point to non-existent or invalid channels
 		BOOST_FOREACH(const auto& channel, channels_) {
 			auto& warp_points = channel.second->warp_points;
 			auto end_it = std::remove_if(warp_points.begin(),
@@ -172,7 +172,7 @@ void CommandManager::FetchCommand(const network::Command& command)
 	}
 		break;
 
-	// プレイヤー位置更新
+	// Player position updated
 	case ClientUpdatePlayerPosition:
 	{
 		if (player_manager) {
@@ -194,7 +194,7 @@ void CommandManager::FetchCommand(const network::Command& command)
 
 			auto current_revision = player_manager->GetCurrentUserRevision(user_id);
 
-			Logger::Info(_T("Receive account database update notify　%d %d [%d]"), user_id, server_revision, current_revision);
+			Logger::Info(_T("Receive account database update notify %d %d [%d]"), user_id, server_revision, current_revision);
 
 			if (server_revision > current_revision) {
 				client_->Write(network::ServerRequestedAccountRevisionPatch(user_id, current_revision));

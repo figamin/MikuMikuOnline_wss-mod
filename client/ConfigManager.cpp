@@ -5,7 +5,7 @@
 #include "ConfigManager.hpp"
 #include "../common/Logger.hpp"
 #include <stdint.h>
-#include <boost/filesystem.hpp> // ※ロビーサーバをjson参照するために追加
+#include <boost/filesystem.hpp> // Add lobby server from config json
 
 const int ConfigManager::MIN_SCREEN_WIDTH = 800;
 const int ConfigManager::MIN_SCREEN_HEIGHT = 600;
@@ -46,12 +46,11 @@ void ConfigManager::LoadConfigure()
 	language_ = pt.get<std::string>("language","日本語");
 	screen_width_ =  std::max(screen_width_, MIN_SCREEN_WIDTH);
 	screen_height_ = std::max(screen_height_, MIN_SCREEN_HEIGHT);
-	// ※ロビーサーバをjsonで変更できるように追加
+	// Added the ability to change lobby server via json
 	auto lobby_servers = pt.get_child("lobby_servers", ptree());
 	BOOST_FOREACH(const auto& item, lobby_servers) {
 		lobby_servers_.push_back(item.second.get_value<std::string>());
 	}
-	// ここまで
 }
 
 void ConfigManager::Load(const std::string& filename)
@@ -65,15 +64,16 @@ void ConfigManager::Load(const std::string& filename)
 
     show_nametag_ =		pt.get("show_nametag", 1);
     show_modelname_ =	pt.get("show_modelname", 1);
-    modelload_mode_ =	pt.get("modelload_mode", 0); // ※ キャラクターのロード方法を変更できる様に追加
+    modelload_mode_ =	pt.get("modelload_mode", 0);
+	// Added the ability to change model loading method
     gamepad_type_ =		pt.get("gamepad_type", 0);
-    gamepad_enable_ =	pt.get("gamepad_enable", 0); // ※ ゲームパッド有効をウインドウアクティブ時のみにもできる様に追加
-// ※ ここから  ゲームパッドのボタンを変更できるように追加
+    gamepad_enable_ =	pt.get("gamepad_enable", 0);
+	// Added the ability to enable gamepad only when window is active
+	// Added the ability to change gamepad buttons
 	gamepad_jump_ =		pt.get("gamepad_jump", 1);
 	gamepad_speed_ =	pt.get("gamepad_speed", 0);
 	gamepad_warp_ =		pt.get("gamepad_warp", 0);
 	gamepad_sshot_ =	pt.get("gamepad_sshot", 0);
-// ※ ここまで
     camera_direction_ =	pt.get("camera_direction", 0);
 	walk_change_type_ = pt.get("walk_change_type",0);
 }
@@ -90,17 +90,19 @@ void ConfigManager::Save(const std::string& filename)
 
     pt.put("show_nametag", show_nametag_);
     pt.put("show_modelname", show_modelname_);
-	pt.put("modelload_mode", modelload_mode_); // ※ キャラクターのロード方法を変更できる様に追加
+	pt.put("modelload_mode", modelload_mode_);
+	// Added the ability to change model loading method
     pt.put("gamepad_type", gamepad_type_);
-    pt.put("gamepad_enable", gamepad_enable_); // ※ ゲームパッド有効をウインドウアクティブ時のみにもできる様に追加
-// ※ ここから  ゲームパッドのボタンを変更できるように追加
+    pt.put("gamepad_enable", gamepad_enable_);
+	// Added the ability to enable gamepad only when window is active
+	// Added the ability to change gamepad buttons
 	pt.put("gamepad_jump", gamepad_jump_);
 	pt.put("gamepad_speed", gamepad_speed_);
 	pt.put("gamepad_warp", gamepad_warp_);
 	pt.put("gamepad_sshot", gamepad_sshot_);
-// ※ ここまで
 	pt.put("camera_direction", camera_direction_);
-	pt.put("walk_change_type",walk_change_type_); // ※ 速度変更方法が保存されるように追加
+	pt.put("walk_change_type", walk_change_type_);
+	// Added the ability to save walk change type
 	write_xml(filename, pt);
 }
 
@@ -206,7 +208,7 @@ void ConfigManager::set_show_modelname(int value)
 {
 	show_modelname_ = value;
 }
-// ※ ここから キャラクターのロード方法を変更できる様に追加
+// Added the ability to change model loading method
 int ConfigManager::modelload_mode() const
 {
 	return modelload_mode_;
@@ -216,7 +218,6 @@ void ConfigManager::set_modelload_mode(int value)
 {
 	modelload_mode_ = value;
 }
-// ※ ここまで
 int ConfigManager::walk_change_type() const
 {
 	return walk_change_type_;
@@ -237,7 +238,7 @@ void ConfigManager::set_gamepad_type(int value)
 	gamepad_type_ = value;
 }
 
-// ※ ここから ゲームパッド有効をウインドウアクティブ時のみにもできる様に追加
+
 int ConfigManager::gamepad_enable() const
 {
 	return gamepad_enable_;
@@ -247,9 +248,7 @@ void ConfigManager::set_gamepad_enable(int value)
 {
 	gamepad_enable_ = value;
 }
-// ※ ここまで
-
-// ※ ここから ゲームパッドのボタンを変更できるように追加
+// Added the ability to change gamepad buttons
 int ConfigManager::gamepad_jump() const
 {
 	return gamepad_jump_;
@@ -285,8 +284,6 @@ void ConfigManager::set_gamepad_sshot(int value)
 {
 	gamepad_sshot_ = value;
 }
-
-// ※ ここまで
 
 int ConfigManager::camera_direction() const
 {

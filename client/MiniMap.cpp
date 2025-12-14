@@ -44,22 +44,22 @@ void MiniMap::UpdateDrag(InputManager* input, bool resizeable)
         Focus();
     }
 
-    //Logger::Log("%d, %d, %d", hover, input->GetMouseLeftCount(), drag_resize_offset_rect_.x);
+    // Logger::Log("%d, %d, %d", hover, input->GetMouseLeftCount(), drag_resize_offset_rect_.x);
 
     // Click and Drag
     if (input->GetMouseLeft()) {
         if (input->GetMouseLeftCount() == 1) {
             if (drag_offset_rect_.x < 0 && hover
                     && !corner_hover) {
-                //drag_offset_rect_.x = input->GetMouseX() - x_;
-                //drag_offset_rect_.y = input->GetMouseY() - y_;
+                // drag_offset_rect_.x = input->GetMouseX() - x_;
+                // drag_offset_rect_.y = input->GetMouseY() - y_;
                 drag_offset_rect_.x = input->GetMouseX() - offset_rect_.x;
                 drag_offset_rect_.y = input->GetMouseY() - offset_rect_.y;
             }
             if (drag_resize_offset_rect_.x < 0
                     && corner_hover) {
-                //drag_resize_offset_rect_.x = x_ + width_ - input->GetMouseX();
-                //drag_resize_offset_rect_.y = y_ + height_ - input->GetMouseY();
+                // drag_resize_offset_rect_.x = x_ + width_ - input->GetMouseX();
+                // drag_resize_offset_rect_.y = y_ + height_ - input->GetMouseY();
                 drag_resize_offset_rect_.x = input->GetMouseX() - offset_rect_.width;
                 drag_resize_offset_rect_.y = input->GetMouseY() - offset_rect_.height;
             }
@@ -193,16 +193,17 @@ void MiniMap::DrawPosAndCalc()
 	for(it; it != providers.end(); ++it)
 	{
 		if(it->first == player_manager->charmgr()->my_character_id())continue;
-		// ※ 自分と異なるチャンネルは描画しないように変更
+		// Changed so channels other than yours are not drawn
 		if (player_manager->GetMyself()->channel() != player_manager->GetFromId(it->first)->channel()) {
-			continue; // チャンネルが異なるので描画しない
+			continue;
+            // Not drawn because the channel is different
 		}
-		// ※ ここまで
 		direction = VSub(it->second->position(),myself_pos);
 		direction.y = 0;
 		theta = atan2( -direction.x, -direction.z);
 		tmp_pos_x = ( sin(mtheta + TORADIAN(180.0f) - theta) * VSize(direction) * ( 1.0f / world_manager->stage()->map_scale()) )/ 3.0f + absolute_x() + absolute_width()/2;
-		tmp_pos_z = ( cos(mtheta + TORADIAN(180.0f) - theta) * VSize(direction) * ( 1.0f / world_manager->stage()->map_scale()) )/ 3.0f + absolute_y() + absolute_height()/2; // y座標化する
+		tmp_pos_z = ( cos(mtheta + TORADIAN(180.0f) - theta) * VSize(direction) * ( 1.0f / world_manager->stage()->map_scale()) )/ 3.0f + absolute_y() + absolute_height()/2;
+        // Convert to y coordinate
 		if(tmp_pos_x < absolute_x() + 12)tmp_pos_x = absolute_x() + 12;
 		if(tmp_pos_x > absolute_x() + absolute_width() - 12)tmp_pos_x = absolute_x() + absolute_width() - 12;
 		if(tmp_pos_z < absolute_y() + 12)tmp_pos_z = absolute_y() + 12;
@@ -216,7 +217,8 @@ void MiniMap::DrawPosAndCalc()
 		direction.y = 0;
 		theta = atan2( -direction.x, -direction.z);
 		tmp_pos_x = ( sin(mtheta + TORADIAN(180.0f) - theta) * VSize(direction) * ( 1.0f / world_manager->stage()->map_scale()) )/ 3.0f + absolute_x() + absolute_width()/2;
-		tmp_pos_z = ( cos(mtheta + TORADIAN(180.0f) - theta) * VSize(direction) * ( 1.0f / world_manager->stage()->map_scale()) )/ 3.0f + absolute_y() + absolute_height()/2; // y座標化する
+		tmp_pos_z = ( cos(mtheta + TORADIAN(180.0f) - theta) * VSize(direction) * ( 1.0f / world_manager->stage()->map_scale()) )/ 3.0f + absolute_y() + absolute_height()/2;
+        // Convert to y coordinate
 		if(tmp_pos_x < absolute_x() + 12)tmp_pos_x = absolute_x() + 12;
 		if(tmp_pos_x > absolute_x() + absolute_width() - 12)tmp_pos_x = absolute_x() + absolute_width() - 12;
 		if(tmp_pos_z < absolute_y() + 12)tmp_pos_z = absolute_y() + 12;
@@ -224,7 +226,7 @@ void MiniMap::DrawPosAndCalc()
 		DrawCircle( tmp_pos_x, tmp_pos_z, 3, GetColor(255,255,255),TRUE);
 	}
 	}
-	// 最後に自分の位置を描画【中央固定】
+	// Drawing own position fixed in the center
 	DrawCircle( absolute_x() + absolute_width()/2, absolute_y() + absolute_height()/2, 2, GetColor(206,52,95));
 
 	prev_myself_pos_on_map_ = player_manager->char_data_providers()[player_manager->charmgr()->my_character_id()]->position();
@@ -232,9 +234,11 @@ void MiniMap::DrawPosAndCalc()
 	tstring login_num;
 	int color;
 	if (command_manager->status() == CommandManager::STATUS_ERROR) {
+        // This means "offline"
 		login_num = _T("オフライン");
 		color = GetColor(255,163,167);
 	} else {
+        // Players online: %d
 		login_num = (tformat(_T("ログイン人数: %d")) % player_manager->GetAll().size()).str();
 		color = GetColor(133,211,192);
 	}

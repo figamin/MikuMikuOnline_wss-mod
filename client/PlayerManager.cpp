@@ -143,15 +143,15 @@ void PlayerManager::Update()
 
     timer_->Next();
 
-    // 自分自身のキャラクターIDは常に0, それ以外はアカウントのID
-    // プレイヤーの位置情報を更新
+    // The player's ID is always 0, while everyone else has their own account IDs
+    // Update the player's position
     if (auto player = GetMyself()) {
         const VECTOR& pos = char_data_providers_[charmgr_->my_character_id()]->position();
         const float theta = char_data_providers_[charmgr_->my_character_id()]->theta();
         player->set_position(PlayerPosition(pos.x, pos.y, pos.z, theta, 0));
     }
 
-    // 位置情報を送信
+    // Send location information
     static int count = 0;
     if (count % 30 == 0) {
         const VECTOR& pos = char_data_providers_[charmgr_->my_character_id()]->position();
@@ -159,9 +159,9 @@ void PlayerManager::Update()
         const float vy = char_data_providers_[charmgr_->my_character_id()]->vy();
         char vy_char = std::max(std::min(vy, static_cast<float>(SCHAR_MAX)), static_cast<float>(SCHAR_MIN));
 
-// ※ ここから  キャラの向きを反映させるために修正
+        // Make adjustments to reflect the character's orientation
         const float PI = 3.1415926535897932384626433832795f;
-        // 8ビットINTの範囲で角度θが出来るだけ近い値となる値のテーブル(32方向)
+        // An array of 32 directions where theta is close as possible to a value within 0-255 (8 bit int)
         const int degtbl[] = {245,107,214,32,139,246,64,215,234,96,247,21,172,235,53,204,223,129,236,10,161,224,86,193,212,118,225,43,150,213,75,182,245};
         float theta_ = fmod(theta , (PI * 2.0f ));
         if ( theta_ < 0 ) theta_ = (PI * 2.0f) + theta_;
@@ -169,15 +169,15 @@ void PlayerManager::Update()
         float theta2 = degtbl[idx];
         // Logger::Debug(_T("vychar %d"), (int)vy_char);
         if (auto command_manager = manager_accessor_->command_manager().lock()) {
-//          command_manager->Write(network::ServerUpdatePlayerPosition(pos.x, pos.y, pos.z, theta, vy_char));
+            // command_manager->Write(network::ServerUpdatePlayerPosition(pos.x, pos.y, pos.z, theta, vy_char));
             command_manager->Write(network::ServerUpdatePlayerPosition(pos.x, pos.y, pos.z, theta2, vy_char));
         }
-// ※ ここまで
-        //Logger::Debug(_T("PlayerPos %f %f %f"), pos.x, pos.y, pos.z);
-        //Logger::Debug(_T("PlayerPos %f %f %d"), theta, theta_, theta2);
+        // Logger::Debug(_T("PlayerPos %f %f %f"), pos.x, pos.y, pos.z);
+        // Logger::Debug(_T("PlayerPos %f %f %d"), theta, theta_, theta2);
     }
     count++;
-    auto config_manager= manager_accessor_->config_manager().lock(); // ※ 設定(同期/非同期)を参照するために追加
+    auto config_manager= manager_accessor_->config_manager().lock();
+    // Added to show settings (syncronous/asynchronous)
     BOOST_FOREACH (auto pair, login_players_) {
 
 		auto& player = pair.second;
@@ -185,22 +185,26 @@ void PlayerManager::Update()
 		const auto& current_model = player->current_model_name();
 		auto model = player->model_name();
 
-		// ※チャンネル移動時にモデルをRemoveしないようにコメント
-		//if (player->channel() != GetMyself()->channel()) {
-		//	model = "";
-		//}
+		// Don't remove the model when switching channels
+        /*
+		if (player->channel() != GetMyself()->channel()) {
+			model = "";
+		}
+        */
 
        
         if (player->current_model_name() != model) {
-        // ※ ここから  非同期の場合は即時にモデル解放しないように修正
-  		//	if (player->id() != 0) {
-		//		if (char_data_providers_.find(player->id()) != char_data_providers_.end()) {
-		//			RemoveCharacter(player->id());
-		//			Logger::Debug(_T("Remove char %d %s"), player->id(), unicode::ToTString(player->current_model_name()));	
-		//		}
-		//	}
-		//	player->set_current_model_name("");
-//            if (config_manager->modelload_mode()==0){
+        // Code is modified so the model is not removed immediately in async mode
+        /*
+  			if (player->id() != 0) {
+				if (char_data_providers_.find(player->id()) != char_data_providers_.end()) {
+					RemoveCharacter(player->id());
+					Logger::Debug(_T("Remove char %d %s"), player->id(), unicode::ToTString(player->current_model_name()));	
+				}
+			}
+        */
+		    // player->set_current_model_name("");
+            // if (config_manager->modelload_mode()==0){
 			    if (player->id() != 0) {
 				    if (char_data_providers_.find(player->id()) != char_data_providers_.end()) {
 					    RemoveCharacter(player->id());
@@ -208,41 +212,42 @@ void PlayerManager::Update()
 				    }
 			    }
 			    player->set_current_model_name("");
-//            }
-        // ※ ここまで
+            // }
 		}
 
-		// ※他チャンネルのユーザのモデルチェンジ時にモデルを読み込まないように追加
+		// Made it so that the model is not loaded when the channel user's model is changed
 		if (player->channel() != GetMyself()->channel()) {
 			model = "";
 		}
-		// ※ここまで
 
-
-    // ※ ここから  非同期読み込み対応
-    //	if (player->current_model_name().empty() && !model.empty()) {
-    //		if (player->id() != GetMyself()->id()) {
-    //			AddCharacter<PlayerCharacter>(player->id(), unicode::ToTString(player->model_name()));
-    //
-    //			player->set_current_model_name(player->model_name());
-    //		}
-    //	}
+        // Async loading is supported from here
+        /*
+    	if (player->current_model_name().empty() && !model.empty()) {
+    		if (player->id() != GetMyself()->id()) {
+    			AddCharacter<PlayerCharacter>(player->id(), unicode::ToTString(player->model_name()));
+    
+    			player->set_current_model_name(player->model_name());
+    		}
+    	}
+        */
     	if (player->id() != GetMyself()->id()) {
         	if (player->current_model_name().empty() && !model.empty()) {
 				AddCharacter<PlayerCharacter>(player->id(), unicode::ToTString(player->model_name()));
 
 				player->set_current_model_name(player->model_name());
-//           } else {
-//                if (!model.empty() && !player->current_model_name().empty() && player->current_model_name() != model) {
-                    // モデル非同期読み込み開始
-//                    if (ResourceManager::IsCachedModelName(unicode::ToTString(player->model_name())) == false){
-//                      AddCharacter<PlayerCharacter>(player->id(), unicode::ToTString(player->model_name()));
-//                    }
-                    // モデル読み込み完了確認
-                // 読み込み完了
-                //   旧モデル解放
-                //   player->set_current_model_name(player->model_name());
-//                }
+            /*  
+            } else {
+                if (!model.empty() && !player->current_model_name().empty() && player->current_model_name() != model) {
+                    // Async loading started
+                    if (ResourceManager::IsCachedModelName(unicode::ToTString(player->model_name())) == false){
+                        AddCharacter<PlayerCharacter>(player->id(), unicode::ToTString(player->model_name()));
+                    }
+                    // Model loading completed confirmation
+                    // Loading complete
+                    // Old models released
+                    player->set_current_model_name(player->model_name());
+                }
+            */
             }
         }
 
@@ -265,7 +270,7 @@ void PlayerManager::Draw()
 	auto config_manager = manager_accessor_->config_manager().lock();
 	unsigned int channel = GetMyself()->channel();
     auto myid = GetMyself()->id();
-    // TODO: モデルの高さを取得する必要あり
+    // TODO: We need to get the model height
     BOOST_FOREACH(auto pair, login_players_) {
         if (pair.second-> channel() == channel && pair.second->login()) {
             if (char_data_providers_.find(pair.second->id()) != char_data_providers_.end()) {
@@ -295,7 +300,6 @@ void PlayerManager::Draw()
 								label_.set_textcolor(UIBase::Color(0,0,0,255));
 								label_.set_left(x - 60);
 								label_.set_top(y + 10);
-
 								label_.Update();
 								label_.Draw();
 						}
@@ -305,7 +309,7 @@ void PlayerManager::Draw()
 
 			if (config_manager->show_nametag() == 1) {
                 if (myid == pair.first) {
-                    // 自キャラ
+                    // Player character
                     auto world_manager=manager_accessor_->world_manager().lock();
                     pair.second->Draw(world_manager->myself()->loading_model_handle_);
                 } else {
@@ -342,7 +346,7 @@ void PlayerManager::ApplyRevisionPatch(const std::string& patch)
 
 	auto command_manager = manager_accessor_->command_manager().lock();
 
-	// TODO: なぜかUserIDが0番のデータが送信されてくる
+	// TODO: For some reason, data with user_id 0 is being received here, so ignore it for now
 	if (user_id == 0) {
 		return;
 	}
@@ -409,7 +413,7 @@ void PlayerManager::ApplyRevisionPatch(const std::string& patch)
                 
                 Logger::Info(_T("UpdateName %d,\"%s\""), user_id,unicode::ToTString(value));
 
-                // 名前を受信した時にログインを通知
+                // When a name is recieved, a login notif is sent
                 if (initialize && player->login()) {
                     auto card_manager = manager_accessor_->card_manager().lock();
                     card_manager->OnLogin(player);
@@ -433,12 +437,14 @@ void PlayerManager::ApplyRevisionPatch(const std::string& patch)
                 buffer.erase(0, network::Utils::Deserialize(buffer, &value));
 
                 if (player->model_name() != value) {
-                    //auto command_manager = manager_accessor_->command_manager().lock();
-                    //if (user_id != 0) {
-                    //    if (char_data_providers_.find(user_id) != char_data_providers_.end()) {
-                    //        RemoveCharacter(user_id);
-                    //    }
-                    //}
+                    /*
+                    auto command_manager = manager_accessor_->command_manager().lock();
+                    if (user_id != 0) {
+                        if (char_data_providers_.find(user_id) != char_data_providers_.end()) {
+                            RemoveCharacter(user_id);
+                        }
+                    }
+                    */
                     player->set_model_name(value);
                 }
             }
@@ -468,14 +474,16 @@ void PlayerManager::ApplyRevisionPatch(const std::string& patch)
         }
     }
 
-    //if (char_data_providers_.find(user_id) == char_data_providers_.end()) {
-    //    if (player->login() && player->model_name().size() > 0) {
-    //        auto command_manager = manager_accessor_->command_manager().lock();
-    //        if (user_id != command_manager->user_id()) {
-    //            AddCharacter<PlayerCharacter>(user_id, unicode::ToTString(player->model_name()));
-    //        }
-    //    }
-    //}
+    /*
+    if (char_data_providers_.find(user_id) == char_data_providers_.end()) {
+        if (player->login() && player->model_name().size() > 0) {
+            auto command_manager = manager_accessor_->command_manager().lock();
+            if (user_id != command_manager->user_id()) {
+                AddCharacter<PlayerCharacter>(user_id, unicode::ToTString(player->model_name()));
+            }
+        }
+    }
+    */
 
 }
 
@@ -508,14 +516,16 @@ std::vector<PlayerPtr> PlayerManager::GetAll()
     return players;
 }
 
-// ※ ここから  キャラクターの向きを反映させるために修正
-//void PlayerManager::UpdatePlayerPosition(unsigned int user_id, const PlayerPosition& pos)
-//{
-//    if (char_data_providers_.find(user_id) != char_data_providers_.end()) {
-//        char_data_providers_[user_id]->set_target_position(VGet(pos.x, pos.y, pos.z));
-//        char_data_providers_[user_id]->set_vy(pos.vy);
-//    }
-//}
+// Modified to reflect the character's orientation
+/*
+void PlayerManager::UpdatePlayerPosition(unsigned int user_id, const PlayerPosition& pos)
+{
+    if (char_data_providers_.find(user_id) != char_data_providers_.end()) {
+        char_data_providers_[user_id]->set_target_position(VGet(pos.x, pos.y, pos.z));
+        char_data_providers_[user_id]->set_vy(pos.vy);
+    }
+}
+*/
 void PlayerManager::UpdatePlayerPosition(unsigned int user_id, const PlayerPosition& pos)
 {
     if (char_data_providers_.find(user_id) != char_data_providers_.end()) {
@@ -524,7 +534,6 @@ void PlayerManager::UpdatePlayerPosition(unsigned int user_id, const PlayerPosit
 		char_data_providers_[user_id]->set_theta(pos.theta);
     }
 }
-// ※ ここまで
 
 std::shared_ptr<CharacterManager> PlayerManager::charmgr() const
 {
@@ -541,7 +550,7 @@ std::map<unsigned int, std::unique_ptr<CharacterDataProvider>>& PlayerManager::c
     return char_data_providers_;
 }
 
-// 指定されたキャラIDとモデル番号を持つキャラをcharmgrに追加する
+// Adds a character with the specified ID and model number to the character manager
 template <typename CharacterType>
 void PlayerManager::AddCharacter(unsigned int user_id, const tstring& model_name)
 {
@@ -555,20 +564,22 @@ void PlayerManager::AddCharacter(unsigned int user_id, const tstring& model_name
     auto character = std::make_shared<CharacterType>(cdp, stage_ptr_holder_, timer_);
     charmgr_->Add(user_id, character);
 
-    //auto world_manager = manager_accessor_->world_manager().lock();
-    //auto config_manager= manager_accessor_->config_manager().lock();
-    //std::unique_ptr<CharacterDataProvider> cdp_ptr(new CharacterDataProvider());
-    //auto& cdp = *cdp_ptr;
-    //char_data_providers_[user_id] = move(cdp_ptr);
-    //cdp.set_id(user_id);
-    ////cdp.set_model(ResourceManager::LoadModelFromName(model_name,false));
-    //auto model=ResourceManager::LoadModelFromName(model_name,config_manager->modelload_mode());
-    //if (model.CheckLoaded() ){
-    //    cdp.set_model(model);
-    //    ResourceManager::SetModelEdgeSize(cdp.model().handle());
-    //    auto character = std::make_shared<CharacterType>(cdp, stage_ptr_holder_, timer_);
-    //    charmgr_->Add(user_id, character);
-    //}
+    // auto world_manager = manager_accessor_->world_manager().lock();
+    // auto config_manager= manager_accessor_->config_manager().lock();
+    // std::unique_ptr<CharacterDataProvider> cdp_ptr(new CharacterDataProvider());
+    // auto& cdp = *cdp_ptr;
+    // char_data_providers_[user_id] = move(cdp_ptr);
+    // cdp.set_id(user_id);
+    // cdp.set_model(ResourceManager::LoadModelFromName(model_name,false));
+    // auto model=ResourceManager::LoadModelFromName(model_name,config_manager->modelload_mode());
+    /*
+    if (model.CheckLoaded() ){
+        cdp.set_model(model);
+        ResourceManager::SetModelEdgeSize(cdp.model().handle());
+        auto character = std::make_shared<CharacterType>(cdp, stage_ptr_holder_, timer_);
+        charmgr_->Add(user_id, character);
+    }
+    */
 }
 
 void PlayerManager::RemoveCharacter(unsigned int user_id)

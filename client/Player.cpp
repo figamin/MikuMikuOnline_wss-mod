@@ -7,7 +7,7 @@
 */
 
 /**
-* プレイヤークラス
+* Player
 *
 * @class Player
 */
@@ -51,25 +51,29 @@ void Player::Update()
     }
 }
 
-//void Player::Draw()
+// void Player::Draw()
 void Player::Draw(bool loading)
 {
 	VECTOR pos = {pos_.x, pos_.y + 22, pos_.z};
 	auto screen_pos = ConvWorldPosToScreenPos(pos);
 
-	// 画面内に映っているかチェック
+	// Check if it's displayed
 	if (screen_pos.z > 0.0f && screen_pos.z < 1.0f) {
 
 		balloon_root_point_.x = (screen_pos.x / 2) * 2;
 		balloon_root_point_.y = (screen_pos.y / 2) * 2 - 16;
 		balloon_root_point_current_.x += (balloon_root_point_.x - balloon_root_point_current_.x) / 4;
 		balloon_root_point_current_.y += (balloon_root_point_.y - balloon_root_point_current_.y) / 4;
-
-		//        if (std::abs(balloon_root_point_.x - balloon_root_point_current_.x) <= 2)
-		//            balloon_root_point_current_.x = balloon_root_point_.x;
-		//        if (std::abs(balloon_root_point_.y - balloon_root_point_current_.y) <= 2)
-		//            balloon_root_point_current_.y = balloon_root_point_.y;
-
+		/*
+		if (std::abs(balloon_root_point_.x - balloon_root_point_current_.x) <= 2) {
+			balloon_root_point_current_.x = balloon_root_point_.x;
+		}
+		*/
+		/*
+		if (std::abs(balloon_root_point_.y - balloon_root_point_current_.y) <= 2) {
+			balloon_root_point_current_.y = balloon_root_point_.y;
+		}      
+		*/
 		auto name = unicode::ToTString(name_);
 		int text_width = GetDrawStringWidthToHandle(name.data(), name.size(), font_handle_);
 
@@ -240,9 +244,9 @@ void Player::Draw(bool loading)
 			- NAME_TIP_BASE_BLOCK_SIZE, 0, 0, 1, 1,
 			*name_tip_image_handle_[3], TRUE);
 
-// ※ ここから  モデルロード中は名前表示を黄色にする
-//      DrawStringToHandle(name_tip_rect.x + NAME_TIP_MARGIN_SIZE, name_tip_rect.y + NAME_TIP_MARGIN_SIZE,
-//          unicode::ToTString(name).c_str(), GetColor(255, 255, 255), font_handle_);
+		// Make the text color yellow when model is loading
+		// DrawStringToHandle(name_tip_rect.x + NAME_TIP_MARGIN_SIZE, name_tip_rect.y + NAME_TIP_MARGIN_SIZE,
+		//  unicode::ToTString(name).c_str(), GetColor(255, 255, 255), font_handle_);
 		if (loading){
 			DrawStringToHandle(name_tip_rect.x + NAME_TIP_MARGIN_SIZE, name_tip_rect.y + NAME_TIP_MARGIN_SIZE,
 				unicode::ToTString(name).c_str(), GetColor(255, 255, 0), font_handle_);
@@ -250,7 +254,6 @@ void Player::Draw(bool loading)
 			DrawStringToHandle(name_tip_rect.x + NAME_TIP_MARGIN_SIZE, name_tip_rect.y + NAME_TIP_MARGIN_SIZE,
 				unicode::ToTString(name).c_str(), GetColor(255, 255, 255), font_handle_);
 		}
-// ※ ここまで
 	}
 }
 
@@ -269,7 +272,7 @@ Player::~Player()
 Handle<Value> Player::Function_Player_id(const Arguments& args)
 {
     assert(args.This()->InternalFieldCount() > 0);
-//	auto self = *static_cast<PlayerPtr*>(args.This()->GetPointerFromInternalField(0));
+	// auto self = *static_cast<PlayerPtr*>(args.This()->GetPointerFromInternalField(0));
 	auto self = *static_cast<PlayerPtr*>(Local<External>::Cast(args.This()->GetInternalField(0))->Value());
 	assert(self);
     return Integer::NewFromUnsigned(self->id_);
@@ -278,7 +281,7 @@ Handle<Value> Player::Function_Player_id(const Arguments& args)
 Handle<Value> Player::Function_Player_name(const Arguments& args)
 {
     assert(args.This()->InternalFieldCount() > 0);
-//  auto self = *static_cast<PlayerPtr*>(args.This()->GetPointerFromInternalField(0));
+	// auto self = *static_cast<PlayerPtr*>(args.This()->GetPointerFromInternalField(0));
 	auto self = *static_cast<PlayerPtr*>(Local<External>::Cast(args.This()->GetInternalField(0))->Value());
 	assert(self);
     return String::New(self->name_.c_str());
@@ -286,7 +289,7 @@ Handle<Value> Player::Function_Player_name(const Arguments& args)
 Handle<Value> Player::Function_Player_trip(const Arguments& args)
 {
     assert(args.This()->InternalFieldCount() > 0);
-//  auto self = *static_cast<PlayerPtr*>(args.This()->GetPointerFromInternalField(0));
+	// auto self = *static_cast<PlayerPtr*>(args.This()->GetPointerFromInternalField(0));
 	auto self = *static_cast<PlayerPtr*>(Local<External>::Cast(args.This()->GetInternalField(0))->Value());
     assert(self);
     auto value = self->trip_;
@@ -300,7 +303,7 @@ Handle<Value> Player::Function_Player_trip(const Arguments& args)
 Handle<Value> Player::Function_Player_login(const Arguments& args)
 {
     assert(args.This()->InternalFieldCount() > 0);
-//  auto self = *static_cast<PlayerPtr*>(args.This()->GetPointerFromInternalField(0));
+	// auto self = *static_cast<PlayerPtr*>(args.This()->GetPointerFromInternalField(0));
 	auto self = *static_cast<PlayerPtr*>(Local<External>::Cast(args.This()->GetInternalField(0))->Value());
     assert(self);
     return Boolean::New(self->login_);
@@ -309,7 +312,7 @@ Handle<Value> Player::Function_Player_login(const Arguments& args)
 Handle<Value> Player::Function_Player_channel(const Arguments& args)
 {
     assert(args.This()->InternalFieldCount() > 0);
-//  auto self = *static_cast<PlayerPtr*>(args.This()->GetPointerFromInternalField(0));
+	// auto self = *static_cast<PlayerPtr*>(args.This()->GetPointerFromInternalField(0));
 	auto self = *static_cast<PlayerPtr*>(Local<External>::Cast(args.This()->GetInternalField(0))->Value());
     assert(self);
     return Integer::New(self->channel_);
@@ -320,7 +323,7 @@ Handle<Value> Player::Function_Player_setBalloonContent(const Arguments& args)
 
     assert(args.This()->InternalFieldCount() > 0);
     auto self = std::dynamic_pointer_cast<Player>(
-//          *static_cast<PlayerPtr*>(args.This()->GetPointerFromInternalField(0))
+			// *static_cast<PlayerPtr*>(args.This()->GetPointerFromInternalField(0))
 			*static_cast<PlayerPtr*>(Local<External>::Cast(args.This()->GetInternalField(0))->Value())
     );
     assert(self);
@@ -329,7 +332,7 @@ Handle<Value> Player::Function_Player_setBalloonContent(const Arguments& args)
         auto child = args[0]->ToObject();
 
         if (args.This() != child) {
-//          UIBasePtr child_ptr = *static_cast<UIBasePtr*>(child->GetPointerFromInternalField(0));
+			// UIBasePtr child_ptr = *static_cast<UIBasePtr*>(child->GetPointerFromInternalField(0));
 			UIBasePtr child_ptr = *static_cast<UIBasePtr*>(Local<External>::Cast(child->GetInternalField(0))->Value());
             self->ballon_content_ = child_ptr;
         }
@@ -337,8 +340,9 @@ Handle<Value> Player::Function_Player_setBalloonContent(const Arguments& args)
         self->ballon_content_.reset();
     }
 
- /*   assert(args.This()->InternalFieldCount() > 0);
-//  auto self = *static_cast<PlayerPtr*>(args.This()->GetPointerFromInternalField(0));
+/*
+	assert(args.This()->InternalFieldCount() > 0);
+	auto self = *static_cast<PlayerPtr*>(args.This()->GetPointerFromInternalField(0));
 	auto self = *static_cast<PlayerPtr*>(Local<External>::Cast(args.This()->GetInternalField(0))->Value());
     assert(self);
     if (args.Length() > 0) {
@@ -348,18 +352,19 @@ Handle<Value> Player::Function_Player_setBalloonContent(const Arguments& args)
             auto obj = self->ballon_content_->ToObject();
             assert(obj->InternalFieldCount() > 0);
 
-//          auto content_ptr = *static_cast<UIBasePtr*>(obj->GetPointerFromInternalField(0));
+			// auto content_ptr = *static_cast<UIBasePtr*>(obj->GetPointerFromInternalField(0));
 			auto content_ptr = *static_cast<UIBasePtr*>(Local<External>::Cast(obj->GetInternalField(0))->Value());
             content_ptr->Update();
         }
-    }*/
+    }
+*/
     return Undefined();
 }
 
 Handle<Value> Player::Function_Player_position(const Arguments& args)
 {
     assert(args.This()->InternalFieldCount() > 0);
-//  auto self = *static_cast<PlayerPtr*>(args.This()->GetPointerFromInternalField(0));
+	// auto self = *static_cast<PlayerPtr*>(args.This()->GetPointerFromInternalField(0));
 	auto self = *static_cast<PlayerPtr*>(Local<External>::Cast(args.This()->GetInternalField(0))->Value());
 	assert(self);
 
@@ -379,60 +384,60 @@ void Player::RegisterFunctionTemplate(Handle<FunctionTemplate>& func)
     auto object = func->InstanceTemplate();
 
     /**
-    * プレイヤーのIDを返します
+    * Returns the player's ID
     *
-    * このIDは1から始まる連番値です。
+    * ID is sequential starting from 1
     *
     * @method id
-    * @return {Integer} プレイヤーのID
+    * @return {Integer} Player ID
     */
     object->Set(String::New("id"), FunctionTemplate::New(Function_Player_id));
 
 
     /**
-    * プレイヤーの名前を返します
+    * Returns the player's name
     *
     * @method name
-    * @return {String} プレイヤーの名前
+    * @return {String} Player name
     */
     object->Set(String::New("name"), FunctionTemplate::New(Function_Player_name));
 
 
     /**
-    * プレイヤーのトリップを返します
+    * Returns the player's current tripcode
     *
     * @method trip
-    * @return {String|Undefined}　プレイヤーのトリップ。トリップが指定されていないときは、Undefinedを返します。
+    * @return {String|Undefined} Player's tripcode or undefined if not set
     */
     object->Set(String::New("trip"), FunctionTemplate::New(Function_Player_trip));
 
 
     /**
-    * プレイヤーのログイン状態を返します
+    * Returns the player's login status
     *
     * @method login
-    * @return {Boolean}　ログインしている時trueを返します
+    * @return {Boolean} True if logged in
     */
     object->Set(String::New("login"), FunctionTemplate::New(Function_Player_login));
 
     /**
-    * プレイヤーチャンネルを返します
+    * Returns the player's channel
     *
     * @method channel
-    * @return {Integer}　ログインしている時trueを返します
+    * @return {Integer}　True if logged in
     */
     object->Set(String::New("channel"), FunctionTemplate::New(Function_Player_channel));
 
     /**
-    * プレイヤーの頭上の吹き出しに表示する内容を設定します
+    * Sets the speech balloon content
     *
     * @method setBalloonContent
-    * @param {String} text 表示するテキスト
+    * @param {String} text to display
     */
     object->Set(String::New("setBalloonContent"), FunctionTemplate::New(Function_Player_setBalloonContent));
 
     /**
-    * プレイヤーの座標を返します
+    * Returns the player's coordinates
     *
     * @method position
 	* @return {Array}
@@ -441,29 +446,29 @@ void Player::RegisterFunctionTemplate(Handle<FunctionTemplate>& func)
 
 
     ///**
-    //* プレイヤーにタグを追加します
+    //* Adds a tag to the player
     //*
     //* @method addTag
-    //* @param {String} tag タグ
+    //* @param {String} tag
     //*/
 
     ///**
-    //* プレイヤーにタグがついていればtrueを追加します
+    //* Returns if player has the given tag
     //*
     //* @method hasTag
-    //* @param {String} tag タグ
-    //* @return {Boolean} タグがついているかどうか
+    //* @param {String} tag
+    //* @return {Boolean} True if player has the tag, false if not
     //*/
 
     ///**
-    //* プレイヤーからタグを削除します
+    //* Removes the given tag from the player
     //*
     //* @method removeTag
-    //* @param {String} tag タグ
+    //* @param {String} tag
     //*/
 
     ///**
-    //* プレイヤーからタグをすべて削除します
+    //* Removes all tags from the player
     //*
     //* @method clearTag
     //*/
@@ -508,28 +513,32 @@ Handle<Value> Player::position(Local<String> property, const AccessorInfo &info)
 }
 */
 
+/*
+Handle<Value> Player::login(const v8::Arguments& args) {
+  auto self = args.Holder();
+  auto wrap = Local<External>::Cast(self->GetInternalField(0));
+  auto ptr = wrap->Value();
+  auto value = static_cast<Player*>(ptr)->login_;
+  return Boolean::New(value);
+}
 
-//Handle<Value> Player::login(const v8::Arguments& args) {
-//  auto self = args.Holder();
-//  auto wrap = Local<External>::Cast(self->GetInternalField(0));
-//  auto ptr = wrap->Value();
-//  auto value = static_cast<Player*>(ptr)->login_;
-//  return Boolean::New(value);
-//}
-//
+*/
 ///**
 //* プレイヤーの頭上の吹き出しに表示するメッセージを取得します
 //*
 //* @method baloonText
 //* @return {String} text 表示するテキスト
 //*/
-//Handle<Value> Player::login(const v8::Arguments& args) {
-//  auto self = args.Holder();
-//  auto wrap = Local<External>::Cast(self->GetInternalField(0));
-//  auto ptr = wrap->Value();
-//  auto value = static_cast<Player*>(ptr)->login_;
-//  return Boolean::New(value);
-//}
+
+/*
+Handle<Value> Player::login(const v8::Arguments& args) {
+  auto self = args.Holder();
+  auto wrap = Local<External>::Cast(self->GetInternalField(0));
+  auto ptr = wrap->Value();
+  auto value = static_cast<Player*>(ptr)->login_;
+  return Boolean::New(value);
+}
+*/
 
 /**
 * プレイヤーをブラックリストに追加します

@@ -107,8 +107,9 @@ class ResourceManager {
         static void BuildModelFileTree();
         static void CacheBakedModel();
 
-//      static ModelHandle LoadModelFromName(const tstring&);
-		static ModelHandle LoadModelFromName(const tstring&, bool async = false); // ※ 非同期読み込みを復活させるため修正
+		// static ModelHandle LoadModelFromName(const tstring&);
+		// Modified to support async loading
+		static ModelHandle LoadModelFromName(const tstring&, bool async = false);
         static void ClearModelHandle();
 
 		static std::string GetCacheFilename(const ptree& info, const std::shared_ptr<char>& fileimage, int filesize);
@@ -123,7 +124,7 @@ class ResourceManager {
 
 		static tstring NameToFullPath(const tstring& name);
 
-		//Musics
+		// Music
 		static MusicPtr& music();
 
 		static std::unordered_map<std::string, std::string>& set_motions();
@@ -141,12 +142,12 @@ private:
 
 		static std::vector<std::string> model_name_list_;
 		static float model_edge_size_;
-		//Musics
+		// Music
 		static MusicPtr music_;
 
 		static const ptree& GetDefaultInfoJSON();
 
-		//Motions
+		// Motions
 		static std::unordered_map<std::string, std::string> set_motions_;
 
 };
@@ -178,15 +179,19 @@ typedef std::shared_ptr<ptree> PtreePtr;
 
 class SharedModelData {
 	public:
-//		SharedModelData(int base_handle, const PtreePtr& property);
-		SharedModelData(int base_handle, const ReadFuncDataPtr& funcdata, const PtreePtr& property, bool async_load = false); // ※非同期読み込みを行えるよう修正
+		// SharedModelData(int base_handle, const PtreePtr& property);
+		// Modified to support async loading
+		SharedModelData(int base_handle, const ReadFuncDataPtr& funcdata, const PtreePtr& property, bool async_load = false);
 		~SharedModelData();
 
 		const ptree& property() const;
 		int DuplicateHandle();
-		operator bool() const;     // ※非同期読み込みを行えるよう修正
-		ReadFuncDataPtr funcdata_; // ※非同期読み込みを行えるよう修正
-		bool async_load_;          // ※非同期読み込みを行えるよう修正
+		// Modified to support async loading
+		operator bool() const;
+		// Modified to support async loading
+		ReadFuncDataPtr funcdata_;
+		// Modified to support async loading
+		bool async_load_;
 	private:
 		int base_handle_;
 		std::list<int> handles_;
@@ -203,14 +208,14 @@ class ModelHandle {
 	    int handle() const;
         const ptree& property() const;
         std::string name() const;
-		int CheckLoaded(); // ※ 非同期読み込みを復活させるために追加
+		// Re enabled async loading
+		int CheckLoaded();
 	private:
 		SharedModelDataPtr shared_data_;
 		int handle_;
-		// ※ ここから  非同期読み込みを復活させるために追加
-		//	ReadFuncDataPtr funcdata_;
-		//	bool async_load_;
-		// ※ ここまで
+		// Re enabled async loading
+		// ReadFuncDataPtr funcdata_;
+		// bool async_load_;
 	public:
 		void *operator new(size_t size)
 		{

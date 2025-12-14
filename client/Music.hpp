@@ -6,11 +6,11 @@
 #include <map>
 #include <vector>
 
-//解析する信号の長さ(秒)
+// Length of signal to be analyzed (seconds)
 #define SIGNAL_LENGTH 0.5
-//スペクトラムの数
+// Spectrum number
 #define SPECTRUM_NUM 256
-//スペクトラムの拡大幅
+// Spectrum width
 #define SPECTRUM_WIDTH 2
 
 

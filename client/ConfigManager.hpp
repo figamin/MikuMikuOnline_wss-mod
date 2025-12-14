@@ -26,7 +26,8 @@ class ConfigManager
         bool fullscreen_;
         int screen_width_;
         int screen_height_;
-		std::list<std::string> lobby_servers_; // ※ロビーサーバをjsonで変更するために追加
+		std::list<std::string> lobby_servers_;
+		// Added the ability to change lobby server via json
         bool antialias_;
         std::string host_;
         int port_;
@@ -51,7 +52,8 @@ class ConfigManager
         bool fullscreen() const;
         int screen_width() const;
         int screen_height() const;
-		const std::list<std::string>& lobby_servers() const; // ※ロビーサーバをjsonで変更するために追加
+		const std::list<std::string>& lobby_servers() const;
+		// Added the ability to change lobby server via json
         bool antialias() const;
         std::string host() const;
         int port() const;
@@ -75,15 +77,16 @@ class ConfigManager
 	private:
 		int show_nametag_,
 			show_modelname_,
-			modelload_mode_, // ※ モデルのロード方法を変更できるように追加
+			modelload_mode_,
+			// Added the ability to change model loading method 
 			gamepad_type_,
-			gamepad_enable_, // ※ ゲームパッド有効をウインドウアクティブ時のみにもできる様に追加
-			// ※ ここから  ゲームパッドのボタンを変更できるように追加
+			gamepad_enable_,
+			// Added the ability to enable gamepad only when window is active
+			// Added the ability to change gamepad buttons
 			gamepad_jump_,
 			gamepad_speed_,
 			gamepad_warp_,
 			gamepad_sshot_,
-			// ※ ここまで
 			camera_direction_,
 			walk_change_type_;
 
@@ -92,22 +95,20 @@ class ConfigManager
 		void set_show_nametag(int value);
 		int show_modelname() const;
 		void set_show_modelname(int value);
-		// ※ ここから モデルのロード方法を変更できるように追加
+		// Added the ability to change model loading method
 		int modelload_mode() const;
 		void set_modelload_mode(int value);
-		// ※ ここまで
 		int walk_change_type() const;
 		void set_walk_change_type(int value);
 
 		int gamepad_type() const;
 		void set_gamepad_type(int value);
 
-		// ※ ここから ゲームパッド有効をウインドウアクティブ時のみにもできる様に追加
+		// Added the ability to enable gamepad only when window is active
 		int gamepad_enable() const;
 		void set_gamepad_enable(int value);
-		// ※ ここまで
 
-		// ※ ここから ゲームパッドのボタンを変更できるように追加
+		// Added the ability to change gamepad buttons
 		int gamepad_jump() const;
 		void set_gamepad_jump(int value);
 		int gamepad_speed() const;
@@ -116,7 +117,6 @@ class ConfigManager
 		void set_gamepad_warp(int value);
 		int gamepad_sshot() const;
 		void set_gamepad_sshot(int value);
-		// ※ ここまで
 
 		int camera_direction() const;
 		void set_camera_direction(int value);

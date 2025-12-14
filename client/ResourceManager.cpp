@@ -3,25 +3,30 @@
 //
 
 #include <fstream>
-#include <iostream> // ※ ファイルの非同期読み込みを行うために追加
+// Added for async file loading
+#include <iostream>
 #include <boost/filesystem.hpp>
 #include <boost/crc.hpp>
 #include "ResourceManager.hpp"
 #include "../common/Logger.hpp"
 #include "../common/unicode.hpp"
 #include "Music.hpp"
-#include "version.hpp" // ※ モデルロード中にウインドウタイトルを変化さるため追加
+// Added to change the window title when loading models
+#include "version.hpp"
 
-// ※ DXライブラリの仕様変更によりコメント(DXlib.hに定義が含まれている、またファイル名のデータ型が異なる)
-// MV1書き出し関数
-//namespace DxLib
-//{
-// extern int MV1SaveModelToMV1File( int MHandle, const char *FileName,
-//	int SaveType = ((0x0001) | (0x0002)), int AnimMHandle = -1,
-//	int AnimNameCheck = TRUE, int Normal8BitFlag = 1,
-//	int Position16BitFlag = 1, int Weight8BitFlag = 0,
-//	int Anim16BitFlag = 1 );
-//};
+// Due to changes in DXLib, the comments need to be updated
+// Definitions are included in DXlib.h, and the data types for the filenames are different
+// MV1 export function
+/*
+namespace DxLib
+{
+	extern int MV1SaveModelToMV1File( int MHandle, const char *FileName,
+	int SaveType = ((0x0001) | (0x0002)), int AnimMHandle = -1,
+	int AnimNameCheck = TRUE, int Normal8BitFlag = 1,
+	int Position16BitFlag = 1, int Weight8BitFlag = 0,
+	int Anim16BitFlag = 1 );
+};
+*/
 
 ResourceManager::MemoryPool ResourceManager::mempool;
 
@@ -29,6 +34,7 @@ const static TCHAR* CHAT_FONT_NAME = _T("UmePlus P Gothic");
 static int CHAT_FONT_SIZE = 15;
 static int CHAT_FONT_THICK = 1;
 static int CHAT_FONT_TYPE = DX_FONTTYPE_ANTIALIASING;
+// Seems to mean "Unknown: Oboro (Hyogemono) style"
 const static TCHAR* UNKNOWN_MODEL_NAME = _T("char:アンノウン:おぼろ(へうげもん)式");
 
 const static char* MOTIONS_PATH = "./motions";
@@ -44,7 +50,7 @@ int ResourceManager::default_font_handle_ = -1;
 int ResourceManager::default_font_handle()
 {
 	if (default_font_handle_ < 0) {
-		//TCHAR font_name[] = CHAT_FONT_NAME;
+		// TCHAR font_name[] = CHAT_FONT_NAME;
 		const TCHAR* font_name = CHAT_FONT_NAME;
 		default_font_handle_ = CreateFontToHandle(font_name, CHAT_FONT_SIZE, CHAT_FONT_THICK, CHAT_FONT_TYPE);
 	}
@@ -150,68 +156,72 @@ void ResourceManager::BuildModelFileTree()
 							}
 						}
 
-// ※ ここから zip展開時のskydomeのテキスチャーファイル名文字化けの救済(他国語OS対応)
-						// 英語
+						// The following code addresses the issue of garbled characters in the skydome texture file names during zip extraction (for compatibility with non english locales)
+						// English
 						if (exists(it_dir->path() / "\xc9\x2d\xef\x3d.bmp" )) {
+							// This means "blue sky"
 							rename (it_dir->path() / "\xc9\x2d\xef\x3d.bmp" ,it_dir->path() / L"青空.bmp");
 						}
 						if (exists(it_dir->path() / "\xf9\x5b\xf4\xb7.bmp" )) {
+							// This means "sunset"
 							rename (it_dir->path() / "\xf9\x5b\xf4\xb7.bmp" ,it_dir->path() / L"夕日.bmp");
 						}
 						if (exists(it_dir->path() / "\xfb\x50\xee\xc4\xe9\xa6\xfb\x54.bmp" )) {
+							// This means "full moon night"
 							rename (it_dir->path() / "\xfb\x50\xee\xc4\xe9\xa6\xfb\x54.bmp" ,it_dir->path() / L"満月の夜.bmp");
 						}
-						// ポルトガル語(夕日については英語と同じ)
+						// Portuguese (same as English for sunset)
 						if (exists(it_dir->path() / "\xc9\x2d\xef\xbe.bmp" )) {
+							// This means "blue sky"
 							rename (it_dir->path() / "\xc9\x2d\xef\xbe.bmp" ,it_dir->path() / L"青空.bmp");
 						}
 						if (exists(it_dir->path() / "\xfb\xd7\xee\xc4\xe9\xa6\xfb\xda.bmp" )) {
+							// This means "full moon night"
 							rename (it_dir->path() / "\xfb\xd7\xee\xc4\xe9\xa6\xfb\xda.bmp" ,it_dir->path() / L"満月の夜.bmp");
 						}
-						// ロシア語
+						// Russian
 						if (exists(it_dir->path() / "\xd0\x54\xcb\xba.bmp" )) {
+							// This means "blue sky"
 							rename (it_dir->path() / "\xd0\x54\xcb\xba.bmp" ,it_dir->path() / L"青空.bmp");
 						}
 						if (exists(it_dir->path() / "\xd7\x5b\xd3\xb7.bmp" )) {
+							// This means "sunset"
 							rename (it_dir->path() / "\xd7\x5b\xd3\xb7.bmp" ,it_dir->path() / L"夕日.bmp");
 						}
 						if (exists(it_dir->path() / "\xd6\xde\xcc\xce\xc2\xa6\xd6\xf9.bmp" )) {
+							// This means "full moon night"
 							rename (it_dir->path() / "\xd6\xde\xcc\xce\xc2\xa6\xd6\xf9.bmp" ,it_dir->path() / L"満月の夜.bmp");
 						}
-// ※ ここまで
 
 						if (!model_path.empty()) {
 							ptree pt_json;
-// ※ ここから ファイル名にwstringを使いたかったのでストリームによる読み込みに変更(他国語OS対応)
-//							read_json(json_path.string(), pt_json);
+							// Wanted to use wstring for the file name, so changed it to read via a stream to support multi language OS
+							// read_json(json_path.string(), pt_json);
 							std::ifstream json_stream(json_path.wstring(),std::ios::binary);
 							Logger::Debug(_T("Load %s"), json_path);
 							read_json(json_stream,pt_json);
-// ※ ここまで
 							MergePtree(&pt_json, GetDefaultInfoJSON());
 
 							std::string name = pt_json.get<std::string>("name", "");
 
-// ※ ここから model_path.string()で日本語が?になるので変更(他国語OS対応)
-//							auto model_path_str = unicode::sjis2utf8(model_path.string());
+							// Japanese characters became question marks when using model_path.string(), so changed to support multi language OS
+							// auto model_path_str = unicode::sjis2utf8(model_path.string());
 							auto model_path_wstr = unicode::ToWString(model_path.native());
 							auto model_path_str = unicode::ToString(model_path_wstr);
-// ※ ここまで
 							pt_json.put<std::string>("modelpath", model_path_str);
 							if (!name.empty()) {
 								model_name_list_.push_back(name);
 								model_name_tree_.put_child(ptree::path_type(name + ":_info_", ':'), pt_json);
-								// ※ /reload で即指定されたモデルが表示されるように修正 ここから
+								// Fixed so the specified model is displayed immediately after using /reload
 								auto name1 = unicode::ToTString(name);
 								auto name2 = model_names_.find(unicode::ToTString(name));
 								if (name2 != model_names_.end() && name1 != name2->second ) {
-									// 代替モデルになっていた場合に対応を正規のモデルに戻すために一度テーブルから消去
+									// If an alternative model was being used, remove it to revert the table
 									model_names_.erase(name1);
 								}
-								// ※ ここまで
-								// ステージデータをキャッシュ
+								// Cache stage data
 								// if (name.find("stage:") == 0) {
-								// ※ スカイドームもキャッシュ対象に追加
+								// Added skydome caching
 								if (name.find("stage:") == 0 || name.find("skydome:") == 0 ) {
 									CreateModelCache(model_path_str, pt_json);
 								}
@@ -288,7 +298,8 @@ int FileReadFunc(const TCHAR *FilePath, void **FileImageAddr, int *FileSize, voi
 
 	bool load_motion = false;
 	if (funcdata.motions_it != funcdata.motions.end() &&
-	//	filepath.string().find_last_of("L.vmd") != std::string::npos) { // ※ 条件がおかしいので修正
+	// The conditions are wrong so please fix them
+	// filepath.string().find_last_of("L.vmd") != std::string::npos) { 
 	filepath.string().rfind("L.vmd") != std::string::npos) {
 
 		filepath = funcdata.motions_it->second;
@@ -309,7 +320,7 @@ int FileReadFunc(const TCHAR *FilePath, void **FileImageAddr, int *FileSize, voi
 	int result = LoadFile(full_path.wstring().c_str(), FileImageAddr, FileSize);
 
 	if (load_motion) {
-		// 読み込み失敗したモーションを削除
+		// Delete motion data if it failed to load
 		if (result == -1) {
 			funcdata.motions_it->second = "";
 		}
@@ -327,7 +338,7 @@ int FileReleaseFunc(void *MemoryAddr, void *FileReadFuncData)
 
 void SetMotionNames(int handle, const ReadFuncData& funcdata)
 {
-	// モーションの名前を設定
+	// Set the motion names
 	int motion_index = 0;
 	for (auto it = funcdata.motions.begin(); it != funcdata.motions.end(); ++it) {
 		if (!it->second.empty()) {
@@ -366,13 +377,12 @@ void ResourceManager::CreateModelCache(std::string filepath, const ptree& info)
 
 	std::shared_ptr<char> fileimage;
 	int filesize;
-// ※ ここから  キャッシュファイルのされたファイル名の生成元を
-//              モデルファイルの内容 から モデルファイル名(パス付き)と更新日に変更
+	// You can find the source of the cached filename here
+	// Changed from "Contents of the model file" to "Model file name with path and last modified time"
 
-//
-//	LoadFile(unicode::ToTString(filepath).c_str(), &fileimage, &filesize );
-//	auto cache_filename = GetCacheFilename(info, fileimage, filesize);
-//	if (!boost::filesystem::exists(cache_filename)) {
+	// LoadFile(unicode::ToTString(filepath).c_str(), &fileimage, &filesize );
+	// auto cache_filename = GetCacheFilename(info, fileimage, filesize);
+	// if (!boost::filesystem::exists(cache_filename)) {
 	auto time = boost::filesystem::last_write_time(unicode::ToTString(filepath));
 	auto keystring = filepath + to_simple_string(boost::posix_time::from_time_t(time));
 	filesize = strlen(keystring.c_str()) + 1;
@@ -383,14 +393,15 @@ void ResourceManager::CreateModelCache(std::string filepath, const ptree& info)
 	if (!boost::filesystem::exists(cache_filename)) {
 		fileimage.reset();
 		LoadFile(unicode::ToTString(filepath).c_str(), &fileimage, &filesize);
-// ※ ここまで
 		int handle = MV1LoadModelFromMem(fileimage.get(), filesize, FileReadFunc, FileReleaseFunc, &(*funcdata));
 
 		if (!boost::filesystem::exists("./cache")) {
 			boost::filesystem::create_directory("./cache");
 		}
-//		MV1SaveModelToMV1File(handle, cache_filename.c_str()) ; // ※ DXライブラリの仕様変更により修正
-//		MV1SaveModelToMV1File(handle, unicode::ToTString(cache_filename).c_str()) ; // ※ 座標精度を変更(MODクライアント互換)
+		// Modified due to changes in DXLib
+		// MV1SaveModelToMV1File(handle, cache_filename.c_str()) ;
+		// Change coordinate position
+		// MV1SaveModelToMV1File(handle, unicode::ToTString(cache_filename).c_str()) ; 
 		MV1SaveModelToMV1File(handle, unicode::ToTString(cache_filename).c_str(),MV1_SAVETYPE_NORMAL,-1,1,0,0,0,0);
 		MV1DeleteModel(handle);
 		boost::filesystem::last_write_time(unicode::ToTString(cache_filename),time);
@@ -408,7 +419,7 @@ bool ResourceManager::IsCachedModelName(const tstring& name)
 {
 	auto name_it = model_names_.find(name);
 	if (name_it != model_names_.end()) {
-		// ※ model_handles_ を調べないように変更
+		// Changed to avoid checking model_handles
 		// return model_handles_.find(unicode::ToTString(name_it->second)) != model_handles_.end();
 		return true;
 	} else {
@@ -479,7 +490,8 @@ std::unordered_map<std::string, std::string> ResourceManager::set_motions_ = std
 float ResourceManager::model_edge_size_ = 1.0f;
 
 // ModelHandle ResourceManager::LoadModelFromName(const tstring& name)
-ModelHandle ResourceManager::LoadModelFromName(const tstring& name, bool async) // ※ 非同期読み込みを復活させるため修正
+// Changed to restore async loading
+ModelHandle ResourceManager::LoadModelFromName(const tstring& name, bool async) 
 {
 	auto fullpath = ptree::path_type(unicode::ToString(NameToFullPath(name)), ':');
 	ptree p = model_name_tree_.get_child(fullpath, ptree());
@@ -504,15 +516,16 @@ ModelHandle ResourceManager::LoadModelFromName(const tstring& name, bool async) 
 			std::shared_ptr<char> FileImage;
 			int FileSize;
 
-// ※ ここから ステージかスカイドームの場合はキャッシュを探しキャッシュ済みの場合は元のモデルファイルを読まないように修正
-//			LoadFile(unicode::ToTString(filepath).c_str(), &FileImage, &FileSize );
-//			// キャッシュ読み込み
-//			// モーションなしのモデルでないと上手くいかない
-//			auto cache_filename = GetCacheFilename(info, FileImage, FileSize);
-//			if (boost::filesystem::exists(cache_filename)) {
+			// If it's a stage or skydome, the code was modified to search for a cached version first before loading the original model file
+			// LoadFile(unicode::ToTString(filepath).c_str(), &FileImage, &FileSize );
+			// Cache loading
+			// It won't work unless you use a model without motion
+			// auto cache_filename = GetCacheFilename(info, FileImage, FileSize);
+			// if (boost::filesystem::exists(cache_filename)) {
 			std::string cache_filename;
 			if (name.find(L"stage:")== 0||name.find(L"skydome:")== 0) {
-				async = false; // ステージ、スカイドームは必ず同期読み込みにする
+				// The stage and skydome must be loaded synchronously
+				async = false;
 				auto time = boost::posix_time::from_time_t( boost::filesystem::last_write_time(unicode::ToTString(filepath).c_str()));
                 auto keystring = unicode::ToString(filepath) + to_simple_string(time);
 				FileSize = strlen(keystring.c_str()) + 1;
@@ -522,22 +535,21 @@ ModelHandle ResourceManager::LoadModelFromName(const tstring& name, bool async) 
 				cache_filename = GetCacheFilename(info, FileImage, FileSize);
 			}
 			if ((!cache_filename.empty()) &&  boost::filesystem::exists(cache_filename)) {
-// ※ ここまで
+
 
 				FileImage.reset();
 				LoadFile(unicode::ToTString(cache_filename).c_str(), &FileImage, &FileSize);
 			}
-// ※ ここから キャッシュがない場合はモデルファイル読み込み
+			// If there is no cache, the model file will be loaded here
 			else {
 				FileImage.reset();
 				LoadFile(unicode::ToTString(filepath).c_str(), &FileImage, &FileSize );
 			}
-// ※ ここまで
-// ※ ここから  非同期読み込みを復活させるため修正
+			// Changed to restore async loading
 			if (async) {
 				SetUseASyncLoadFlag(TRUE);
 			}
-// ※ ここまで
+
 			SetMainWindowText(unicode::ToTString(MMO_VERSION_TEXT_LOADING).c_str());
 			int handle = MV1LoadModelFromMem( FileImage.get(), FileSize, FileReadFunc, FileReleaseFunc, &(*funcdata));
 
@@ -545,11 +557,11 @@ ModelHandle ResourceManager::LoadModelFromName(const tstring& name, bool async) 
 			for(int i = 0; i < material_num; ++i){
 				MV1SetMaterialType(handle,i,DX_MATERIAL_TYPE_TOON_2);
 			}
-// ※ ここから  非同期読み込みを復活させるため修正
+			// Changed to restore async loading
 			// SetMotionNames(handle, *funcdata);
-			// // CreateModelCache(handle, info, FileImage, FileSize);
+			// CreateModelCache(handle, info, FileImage, FileSize);
 			// SharedModelDataPtr shared_data = 
-			//	std::make_shared<SharedModelData>(handle, std::make_shared<ptree>(info));
+			// std::make_shared<SharedModelData>(handle, std::make_shared<ptree>(info));
 			if (async) {
 				SetUseASyncLoadFlag(FALSE);
 			} else {
@@ -558,7 +570,7 @@ ModelHandle ResourceManager::LoadModelFromName(const tstring& name, bool async) 
 
 			SharedModelDataPtr shared_data = 
 				std::make_shared<SharedModelData>(handle,funcdata, std::make_shared<ptree>(info),async);
-// ※ ここまで
+
 
 			shared_model_data_[unicode::ToTString(filepath)] = shared_data;
 
@@ -581,7 +593,7 @@ void ResourceManager::ClearModelHandle()
 	}
 
 	BOOST_FOREACH(const tstring& key, erase_keys) {
-		// ※ モデル解放時にモデルの種別がワープオブジェクトまたはスカイドームの場合は解放しないように修正
+		// Modified the code so the model is not released if it's a skydome or warp object
 		auto path = key.substr(0,key.rfind('\\'))+ _T("\\info.json");
 		auto json_path = boost::filesystem::wpath(unicode::ToWString(path));
 		if (exists(json_path)) {
@@ -589,11 +601,12 @@ void ResourceManager::ClearModelHandle()
 			read_json(json_path.string(), pt_json);
 			auto type = pt_json.get<std::string>("name", "");
 			type = type.substr(0,type.find(':'));
-			if (type=="skydome"||type=="warpobj" ) {
-				continue; // 以下のモデル解放をスキップする
+			if (type=="skydome" || type=="warpobj" ) {
+				// Skip the model release
+				continue; 
 			}
 		}
-		// ※ ここまで
+		
 		shared_model_data_.erase(key);
 	}
 }
@@ -603,10 +616,10 @@ void ResourceManager::SetModelEdgeSize(int handle)
 	int MaterialNum = MV1GetMaterialNum( handle );
 	for( int i = 0 ; i < MaterialNum ; i ++ )
 	{
-		// マテリアルの元々の輪郭線の太さを取得
+		// Get the original outline thickness of the material
 		float dotwidth = MV1GetMaterialOutLineDotWidth( handle, i );
 		float width = MV1GetMaterialOutLineWidth( handle , i );
-		// マテリアルの輪郭線の太さ
+		// Material outline thickness
 		MV1SetMaterialOutLineDotWidth( handle, i, dotwidth * model_edge_size_);
 		MV1SetMaterialOutLineWidth( handle, i, width * model_edge_size_);
 	}
@@ -632,11 +645,11 @@ tstring ResourceManager::NameToFullPath(const tstring& name)
 
 		p = model_name_tree_.get_child(path, ptree());
 
-		// ルートで探索を打ち切る
+		// Stop the search along this route
 		while (1) {
 			if (p.empty()) {
 				Logger::Debug(_T("EMPTY %s"), unicode::ToTString(path.dump()));
-				// 親ノードを検索
+				// Search for the parent node
 				if (!path.single()) {
 					return _T("");
 					break;
@@ -651,7 +664,7 @@ tstring ResourceManager::NameToFullPath(const tstring& name)
 				info = p.get_child("_info_", ptree());
 				if (info.empty()) {
 					Logger::Debug(_T("CHILD_FOUND"));
-					// データがない場合は最初の子ノードへ移動
+					// If there's no data, move to the first child node
 					path /= ptree::path_type(p.front().first, ':');
 					p = p.get_child(ptree::path_type(p.front().first, ':'), ptree());
 				} else {
@@ -713,12 +726,17 @@ ImageHandle::operator int() const
 }
 
 //SharedModelData::SharedModelData(int base_handle, const PtreePtr& property) :
-SharedModelData::SharedModelData(int base_handle, const ReadFuncDataPtr& funcdata, const PtreePtr& property, bool async_load) : // ※ 非同期読み込み対応のため修正
+// Modified to support async loading
+SharedModelData::SharedModelData(int base_handle, const ReadFuncDataPtr& funcdata, const PtreePtr& property, bool async_load) :
 base_handle_(base_handle),
-//	property_(property)  // ※ 非同期読み込み対応のため修正
-funcdata_(funcdata),     // ※ 非同期読み込み対応のため修正
-property_(property),     // ※ 非同期読み込み対応のため修正
-async_load_(async_load)  // ※ 非同期読み込み対応のため修正
+// Modified to support async loading
+//	property_(property)
+// Modified to support async loading
+funcdata_(funcdata),
+// Modified to support async loading
+property_(property),
+// Modified to support async loading
+async_load_(async_load)
 {
 
 }
@@ -732,7 +750,7 @@ int SharedModelData::DuplicateHandle()
 {
 	int handle = MV1DuplicateModel(base_handle_);
     if ( handle != -1){
-    //assert(handle != -1);
+    // assert(handle != -1);
     	handles_.push_back(handle);
 	    return handle;
     } else {
@@ -748,7 +766,7 @@ SharedModelData::~SharedModelData()
 	MV1DeleteModel(base_handle_);
 }
 
-// ※ ここから  　非同期読み込みを復活させるために追加
+// Modified to support async loading
 int ModelHandle::CheckLoaded()
 {
 	if (!shared_data_->async_load_) {
@@ -756,16 +774,16 @@ int ModelHandle::CheckLoaded()
 	} else if (shared_data_->async_load_ && CheckHandleASyncLoad(handle_) == FALSE) {
         handle_ = MV1DuplicateModel(handle_);
 		SetMotionNames(handle_, *shared_data_->funcdata_);
-		shared_data_->async_load_ = false;
+		shared_data_ -> async_load_ = false;
 		return TRUE;
-    } else if (shared_data_->async_load_ && CheckHandleASyncLoad(handle_) == -1) {
-        // 非同期読み込み中にエラーになった場合
+    } else if (shared_data_ -> async_load_ && CheckHandleASyncLoad(handle_) == -1) {
+        // Error during async loading
         return -1;
     } else {
 		return FALSE;
 	}
 }
-// ※ ここまで
+
 
 
 ModelHandle::ModelHandle(const SharedModelDataPtr& shared_data) :
