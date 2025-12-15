@@ -1,3 +1,4 @@
+// This file controls the version shown on the title bar.
 #pragma once
 
 #ifdef NDEBUG

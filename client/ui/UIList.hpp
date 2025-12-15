@@ -21,23 +21,23 @@ class UIList : public UIBase {
         static void DefineInstanceTemplate(Handle<ObjectTemplate>* object);
 
     private:
-        /* function */
+        // function
         static Handle<Value> Function_addItem(const Arguments& args);
         static Handle<Value> Function_removeItem(const Arguments& args);
         static Handle<Value> Function_clearItems(const Arguments& args);
 
-        /* property */
+        // property
         static Handle<Value> Property_scroll_y(Local<String> property, const AccessorInfo &info);
         static void Property_set_scroll_y(Local<String> property, Local<Value> value, const AccessorInfo& info);
 
 	public:
-        /* function */
+        // function
 		void addItem(UIBasePtr item);
 		void removeItem(UIBasePtr item);
 		void clearItems();
 		std::vector<UIBasePtr> getItems() const;
 
-        /* property */
+        // property
 		void set_scroll_y(int scroll_y);
 
     private:

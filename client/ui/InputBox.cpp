@@ -170,7 +170,7 @@ void InputBox::DrawTabs()
 
     {
         SetDrawBright(210, 47, 47);
-        // スクリプトタブ
+        // Script tab
         int tab_x = script_tab_.x;
         int tab_y = script_tab_.y;
         int tab_width = script_tab_.width;
@@ -344,8 +344,8 @@ void InputBox::ProcessInput(InputManager* input)
     bool empty = input_.text().empty();
 	input_.ProcessInput(input);
 
-	//  IME変換途中で入力欄が非アクティブになってしまうため修正
-	//  if (IsActive() && ((first_key_return && !push_key_shift && empty) || push_key_esc)) {
+	// The input field becomes inactive during IME messaging, so this needs to be fixed
+	// if (IsActive() && ((first_key_return && !push_key_shift && empty) || push_key_esc)) {
 	if (IsActive() && input_.lines_[0].empty() && ((first_key_return && !push_key_shift && empty) || push_key_esc)) {
 		Inactivate();
     } else if (!IsActive() && first_key_return) {
@@ -374,14 +374,14 @@ void InputBox::ProcessInput(InputManager* input)
     input_.set_x(absolute_rect_.x + INPUT_MARGIN_X);
     input_.set_width(absolute_rect_.width - INPUT_MARGIN_X * 2);
 
-        //line_buffer.clear();
-        //line_width = 0;
-
-        //if (push_key_shift && (push_repeat_key_up || push_repeat_key_down)) {
-        //    SetKeyInputSelectArea(GetKeyInputCursorPosition(input_handle_),
-        //            prev_cursor_pos_, input_handle_);
-        //}
-
+    // line_buffer.clear();
+    // line_width = 0;
+    /*
+    if (push_key_shift && (push_repeat_key_up || push_repeat_key_down)) {
+        SetKeyInputSelectArea(GetKeyInputCursorPosition(input_handle_),
+            prev_cursor_pos_, input_handle_);
+    }
+    */
     //}
 
     if (IsActive()) {
@@ -458,12 +458,13 @@ void InputBox::ProcessInputTabs(InputManager* input)
 
 void InputBox::UpdateTabs()
 {
-    // スクリプトモードショートカット
-    // if (input->GetKeyCount(InputManager::KEYBIND_SCRIPT_MODE) == 1) {
-    //    SetScriptMode();
-    // }
-
-    // タブ選択
+    // Script mode shortcut
+    /*
+    if (input->GetKeyCount(InputManager::KEYBIND_SCRIPT_MODE) == 1) {
+        SetScriptMode();
+    }
+    */
+    // Tab selection
     int tab_offset_x = 0;
     BOOST_FOREACH(auto& tab, tabs_) {
         tab.x = absolute_rect_.x + TAB_SIDE_MARGIN + tab_offset_x - 9;
@@ -491,18 +492,18 @@ void InputBox::UpdateBase(InputManager* input)
 
     bool hover = (absolute_rect_.x <= input->GetMouseX() && input->GetMouseX() <= absolute_rect_.x + absolute_rect_.width
             && absolute_rect_.y <= input->GetMouseY() && input->GetMouseY() <= absolute_rect_.y + absolute_rect_.height);
-
-    //bool input_hover = (input_x_ <= input->GetMouseX()
-    //        && input->GetMouseX() <= input_x_ + input_width_
-    //        && input_y_ <= input->GetMouseY()
-    //        && input->GetMouseY() <= input_y_ + input_height_);
-
+    /*
+    bool input_hover = (input_x_ <= input->GetMouseX()
+        && input->GetMouseX() <= input_x_ + input_width_
+        && input_y_ <= input->GetMouseY()
+        && input->GetMouseY() <= input_y_ + input_height_);
+    */
     bool corner_hover = (absolute_rect_.x + absolute_rect_.width - 18 <= input->GetMouseX()
             && input->GetMouseX() <= absolute_rect_.x + absolute_rect_.width
             && absolute_rect_.y + absolute_rect_.height - 18 <= input->GetMouseY()
             && input->GetMouseY() <= absolute_rect_.y + absolute_rect_.height);
 
-    // ドラッグ処理
+    // Drag handling
     if (input->GetMouseLeft()) {
         if (input->GetPrevMouseLeft() == 0 && drag_offset_x_ < 0 && hover
                  && !corner_hover) {

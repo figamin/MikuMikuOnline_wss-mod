@@ -10,16 +10,15 @@
 
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment(lib, "winmm.lib")
-// ※ ここから  V8のバージョンを上げるために変更
-//#pragma comment(lib, "v8_base.lib")
+// The following changes are made to upgrade the v8 version
+// #pragma comment(lib, "v8_base.lib")
 #ifdef _WIN64
 #pragma comment(lib, "v8_base.x64.lib")
 #else
 #pragma comment(lib, "v8_base.ia32.lib")
 #endif
 #pragma comment(lib, "v8_snapshot.lib")
-//#pragma comment(lib, "preparser_lib.lib")
-// ※ ここまで
+// #pragma comment(lib, "preparser_lib.lib")
 unsigned int ScriptEnvironment::max_execution_time = 5000;
 char ScriptEnvironment::SCRIPT_PATH[] = "system/js";
 std::mt19937 ScriptEnvironment::random_engine(static_cast<unsigned long>(GetNowCount()));
@@ -47,18 +46,18 @@ ScriptEnvironment::ScriptEnvironment() :
         Handle<ObjectTemplate> script_template = ObjectTemplate::New();
         script_template->SetInternalFieldCount(1);
         auto script_object = script_template->NewInstance();
-//      script_object->SetPointerInInternalField(0, this);
+        // script_object->SetPointerInInternalField(0, this);
 		script_object->SetInternalField(0, External::New(this));
         context->Global()->Set(String::New("Script"), script_object);
     });
 
-    // 組み込み関数をセット
+    // Set the built in functions
     SetBuiltins();
 
-    // ライブラリをロード
-//	#define SUGAR_VER "1.3.5"
+    // Load sugar.js
+    // #define SUGAR_VER "1.3.5"
 	#define SUGAR_VER "1.4.1"
-//  Load("sugar-1.3.5.min.js");
+    // Load("sugar-1.3.5.min.js");
     Load("sugar-" SUGAR_VER ".min.js");
 
     timer_events_thread_ = boost::thread([&](){
@@ -71,7 +70,7 @@ ScriptEnvironment::ScriptEnvironment() :
 
 ScriptEnvironment::~ScriptEnvironment()
 {
-    // タイマースレッドを中断
+    // Interrupted the timer thread
     timer_events_thread_.interrupt();
     timer_events_thread_.join();
     {
@@ -96,23 +95,23 @@ void ScriptEnvironment::SetBuiltins()
     */
 
     /**
-    * スクリプト
+    * Script
     *
     * @class Script
     * @static
     */
 
     /**
-     * コンソールウィンドウに文字列を出力します
+     * Outputs a string to the console
      *
      * @method print
-     * @param {String} text テキスト
+     * @param {String} text
      * @static
      */
     SetFunction("Script.print", Function_Script_print);
 
     /**
-     * スクリプトエンジン及びライブラリの情報を返します
+     * Returns information about the script engine and libraries
      *
      * @method info
      * @static
@@ -120,51 +119,53 @@ void ScriptEnvironment::SetBuiltins()
     SetFunction("Script.info", Function_Script_info);
 
     /**
-     * 指定時間後に関数を実行します
+     * The function will run after the specified timeout
      *
-     * __MMOでは文字列からのコードの動的生成を禁じているため、第一引数に文字列を渡すことはできません__
-     *
+     * In __MMO, you cannot dynamically generate code from strings
+     * so you cannot pass a string as the first argument.
+     * 
      * @method setTimeout
-     * @param {Function} func 実行する関数オブジェクト
-     * @param {Integer} time 遅延時間(ms)
-     * @return {Integer} イベントID
+     * @param {Function} function to be run
+     * @param {Integer} Delay time (ms)
+     * @return {Integer} Event ID
      * @static
      */
     SetFunction("Script.setTimeout", Function_Script_setTimeout);
 
     /**
-     * 指定時間毎に関数を実行します
+     * The function will run at specified intervals
      *
-     * __MMOでは文字列からのコードの動的生成を禁じているため、第一引数に文字列を渡すことはできません__
-     *
+     * In __MMO, you cannot dynamically generate code from strings
+     * so you cannot pass a string as the first argument.
+     * 
      * @method setInterval
-     * @param {Function} func 実行する関数オブジェクト
-     * @param {Integer} time 間隔時間(ms)
-     * @return {Integer} イベントID
+     * @param {Function} function to be run
+     * @param {Integer} Interval time (ms)
+     * @return {Integer} Event ID
      * @static
      */
     SetFunction("Script.setInterval", Function_Script_setInterval);
 
     /**
-     * setTimeoutで指定したイベントを解除します
+     * This cancels the event specified by setTimeout
      *
      * @method clearTimeout
-     * @param {Integer} id イベントID
+     * @param {Integer} Event ID
      * @static
      */
     SetFunction("Script.clearTimeout", Function_Script_clearTimeout);
 
     /**
-     * setIntervalで指定したイベントを解除します
+     * This cancels the event specified by setInterval
      *
      * @method clearInterval
-     * @param {Integer} id イベントID
+     * @param {Integer} id Event ID
      * @static
      */
     SetFunction("Script.clearInterval", Function_Script_clearInterval);
 
 
-	// 組み込みの乱数生成関数を上書き
+	// Overrides the built in random number generator
 	auto global = v8::Context::GetCurrent()->Global();
 	auto math = global->Get(v8::String::New("Math"));
 	math->ToObject()->ForceSet(v8::String::New("random"), 
@@ -180,14 +181,14 @@ Handle<Value> ScriptEnvironment::Function_Script_print(const Arguments& args)
 
 Handle<Value> ScriptEnvironment::Function_Script_info(const Arguments& args)
 {
-//  auto self = static_cast<ScriptEnvironment*>(args.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<ScriptEnvironment*>(args.Holder()->GetPointerFromInternalField(0));
 	auto self = static_cast<ScriptEnvironment*>(Local<External>::Cast(args.Holder()->GetInternalField(0))->Value());
     return String::New(self->GetInfo().c_str());
 }
 
 Handle<Value> ScriptEnvironment::Function_Script_setTimeout(const Arguments& args)
 {
-//  auto self = static_cast<ScriptEnvironment*>(args.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<ScriptEnvironment*>(args.Holder()->GetPointerFromInternalField(0));
 	auto self = static_cast<ScriptEnvironment*>(Local<External>::Cast(args.Holder()->GetInternalField(0))->Value());
 
     if (args.Length() >= 2 && args[0]->IsFunction()) {
@@ -213,7 +214,7 @@ Handle<Value> ScriptEnvironment::Function_Script_setTimeout(const Arguments& arg
 
 Handle<Value> ScriptEnvironment::Function_Script_setInterval(const Arguments& args)
 {
-//  auto self = static_cast<ScriptEnvironment*>(args.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<ScriptEnvironment*>(args.Holder()->GetPointerFromInternalField(0));
 	auto self = static_cast<ScriptEnvironment*>(Local<External>::Cast(args.Holder()->GetInternalField(0))->Value());
 
     if (args.Length() >= 2 && args[0]->IsFunction()) {
@@ -239,7 +240,7 @@ Handle<Value> ScriptEnvironment::Function_Script_setInterval(const Arguments& ar
 
 Handle<Value> ScriptEnvironment::Function_Script_clearTimeout(const Arguments& args)
 {
-//  auto self = static_cast<ScriptEnvironment*>(args.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<ScriptEnvironment*>(args.Holder()->GetPointerFromInternalField(0));
 	auto self = static_cast<ScriptEnvironment*>(Local<External>::Cast(args.Holder()->GetInternalField(0))->Value());
 
     if (args.Length() >= 1) {
@@ -251,7 +252,7 @@ Handle<Value> ScriptEnvironment::Function_Script_clearTimeout(const Arguments& a
 
 Handle<Value> ScriptEnvironment::Function_Script_clearInterval(const Arguments& args)
 {
-//  auto self = static_cast<ScriptEnvironment*>(args.Holder()->GetPointerFromInternalField(0));
+    // auto self = static_cast<ScriptEnvironment*>(args.Holder()->GetPointerFromInternalField(0));
 	auto self = static_cast<ScriptEnvironment*>(Local<External>::Cast(args.Holder()->GetInternalField(0))->Value());
 
     if (args.Length() >= 1) {
@@ -313,7 +314,7 @@ void ScriptEnvironment::UpdateTimerEvents()
 void ScriptEnvironment::Execute(const std::string& script,
         const std::string& filename, const V8ValueCallBack& callback)
 {
-//    while (!v8::V8::IdleNotification());
+    // while (!v8::V8::IdleNotification());
 
     With(
             [&](const Handle<Context>& context)
@@ -329,7 +330,7 @@ void ScriptEnvironment::Execute(const std::string& script,
                 auto compiled_script = Script::Compile(source, String::New(compile_path.c_str()));
                 if (compiled_script.IsEmpty()) {
 
-                    // コンパイルエラー
+                    // Compilation error
                     auto exception = trycatch.Exception();
                     String::Utf8Value exception_str(exception);
                     Logger::Error(unicode::ToTString(*exception_str));
@@ -341,7 +342,7 @@ void ScriptEnvironment::Execute(const std::string& script,
                     result = compiled_script->Run();
                     if (result.IsEmpty()) {
 
-                        // ランタイムエラー
+                        // Runtime error
                         Handle<Value> exception;
                         HandleScope scope;
 
@@ -368,7 +369,7 @@ void ScriptEnvironment::Execute(const std::string& script,
 
 }
 
-//void ScriptEnvironment::With(const V8Block& block)
+// void ScriptEnvironment::With(const V8Block& block)
 void ScriptEnvironment::With(const V8Block& block) const
 {
     if (block) {
@@ -392,7 +393,7 @@ void ScriptEnvironment::TimedWith(const V8Block& block)
 
         });
 
-        // 時間を過ぎたら強制停止
+        // If the time limit is exceeded, terminate the execution
         if (max_execution_time > 0) {
             auto waiting_time = boost::posix_time::milliseconds(max_execution_time);
             if (!timelimit_thread.timed_join(waiting_time)) {
@@ -461,23 +462,24 @@ std::string ScriptEnvironment::GetInfo()
 {
     std::string info;
     info += std::string("V8 Javascript Engine ") + V8::GetVersion() + std::string("\n");
-// ※ CoffeeScriptを利用していないため例外で落ちるのでコメント また SugarLibraryのバージョンも修正
-//  With(
-//          [&](const Handle<Context>& context)
-//          {
-//              Handle<String> key = String::New("CoffeeScript");
-//              Handle<Object> compiler = context->Global()->GetHiddenValue(key)->ToObject();
-//              if (compiler->Has(String::New("VERSION"))) {
-//                  info += "CoffeeScript ";
-//                  info += *String::AsciiValue(compiler->Get(String::New("VERSION"))->ToString());
-//                  info += "\n";
-//              }
-//          });
-//
+// This code was commented out because it was causing an exception due to not using CoffeeScript
+// The SugarLibrary version was also updated
+/*
+    With(
+        [&](const Handle<Context>& context)
+        {
+            Handle<String> key = String::New("CoffeeScript");
+            Handle<Object> compiler = context->Global()->GetHiddenValue(key)->ToObject();
+            if (compiler->Has(String::New("VERSION"))) {
+                info += "CoffeeScript ";
+                info += *String::AsciiValue(compiler->Get(String::New("VERSION"))->ToString());
+                info += "\n";
+            }
+        }
+    );
+*/
 //  info += "Sugar Library v1.2.5";
     info += "Sugar Library v" SUGAR_VER;
-// ここまで
-
     return info;
 }
 

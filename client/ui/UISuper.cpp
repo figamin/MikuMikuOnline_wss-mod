@@ -94,12 +94,12 @@ void UISuper::UpdatePosition()
         parent_width_,
         parent_height_;
 
-    // 画面のサイズを取得
+    // Get the screen size
 	parent_x_ = 0;
 	parent_y_ = 0;
 	GetScreenState(&parent_width_, &parent_height_, nullptr);
 
-    // 幅を計算
+    // Calculate the width
     if ((docking_ & DOCKING_LEFT) && (docking_ & DOCKING_RIGHT)) {
         int left = parent_x_ + left_;
         int right = parent_x_ + parent_width_ - right_;
@@ -108,7 +108,7 @@ void UISuper::UpdatePosition()
         absolute_rect_.width = width_;
     }
 
-    // 高さを計算
+    // Calculate the height
     if ((docking_ & DOCKING_TOP) && (docking_ & DOCKING_BOTTOM)) {
         int top = parent_y_ + top_;
         int bottom = parent_y_ + parent_height_ - bottom_;
@@ -117,7 +117,7 @@ void UISuper::UpdatePosition()
         absolute_rect_.height = height_;
     }
 
-    // 左上X座標を計算
+    // Calculate the top left X coordinate
     if (docking_ & DOCKING_HCENTER) {
         absolute_rect_.x = parent_x_ + parent_width_ / 2 - absolute_rect_.width / 2;
     } else if (docking_ & DOCKING_RIGHT) {
@@ -126,7 +126,7 @@ void UISuper::UpdatePosition()
         absolute_rect_.x = parent_x_ + left_;
     }
 
-    // 左上Y座標を計算
+    // Calculate the top left Y coordinate
     if (docking_ & DOCKING_VCENTER) {
         absolute_rect_.y = parent_y_ + parent_height_ / 2 - absolute_rect_.height / 2;
     } else if (docking_ & DOCKING_BOTTOM) {

@@ -59,7 +59,7 @@ public:
 		shadow_handle_ = LoadGraph( _T(".\\system\\textures\\shadow.tga") );
 		shadow_size_ = data_provider_.model().property().get<float>("character.shadow_size",0.35f);
 	}
-	// キャラクターの影を描画
+	// Draw the character's shadow
 	void Impl::Chara_ShadowRender() const
 	{
 		int i ;
@@ -70,19 +70,20 @@ public:
 		auto shadow_height = model_height_ * (*stage_)->map_scale();
 		auto shadow_size = shadow_size_ * (*stage_)->map_scale();
 
-		// ライティングを無効にする
+		// Disable lighting
 		SetUseLighting( FALSE ) ;
 
-		// Ｚバッファを有効にする
+		// Enable Z buffer
 		SetUseZBuffer3D( TRUE ) ;
 
-		// テクスチャアドレスモードを CLAMP にする( テクスチャの端より先は端のドットが延々続く )
+		// Set texture addressing mode to CLAMP
+		// Beyond the texture edges, the edge pixels will be repeated indefinitely
 		SetTextureAddressMode( DX_TEXADDRESS_CLAMP ) ;
 
-		// キャラクターの直下に存在する地面のポリゴンを取得
+		// Get the polygon located directly below the character
 		HitResDim = MV1CollCheck_Capsule((*stage_)->map_handle().handle(), -1, VAdd( current_pos_, VGet( 0.0f, 0.5f * shadow_height, 0.0f ) ), VAdd( current_pos_, VGet( 0.0f, -shadow_height, 0.0f ) ), shadow_size ) ;
 
-		// 頂点データで変化が無い部分をセット
+		// Set the vertex data parts that haven't changed
 		Vertex[ 0 ].dif = GetColorU8( 255,255,255,255 ) ;
 		Vertex[ 0 ].spc = GetColorU8( 0,0,0,0 ) ;
 		Vertex[ 0 ].su = 0.0f ;
@@ -90,22 +91,22 @@ public:
 		Vertex[ 1 ] = Vertex[ 0 ] ;
 		Vertex[ 2 ] = Vertex[ 0 ] ;
 
-		// 球の直下に存在するポリゴンの数だけ繰り返し
+		// Repeat the process for the number of polygons located directly below the sphere
 		HitRes = HitResDim.Dim ;
 		for( i = 0 ; i < HitResDim.HitNum ; i ++, HitRes ++ )
 		{
-			// ポリゴンの座標は地面ポリゴンの座標
+			// The polygon coordinates are the same as the one on the ground
 			Vertex[ 0 ].pos = HitRes->Position[ 0 ] ;
 			Vertex[ 1 ].pos = HitRes->Position[ 1 ] ;
 			Vertex[ 2 ].pos = HitRes->Position[ 2 ] ;
 
-			// ちょっと持ち上げて重ならないようにする
+			// Raise them slightly so they don't overlap
 			SlideVec = VScale( HitRes->Normal, 0.5f ) ;
 			Vertex[ 0 ].pos = VAdd( Vertex[ 0 ].pos, SlideVec ) ;
 			Vertex[ 1 ].pos = VAdd( Vertex[ 1 ].pos, SlideVec ) ;
 			Vertex[ 2 ].pos = VAdd( Vertex[ 2 ].pos, SlideVec ) ;
 
-			// ポリゴンの不透明度を設定する
+			// Set the polygon opacity
 			Vertex[ 0 ].dif.a = 0 ;
 			Vertex[ 1 ].dif.a = 0 ;
 			Vertex[ 2 ].dif.a = 0 ;
@@ -118,7 +119,7 @@ public:
 			if( HitRes->Position[ 2 ].y > current_pos_.y - shadow_height )
 				Vertex[ 2 ].dif.a = 128 * ( 1.0f - fabs( HitRes->Position[ 2 ].y - current_pos_.y ) / shadow_height ) ;
 
-			// ＵＶ値は地面ポリゴンとキャラクターの相対座標から割り出す
+			// The UV values are calculated from the relative coordinates of the ground polygon and the character
 			Vertex[ 0 ].u = ( HitRes->Position[ 0 ].x - current_pos_.x ) / ( shadow_size * 2.0f ) + 0.5f ;
 			Vertex[ 0 ].v = ( HitRes->Position[ 0 ].z - current_pos_.z ) / ( shadow_size * 2.0f ) + 0.5f ;
 			Vertex[ 1 ].u = ( HitRes->Position[ 1 ].x - current_pos_.x ) / ( shadow_size * 2.0f ) + 0.5f ;
@@ -126,17 +127,17 @@ public:
 			Vertex[ 2 ].u = ( HitRes->Position[ 2 ].x - current_pos_.x ) / ( shadow_size * 2.0f ) + 0.5f ;
 			Vertex[ 2 ].v = ( HitRes->Position[ 2 ].z - current_pos_.z ) / ( shadow_size * 2.0f ) + 0.5f ;
 
-			// 影ポリゴンを描画
+			// Draw shadow polygons
 			DrawPolygon3D( Vertex, 1, shadow_handle_, TRUE ) ;
 		}
 
-		// 検出した地面ポリゴン情報の後始末
+		// Post processing of ground polygon info
 		MV1CollResultPolyDimTerminate( HitResDim ) ;
 
-		// ライティングを有効にする
+		// Enable lighting
 		SetUseLighting( TRUE ) ;
 
-		// Ｚバッファを無効にする
+		// Disable Z buffer
 		SetUseZBuffer3D( FALSE ) ;
 	}
 
@@ -144,7 +145,7 @@ public:
 
     void Impl::Draw() const
     {
-        // TODO: 離れすぎている場合は描画しない
+        // TODO: If they are too far apart, do not draw them
         MV1DrawModel(model_handle_);
 		Chara_ShadowRender();
         // DrawSphere3D( VGet(current_target_pos_.x, current_target_pos_.y + 2, current_target_pos_.z) , 1.0f, 32, GetColor( 255,0,0 ), GetColor( 255, 255, 255 ), TRUE ) ;
@@ -158,8 +159,8 @@ public:
         const auto current_target_pos = data_provider_.target_position();
         const auto current_target_vec_y_ = data_provider_.vy();
 
-// ※ ここから  キャラクターの向きを反映するため追加
-        // 8ビットINTの範囲で角度θが出来るだけ近い値となる値のテーブル(32方向)
+		// Make adjustments to reflect the character's orientation
+        // An array of 32 directions where theta is close as possible to a value within 0-255 (8 bit int)
         const std::array<uint8_t,32> degtbl = {245,107,214,32,139,246,64,215,234,96,247,21,172,235,53,204,223,129,236,10,161,224,86,193,212,118,225,43,150,213,75,182};
         const auto current_terget_rot_y_ = data_provider_.theta();
         bool rot_flag_ = false;
@@ -169,7 +170,6 @@ public:
             break;
 		}
 	}
-// ※ ここまで
 
         // if (current_target_pos.y == 0) return;
 		if(current_target_pos != prev_target_pos_ )
@@ -183,7 +183,7 @@ public:
         current_pos_ = MV1GetPosition(model_handle_);
         current_rot_ = MV1GetRotationXYZ(model_handle_);
         const auto distance_to_target = VSize(current_target_pos_ - current_pos_);
-        //Logger::Debug(_T("Rot_Y(move) %f %f %f"), current_rot_.y, current_terget_rot_y_,abs(current_rot_.y - current_terget_rot_y_));
+        // Logger::Debug(_T("Rot_Y(move) %f %f %f"), current_rot_.y, current_terget_rot_y_,abs(current_rot_.y - current_terget_rot_y_));
 
         if (distance_to_target < 200) {
 
@@ -205,24 +205,27 @@ public:
             }
             */
 
-            //Logger::Debug("distance_to_target: %d %d", distance_to_target, current_speed_ * timer_->DeltaSec());
+            // Logger::Debug("distance_to_target: %d %d", distance_to_target, current_speed_ * timer_->DeltaSec());
 
-            // TODO: Y下方向については重力加速度
+            // TODO: Consider gravitational acceleration on y axis
             if ((distance_to_target > 0.5 || (current_target_pos_ - current_pos_).y > 0 )&& !jump_end_){
                 auto direction = current_target_pos_ - current_pos_;
 				if(current_target_vec_y_ != 0)direction.y = 0;
                 const auto diff_pos = VAdjustLength(direction, current_speed_ * timer_->DeltaSec());
                 const float roty = atan2(-direction.x, -direction.z);
-				const auto time_entire = VSize(direction) / (current_speed_ * (float)timer_->DeltaSec());	// ターゲットまでの移動完了時間
-				time_now += timer_->DeltaSec();	// タイマーのカウントアップ
+				// Time taken to reach target
+				const auto time_entire = VSize(direction) / (current_speed_ * (float)timer_->DeltaSec());
+				// Timer counting up
+				time_now += timer_->DeltaSec();
 
                 current_rot_ = VGet(0, roty, 0);
-                //std::cout << "set pos to " << MV1GetPosition(model_handle_) + diff_pos << std::endl;
+                // std::cout << "set pos to " << MV1GetPosition(model_handle_) + diff_pos << std::endl;
 
+				// The final position after jumping from the original point
 				/*
 				const auto jump_result_y =
 					jump_height_ * (*stage_)->map_scale() * (time_entire - time_now) * (jump_height_ / 5.0f) * 1.019952f + 
-					0.5f * -9.8f * (time_entire - time_now) * (time_entire - time_now) * (1.0f / flight_duration_ideal_) * (jump_height_ / 5.0f) * (jump_height_ / 5.0f);	// 今からジャンプした際の最終的な位置
+					0.5f * -9.8f * (time_entire - time_now) * (time_entire - time_now) * (1.0f / flight_duration_ideal_) * (jump_height_ / 5.0f) * (jump_height_ / 5.0f);	
 				*/
 				static auto st_acc = -9.8f;
 				auto acc = -20.0f;
@@ -231,13 +234,14 @@ public:
 				if(jump_flag_ == false && current_target_vec_y_ != 0){
 					for(acc;acc < -6.5f;acc+=0.1f){
 						prediction_vector = jump_height_ * (*stage_)->map_scale() + (acc) * (time_entire - time_now) * (jump_height_ / 5.0f) * (1.0f / flight_duration_ideal_ );
-						// ターゲット座標ではジャンプを始めている
+						// The jump has started at the target coordinates
 						if( prediction_vector > current_target_vec_y_ - 1 && prediction_vector < current_target_vec_y_ + 1)
 						{
-							// 目標座標でベクトルが上向きなら一致、ジャンプを始める
+							// If the vector at the target coordinates is pointing up, it matches and the jump begins
 							move_vec_y_ = jump_height_ * (*stage_)->map_scale();
 							jump_flag_ = true;
-						}//	それ以外はそのまま
+						}
+						// Else, leave as is
 					}
 				}
 				st_acc = acc;
@@ -250,29 +254,30 @@ public:
 					moved_pos.y = current_pos_.y + move_vec_y_ * timer_->DeltaSec() * (jump_height_ / 5.0f);
 				}
 
-                // 床へのめり込みを防止
+                // Prevent sinking into the ground
 				std::pair<bool, VECTOR> floor_coll;
-					// 足で接地検査
-					floor_coll = (*stage_)->FloorExists(moved_pos,model_height_,0);
-                //moved_pos.y = std::max(moved_pos.y, floor_y); // 床にあたっているときは床の方がyが高くなる
+				// Grounding test
+				floor_coll = (*stage_)->FloorExists(moved_pos,model_height_,0);
+				// When touching the ground, the ground has a higher y coordinate
+                // moved_pos.y = std::max(moved_pos.y, floor_y);
 				if(!jump_flag_){
-					// 登ったり下ったりできる段差の大きさの制限を求める
+					// Requesting limits on step size that can be climbed
 					static const float y_max_limit_factor = sin(45 * DX_PI_F / 180);
 					static const float y_min_limit_factor = sin(-45 * DX_PI_F / 180);
 					const float y_max_limit = y_max_limit_factor * VSize(diff_pos);
 					const float y_min_limit = y_min_limit_factor * VSize(diff_pos);
 
-					// 接地点計算
+					// Ground collision calculation
 					//std::cout << "  ground collision check: current pos = " << current_stat_.pos << std::endl;
 
 					auto coll_info = MV1CollCheck_Line((*stage_)->map_handle().handle(), -1,
 						moved_pos + VGet(0, y_max_limit, 0),
 						moved_pos + VGet(0, y_min_limit, 0));
 					if(coll_info.HitFlag && NearlyEqualRelative(coll_info.HitPosition.y, floor_coll.second.y, 0.001)){
-						// 接地可能
+						// Can be grounded
 						auto diff = coll_info.HitPosition - current_pos_;
 
-						// 角度が急になるほどdiffの長さが大きくなるから、補正する
+						// The steeper the angle the greater the length of the difference, so apply correction
 						if (VSize(diff) > 0)
 						{
 							moved_pos = current_pos_ + VSize(diff_pos) * VNorm(diff);
@@ -286,8 +291,8 @@ public:
 							jump_flag_ = true;
 						}
 					}
-					//move_vec_y_ = 0;
-				}else{
+					// move_vec_y_ = 0;
+				} else {
 					if( moved_pos.y <= current_pos_.y )
 					{
 						if( floor_coll.first )
@@ -301,8 +306,8 @@ public:
 								jump_end_ = true;
 							}
 						}
-					}else{
-						// 上昇している
+					} else {
+						// Rising
 
 						const auto player_top = VGet(0, model_height_ * (*stage_)->map_scale(), 0);
 						auto coll_info = MV1CollCheck_Line((*stage_)->map_handle().handle(), -1,
@@ -310,11 +315,12 @@ public:
 							moved_pos + player_top);
 						if (coll_info.HitFlag)
 						{
-							// 天井に到達した
+							// Hit the ceiling
 							// std::cout << "    current collided to ceiling" << std::endl;
 
 							moved_pos = coll_info.HitPosition - player_top;
-							move_vec_y_ = -(move_vec_y_ - (st_acc * (*stage_)->map_scale() * timer_->DeltaSec() * (1.0f/flight_duration_ideal_) * (jump_height_ / 5.0f))) * 1.0; // 反射
+							// Reflection
+							move_vec_y_ = -(move_vec_y_ - (st_acc * (*stage_)->map_scale() * timer_->DeltaSec() * (1.0f/flight_duration_ideal_) * (jump_height_ / 5.0f))) * 1.0;
 						}
 					}
 				}
@@ -340,8 +346,8 @@ public:
 				{
 					current_motion_ = motion.walk_;
 				}
-			}else{
-    //              Logger::Debug(_T("Rot_Y(stop) %f %f"), current_rot_.y, current_terget_rot_y_);
+			} else {
+    				// Logger::Debug(_T("Rot_Y(stop) %f %f"), current_rot_.y, current_terget_rot_y_);
                     if (rot_flag_){
                       current_rot_ = VGet(0, current_terget_rot_y_ , 0);
                       MV1SetRotationXYZ(model_handle_, current_rot_);
@@ -361,7 +367,7 @@ public:
 			}
 
         } else {
-            // 離れすぎている場合は瞬間移動
+            // If too far apart, teleport instead
 
             data_provider_.set_position(current_target_pos_);
             data_provider_.set_theta(current_rot_.y);
@@ -381,7 +387,8 @@ private:
     CharacterDataProvider& data_provider_;
     int model_handle_;
     VECTOR current_target_pos_;
-    VECTOR prev_target_pos_;	// ひとつ前のターゲット
+	// Previous target
+    VECTOR prev_target_pos_;
     VECTOR current_pos_;
     VECTOR current_rot_, prev_rot_;
 	float current_target_vec_y_;

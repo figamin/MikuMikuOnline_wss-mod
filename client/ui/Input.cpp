@@ -60,7 +60,8 @@ void Input::Init()
 		UILabel label;
 		label.set_parent_c(shd_right_click_list_);
 		label.set_input_adaptor(this);
-//		label.set_text(unicode::ToTString(unicode::sjis2utf8("切り取り")));
+        // This means "Cut"
+        // label.set_text(unicode::ToTString(unicode::sjis2utf8("切り取り")));
 		label.set_text(L"切り取り");
 		label.set_width(120);
 		label.set_top(12);
@@ -98,7 +99,8 @@ void Input::Init()
 		UILabel label;
 		label.set_parent_c(shd_right_click_list_);
 		label.set_input_adaptor(this);
-//		label.set_text(unicode::ToTString(unicode::sjis2utf8("コピー")));
+        // This means "Copy"
+        // label.set_text(unicode::ToTString(unicode::sjis2utf8("コピー")));
 		label.set_text(L"コピー");
 		label.set_width(120);
 		label.set_top(12);
@@ -126,7 +128,8 @@ void Input::Init()
 		UILabel label;
 		label.set_parent_c(shd_right_click_list_);
 		label.set_input_adaptor(this);
-//		label.set_text(unicode::ToTString(unicode::sjis2utf8("貼り付け")));
+        // This means "Paste"
+        // label.set_text(unicode::ToTString(unicode::sjis2utf8("貼り付け")));
 		label.set_text(L"貼り付け");
 		label.set_width(120);
 		label.set_top(12);
@@ -206,21 +209,23 @@ void Input::Draw()
         // int internal_width = width_ - INPUT_MARGIN * 2;
         // int internal_height = height_ - INPUT_MARGIN * 2;
 
-        // 選択範囲の背景を描画
-        //int current_line = 0;
-        //for (auto it = selecting_lines_.begin(); it != selecting_lines_.end(); ++it) {
-        //    auto line = *it;
-        //    if (line.first < line.second) {
-        //        SetDrawBlendMode(DX_BLENDMODE_ALPHA, 100);
-        //        DrawBox(internal_x + line.first,
-        //                internal_y + current_line * font_height_,
-        //                internal_x + line.second,
-        //                internal_y + (current_line + 1) * font_height_,
-        //                GetColor(255, 0, 255), TRUE);
-        //        SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-        //    }
-        //    current_line++;
-        //}
+        // Draw the background of the selected area
+        /*
+        int current_line = 0;
+        for (auto it = selecting_lines_.begin(); it != selecting_lines_.end(); ++it) {
+            auto line = *it;
+            if (line.first < line.second) {
+                SetDrawBlendMode(DX_BLENDMODE_ALPHA, 100);
+                DrawBox(internal_x + line.first,
+                    internal_y + current_line * font_height_,
+                    internal_x + line.second,
+                    internal_y + (current_line + 1) * font_height_,
+                    GetColor(255, 0, 255), TRUE);
+                SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+            }
+            current_line++;
+        }
+        */
 
        int current_line = 0;
        for (auto it = clause_lines_.begin(); it != clause_lines_.end(); ++it) {
@@ -348,7 +353,7 @@ void Input::Draw()
 							}
 						}
 						++current_line;
-					}else if(select_start == -1){
+					} else if(select_start == -1) {
 						DrawStringToHandle(internal_x + width, internal_y + current_line * font_height_,
 							it.c_str(), text_color, font_handle_);
 						++current_line;
@@ -364,7 +369,7 @@ void Input::Draw()
 		}
 
 
-        // カーソルを描画
+        // Draw the cursor
         if (clause_lines_.size() <= 0 && active() && blink_count_ < 30) {
             DrawBox(internal_x + cursor_x_, internal_y + cursor_y_,
                     internal_x + cursor_x_ + 2,
@@ -493,7 +498,7 @@ void Input::ProcessInput(InputManager* input)
 	bool prev_mouse_right = input->GetPrevMouseRight();
 
     // bool first_key_shift = (input->GetKeyCount(KEY_INPUT_RSHIFT) == 1
-    //        || input->GetKeyCount(KEY_INPUT_LSHIFT) == 1);
+    // || input->GetKeyCount(KEY_INPUT_LSHIFT) == 1);
 
     bool push_key_shift = (input->GetKeyCount(KEY_INPUT_RSHIFT) > 0
             || input->GetKeyCount(KEY_INPUT_LSHIFT) > 0);
@@ -535,7 +540,7 @@ void Input::ProcessInput(InputManager* input)
 	if ( right_click_list_.visible() ) {
 		right_click_list_.ProcessInput(input);
 		if( push_mouse_left ) {
-			//rightmenu_show_ = false;
+			// rightmenu_show_ = false;
 			right_click_list_.set_visible(false);
 		}
 	}
@@ -551,9 +556,10 @@ void Input::ProcessInput(InputManager* input)
 
         auto buffer = text();
         uint32_t pos = GetKeyInputCursorPosition(input_handle_);
-
-        tstring cursor_front_str = buffer.substr(0, pos);       // カーソル前の文字列
-        tstring cursor_back_str = buffer.substr(pos);           // カーソル後の文字列
+        // String before the cursor
+        tstring cursor_front_str = buffer.substr(0, pos);
+        // String after the cursor
+        tstring cursor_back_str = buffer.substr(pos);
         auto new_string = cursor_front_str + _T('\n') + cursor_back_str;
 
         SetKeyInputString(new_string.c_str(), input_handle_);
@@ -568,7 +574,7 @@ void Input::ProcessInput(InputManager* input)
     TCHAR String[TEXT_BUFFER_SIZE];
     GetKeyInputString(String, input_handle_);
 
-    // 単一行設定の時、最初の行だけを表示
+    // In single line mode, only the first line is displayed
     if (!multiline_) {
         tstring buffer(String, _tcslen(String));
         size_t pos;
@@ -618,8 +624,7 @@ void Input::ProcessInput(InputManager* input)
         #endif
 
             line_width += width;
-            if (c == _T('\n')
-                    || line_width > internal_width - font_height_ / 2) {
+            if (c == _T('\n') || line_width > internal_width - font_height_ / 2) {
                 if (!line_buffer.empty() && line_buffer.back() == _T('\n')) {
                     line_buffer.pop_back();
                 }
@@ -639,14 +644,14 @@ void Input::ProcessInput(InputManager* input)
 		if ( !right_click_list_.visible() &&
 			!( right_click_list_.visible() && right_click_list_.absolute_x()<= input->GetMouseX() && input->GetMouseX() <= right_click_list_.absolute_x()+ right_click_list_.absolute_width()
 			&& right_click_list_.absolute_y() <= input->GetMouseY() && input->GetMouseY() <= right_click_list_.absolute_y() + right_click_list_.absolute_height())) {
-				// マウス左ボタンが押された時
+				// When the left mouse button is pressed
 				if (push_mouse_left && !prev_mouse_left) {
 					auto mpos = input->GetMousePos();
 					auto offset_x = mpos.first - (x_ + INPUT_MARGIN_X);
 					auto offset_y = mpos.second - (y_ + INPUT_MARGIN_Y) - ResourceManager::default_font_size() * message_lines_.size();
-					// カレット変更
+					// Carat change (?)
 						auto line_num = offset_y / font_height_;
-						//if( ( offset_y % font_height_ ) != 0 )++line_num;
+						// if( ( offset_y % font_height_ ) != 0 )++line_num;
 						int tmp = 0,cnt = 0;
 						auto str = text();
 						if( line_num < (int)lines_.size() && line_num >= 0 ){
@@ -667,7 +672,7 @@ void Input::ProcessInput(InputManager* input)
 							SetKeyInputCursorPosition(cnt,input_handle_);
 						}
 				}
-				// マウス左ボタンがドラッグされた時
+				// Left mouse button held down and dragging
 				if (push_mouse_left && prev_mouse_left) {
 					static std::vector<int> prev_line_size;
 					int prev_cursor_pos = 0;
@@ -696,7 +701,7 @@ void Input::ProcessInput(InputManager* input)
 						auto mpos = input->GetMousePos();
 						auto offset_x = mpos.first - (x_ + INPUT_MARGIN_X);
 						auto offset_y = mpos.second - (y_ + INPUT_MARGIN_Y) - ResourceManager::default_font_size() * message_lines_.size();
-						// カレット変更
+						// Carat change (?)
 						auto line_num = offset_y / font_height_;
 						int tmp = 0,cnt = 0;
 						auto str = text();
@@ -720,13 +725,13 @@ void Input::ProcessInput(InputManager* input)
 						SetKeyInputSelectArea(selecting_coursorpoint_.first,selecting_coursorpoint_.second,input_handle_);
 						SetKeyInputCursorPosition(selecting_coursorpoint_.second,input_handle_);
 						drag_flag_ = true;
-					}else{
+					} else {
 						SetKeyInputSelectArea(-1,-1,input_handle_);
 						selecting_coursorpoint_.first = selecting_coursorpoint_.second;
 					}
 					input->CancelMouseLeft();
 				}
-				// マウス左ボタンが離され、且つ前回ドラッグされていた時
+				// Left mouse button is released after dragging
 				if (!push_mouse_left && prev_mouse_left && drag_flag_ ) {
 					drag_flag_ = false;
 					if( selecting_coursorpoint_.first == selecting_coursorpoint_.second ) {
@@ -745,9 +750,14 @@ void Input::ProcessInput(InputManager* input)
 				auto mpos = input->GetMousePos();
 				auto offset_x = mpos.first - (x_ + INPUT_MARGIN_X);
 				auto offset_y = mpos.second - (y_ + INPUT_MARGIN_Y) - ResourceManager::default_font_size() * message_lines_.size();
-				// カレット変更
+				// Carat change (?)
 					auto line_num = offset_y / font_height_;
-					//if( ( offset_y % font_height_ ) != 0 )++line_num;
+                    /*
+					if( ( offset_y % font_height_ ) != 0 )
+                    {
+                        ++line_num;
+                    }
+                    */
 					int tmp = 0,cnt = 0;
 					auto str = text();
 					if( line_num < (int)lines_.size() && line_num >= 0 ){
@@ -770,7 +780,7 @@ void Input::ProcessInput(InputManager* input)
 					input->CancelMouseLeft();
 			}
 		}
-		// マウス右ボタンが押されたとき
+		// Right click
 		if ( push_mouse_right && !prev_mouse_right ) {
 			if( x() <= input->GetMouseX() && input->GetMouseX() <= x() + width() && 
 				y() <= input->GetMouseY() && input->GetMouseY() <= y() + height()){
@@ -807,12 +817,12 @@ void Input::ProcessInput(InputManager* input)
 						}
 					}
 					right_click_list_.set_visible(true);
-					//rightmenu_show_ = true;
+					// rightmenu_show_ = true;
 			}
 		}
 		}
 
-        // カーソル位置（文字単位）を取得
+        // Get the cursor index (in chars)
         cursor_byte_pos = GetKeyInputCursorPosition(input_handle_);
 		if (prev_cursor_pos_ != cursor_byte_pos) {
 			ResetCursorCount();
@@ -821,16 +831,19 @@ void Input::ProcessInput(InputManager* input)
 		prev_cursor_pos_ = cursor_byte_pos;
 
 
-        // カーソルのドット単位の位置を取得する
+        // Get the cursor position (in pixels)
         cursor_dot_pos = GetDrawStringWidthToHandle(String, cursor_byte_pos,
                 font_handle_);
         draw_dot_pos += cursor_dot_pos;
+        // String before the cursor
+        tstring cursor_front_str(String, cursor_byte_pos);
+        // String after the cursor
+        tstring cursor_back_str(String + cursor_byte_pos);
 
-        tstring cursor_front_str(String, cursor_byte_pos); // カーソル前の文字列
-        tstring cursor_back_str(String + cursor_byte_pos); // カーソル後の文字列
-
-        std::vector<tstring> clauses;                              // 入力中の文節
-        std::vector<tstring> candidates;                             // 変換候補
+        // Phrase being entered
+        std::vector<tstring> clauses;
+        // Conversion candidates
+        std::vector<tstring> candidates;
 
         lines_.clear();
         selecting_lines_.clear();
@@ -838,7 +851,7 @@ void Input::ProcessInput(InputManager* input)
         selecting_clause_lines_.clear();
         candidates_.clear();
 
-        // 文節データを取得
+        // Get phrase data
         // int selecting_clause = -1;
         selecting_candidate_ = -1;
 
@@ -864,7 +877,7 @@ void Input::ProcessInput(InputManager* input)
             }
         }
 
-        // 選択範囲を取得
+        // Get the selected range
         int select_start, select_end;
         GetKeyInputSelectArea(&select_start, &select_end, input_handle_);
         if (select_start > select_end) {
@@ -875,7 +888,7 @@ void Input::ProcessInput(InputManager* input)
         int line_width = 0;
         int char_count = 0;
 
-        // カーソル前のデータを描画
+        // Draw the data before the cursor
         for (auto it = cursor_front_str.begin(); it != cursor_front_str.end();
                 ++it) {
 
@@ -909,7 +922,7 @@ void Input::ProcessInput(InputManager* input)
             }
         #endif
 
-            // 選択範囲を記録
+            // Record the selected area
             if (select_start < char_count && char_count <= select_end) {
                 selecting_lines_.resize(static_cast<int>(lines_.size() + message_lines_.size()) + 1,
                         std::pair<int, int>(99999, 0));
@@ -959,7 +972,7 @@ void Input::ProcessInput(InputManager* input)
         cursor_x_ = line_width;
         cursor_y_ = static_cast<int>(lines_.size() + message_lines_.size()) * font_height_;
 
-        // 変換中データを描画
+        // Rendering data during conversion
         for (uint32_t index = 0; index < clauses.size(); index++) {
             for (auto it = clauses[index].begin(); it != clauses[index].end();
                     ++it) {
@@ -1018,7 +1031,7 @@ void Input::ProcessInput(InputManager* input)
             }
         }
 
-        // カーソル後のデータを描画
+        // Draw the data after the cursor
         for (auto it = cursor_back_str.begin(); it != cursor_back_str.end();
                 ++it) {
             int prev_char_count = char_count;
@@ -1051,7 +1064,7 @@ void Input::ProcessInput(InputManager* input)
             }
         #endif
 
-            // 選択範囲を記録
+            // Record the selected area
             if (select_start < char_count && char_count <= select_end) {
                 selecting_lines_.resize(static_cast<int>(lines_.size() + message_lines_.size()) + 1,
                         std::pair<int, int>(99999, 0));
@@ -1096,7 +1109,7 @@ void Input::ProcessInput(InputManager* input)
             }
         }
 
-        // バッファの残りを描画
+        // Draw the rest of the buffer
         lines_.push_back(line_buffer);
 
         if (cursor_moveto_x_ >= line_width
@@ -1113,10 +1126,12 @@ void Input::ProcessInput(InputManager* input)
         line_buffer.clear();
         line_width = 0;
 
-        //if (push_key_shift && (push_repeat_key_up || push_repeat_key_down)) {
-        //    SetKeyInputSelectArea(GetKeyInputCursorPosition(input_handle_),
-        //            prev_cursor_pos_, input_handle_);
-        //}
+        /*
+        if (push_key_shift && (push_repeat_key_up || push_repeat_key_down)) {
+            SetKeyInputSelectArea(GetKeyInputCursorPosition(input_handle_),
+                prev_cursor_pos_, input_handle_);
+        }
+        */
 
     }
 

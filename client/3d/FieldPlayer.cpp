@@ -58,19 +58,20 @@ void FieldPlayer::Chara_ShadowRender() const
 	auto shadow_height = model_height_ * (*stage_)->map_scale();
 	auto shadow_size = shadow_size_ * (*stage_)->map_scale();
 
-	// ライティングを無効にする
+	// Disable lighting
 	SetUseLighting( FALSE ) ;
 
-	// Ｚバッファを有効にする
+	// Enable Z buffer
 	SetUseZBuffer3D( TRUE ) ;
 
-	// テクスチャアドレスモードを CLAMP にする( テクスチャの端より先は端のドットが延々続く )
+	// Set texture addressing mode to CLAMP
+	// Beyond the texture edges, the edge pixels will be repeated indefinitely
 	SetTextureAddressMode( DX_TEXADDRESS_CLAMP ) ;
 
-	// キャラクターの直下に存在する地面のポリゴンを取得
+	// Get the polygon located directly below the character
 	HitResDim = MV1CollCheck_Capsule( (*stage_)->map_handle().handle() , -1, VAdd( current_stat_.pos, VGet( 0, 0.5f * shadow_height, 0 ) ), VAdd( current_stat_.pos, VGet( 0.0f,-shadow_height, 0.0f ) ), shadow_size ) ;
 
-	// 頂点データで変化が無い部分をセット
+	// Set the vertex data parts that haven't changed
 	Vertex[ 0 ].dif = GetColorU8( 255,255,255,255 ) ;
 	Vertex[ 0 ].spc = GetColorU8( 0,0,0,0 ) ;
 	Vertex[ 0 ].su = 0.0f ;
@@ -78,35 +79,38 @@ void FieldPlayer::Chara_ShadowRender() const
 	Vertex[ 1 ] = Vertex[ 0 ] ;
 	Vertex[ 2 ] = Vertex[ 0 ] ;
 
-	// 球の直下に存在するポリゴンの数だけ繰り返し
+	// Repeat the process for the number of polygons located directly below the sphere
 	HitRes = HitResDim.Dim ;
 	for( i = 0 ; i < HitResDim.HitNum ; i ++, HitRes ++ )
 	{
-		// ポリゴンの座標は地面ポリゴンの座標
+		// The polygon coordinates are the same as the one on the ground
 		Vertex[ 0 ].pos = HitRes->Position[ 0 ] ;
 		Vertex[ 1 ].pos = HitRes->Position[ 1 ] ;
 		Vertex[ 2 ].pos = HitRes->Position[ 2 ] ;
 
-		// ちょっと持ち上げて重ならないようにする
+		// Raise them slightly so they don't overlap
 		SlideVec = VScale( HitRes->Normal, 0.5f ) ;
 		Vertex[ 0 ].pos = VAdd( Vertex[ 0 ].pos, SlideVec ) ;
 		Vertex[ 1 ].pos = VAdd( Vertex[ 1 ].pos, SlideVec ) ;
 		Vertex[ 2 ].pos = VAdd( Vertex[ 2 ].pos, SlideVec ) ;
 
-		// ポリゴンの不透明度を設定する
+		// Set the polygon opacity
 		Vertex[ 0 ].dif.a = 0 ;
 		Vertex[ 1 ].dif.a = 0 ;
 		Vertex[ 2 ].dif.a = 0 ;
-		if( HitRes->Position[ 0 ].y > current_stat_.pos.y - shadow_height )
-			Vertex[ 0 ].dif.a = 128 * ( 1.0f - fabs( HitRes->Position[ 0 ].y - current_stat_.pos.y ) / shadow_height ) ;
+		if( HitRes->Position[ 0 ].y > current_stat_.pos.y - shadow_height ) {
+			Vertex[ 0 ].dif.a = 128 * ( 1.0f - fabs( HitRes->Position[ 0 ].y - current_stat_.pos.y ) / shadow_height );
+		}
 
-		if( HitRes->Position[ 1 ].y > current_stat_.pos.y - shadow_height )
-			Vertex[ 1 ].dif.a = 128 * ( 1.0f - fabs( HitRes->Position[ 1 ].y - current_stat_.pos.y ) / shadow_height ) ;
+		if( HitRes->Position[ 1 ].y > current_stat_.pos.y - shadow_height ) {
+			Vertex[ 1 ].dif.a = 128 * ( 1.0f - fabs( HitRes->Position[ 1 ].y - current_stat_.pos.y ) / shadow_height );
+		}
 
-		if( HitRes->Position[ 2 ].y > current_stat_.pos.y - shadow_height )
-			Vertex[ 2 ].dif.a = 128 * ( 1.0f - fabs( HitRes->Position[ 2 ].y - current_stat_.pos.y ) / shadow_height ) ;
+		if( HitRes->Position[ 2 ].y > current_stat_.pos.y - shadow_height ) {
+			Vertex[ 2 ].dif.a = 128 * ( 1.0f - fabs( HitRes->Position[ 2 ].y - current_stat_.pos.y ) / shadow_height );
+		}
 
-		// ＵＶ値は地面ポリゴンとキャラクターの相対座標から割り出す
+		// The UV values are calculated from the relative coordinates of the ground polygon and the character
 		Vertex[ 0 ].u = ( HitRes->Position[ 0 ].x - current_stat_.pos.x ) / ( shadow_size * 2.0f ) + 0.5f ;
 		Vertex[ 0 ].v = ( HitRes->Position[ 0 ].z - current_stat_.pos.z ) / ( shadow_size * 2.0f ) + 0.5f ;
 		Vertex[ 1 ].u = ( HitRes->Position[ 1 ].x - current_stat_.pos.x ) / ( shadow_size * 2.0f ) + 0.5f ;
@@ -114,23 +118,23 @@ void FieldPlayer::Chara_ShadowRender() const
 		Vertex[ 2 ].u = ( HitRes->Position[ 2 ].x - current_stat_.pos.x ) / ( shadow_size * 2.0f ) + 0.5f ;
 		Vertex[ 2 ].v = ( HitRes->Position[ 2 ].z - current_stat_.pos.z ) / ( shadow_size * 2.0f ) + 0.5f ;
 
-		// 影ポリゴンを描画
+		// Draw shadow polygons
 		DrawPolygon3D( Vertex, 1, shadow_handle_, TRUE ) ;
 	}
 
-	// 検出した地面ポリゴン情報の後始末
+	// Post processing of ground polygon info
 	MV1CollResultPolyDimTerminate( HitResDim ) ;
 
-	// ライティングを有効にする
+	// Enable lighting
 	SetUseLighting( TRUE ) ;
 
-	// Ｚバッファを無効にする
+	// Disable Z buffer
 	SetUseZBuffer3D( FALSE ) ;
 }
 
 void FieldPlayer::Draw() const
 {
-    //std::cout << "roty = " << current_stat_.roty << std::endl;
+    // std::cout << "roty = " << current_stat_.roty << std::endl;
 
     MV1SetPosition(model_handle_.handle(), current_stat_.pos);
     MV1SetRotationXYZ(model_handle_.handle(), VGet(0, current_stat_.roty, 0));
@@ -182,7 +186,7 @@ void FieldPlayer::RescuePosition()
 		((nearest_pos.x - current_stat_.pos.x) * (nearest_pos.x - current_stat_.pos.x) +
 		(nearest_pos.z - current_stat_.pos.z) * (nearest_pos.z - current_stat_.pos.z));
 
-	// 同じリスポーンポイントで嵌らないようにポイントをずらす
+	// Move the respawn points so multiple players don't get stuck at the same one
 	VECTOR new_pos;
 	if (nearest_dist < 20 && points.size() > 1) {
 		rotation++;
@@ -200,10 +204,10 @@ void FieldPlayer::RescuePosition()
 
 void FieldPlayer::LoadModel(const tstring& name,const bool async)
 {
-// ※ ここから  モデルの読み込みを非同期にもできるよう修正
-//	SetModel(ResourceManager::LoadModelFromName(name));
-// 	ResourceManager::SetModelEdgeSize(model_handle_.handle());
-//  自キャラ読み込み　初回は必ず同期読込する
+	// Modified to support async loading
+	// SetModel(ResourceManager::LoadModelFromName(name));
+	// ResourceManager::SetModelEdgeSize(model_handle_.handle());
+	// When loading a character for the first time, it will always be synchronous
     if (!loading_model_handle_){
 	    if (model_handle_ && async){
             loading_model_handle_ = ResourceManager::LoadModelFromName(name, true);
@@ -212,8 +216,6 @@ void FieldPlayer::LoadModel(const tstring& name,const bool async)
             ResourceManager::SetModelEdgeSize(model_handle_.handle());
         }
     }
-// ※ ここまで
-
 }
 
 void FieldPlayer::SetModel(const ModelHandle& model)
@@ -222,11 +224,11 @@ void FieldPlayer::SetModel(const ModelHandle& model)
     model_height_ = model_handle_.property().get<float>("character.height", 1.58f);
 	flight_duration_ideal_ = sqrt((model_height_*2.0f)/9.8f) + sqrt((model_height_*0.8f)/9.8);
 	jump_height_ = sqrt(15.0f)*2.0f;
-	//Loop Motions
+	// Loop Motions
     motion.stand_ = MV1GetAnimIndex(model_handle_.handle(), _T("stand"));
     motion.walk_ = MV1GetAnimIndex(model_handle_.handle(), _T("walk"));
     motion.run_ = MV1GetAnimIndex(model_handle_.handle(), _T("run"));
-	//Noloop Motions
+	// No loop Motions
     motion.pre_jmp_ = MV1GetAnimIndex(model_handle_.handle(), _T("jmp_pre"));
 	motion.jmp_ = MV1GetAnimIndex(model_handle_.handle(), _T("jmp"));
 	motion.end_jmp_ = MV1GetAnimIndex(model_handle_.handle(), _T("jmp_end"));
@@ -243,7 +245,7 @@ void FieldPlayer::SetModel(const ModelHandle& model)
 
 void FieldPlayer::Update()
 {
-// ※ ここから  非同期読み込みを復活させるため追加
+	// Modified to support async loading
     if (loading_model_handle_) {
         if (loading_model_handle_.CheckLoaded() == TRUE) {
             SetModel(loading_model_handle_);
@@ -251,20 +253,19 @@ void FieldPlayer::Update()
             current_stat_.motion = 0;
             loading_model_handle_ = ModelHandle();
         } else if (loading_model_handle_.CheckLoaded() == -1) {
-            // 読み込み失敗時
+            // Loading failed
             loading_model_handle_ = ModelHandle();
         }
     }
 
-// ※ ここまで
-	// 落ちた時に強制復帰
+	// Auto restart if it crashes
 	if (prev_stat_.pos.y < (*stage_)->min_height()) {
 		RescuePosition();
 	}
     /*
     if (key_checker_.Check() == -1)
     {
-        throw std::runtime_error("can't ckeck keyboard");
+        throw std::runtime_error("can't check keyboard");
     }
     */
 
@@ -283,19 +284,22 @@ void FieldPlayer::Update()
         }
 
         motion_player_->Play(current_stat_.motion, connect_prev, 200, -1, false);
-	//}else if(additional_motion_.flag_)
-	//{
-	//	bool connect_prev = true;
-	//	motion_player_->Play(additional_motion_.handle_, connect_prev, 400, -1, false,additional_motion_.isloop_,additional_motion_.nextanim_handle_,additional_motion_.loopcheck_);
-	//	additional_motion_.loopcheck_ = false;
-	//	additional_motion_.flag_ = false;
-	//	additional_motion_.nextanim_handle_ = -1;
+	/
+	/*
+	}else if(additional_motion_.flag_)
+	{
+		bool connect_prev = true;
+		motion_player_->Play(additional_motion_.handle_, connect_prev, 400, -1, false,additional_motion_.isloop_,additional_motion_.nextanim_handle_,additional_motion_.loopcheck_);
+		additional_motion_.loopcheck_ = false;
+		additional_motion_.flag_ = false;
+		additional_motion_.nextanim_handle_ = -1;
+	*/
 	}else if(additional_motion_.flag_)
 	{
 		motion_player_->ChainPlay(additional_motion_.chain_data);
 		additional_motion_.flag_ = false;
 	}
-    // モーション再生時刻更新
+    // Motion playback timer update
     motion_player_->Next(timer_->Delta());
 
     data_provider_.set_position(current_stat_.pos);
@@ -311,18 +315,20 @@ void FieldPlayer::Move()
     // std::cout << "MovePlayer: " << timer.current_time() << std::endl;
 
     // myself_.prev_statを元にしてmyself_.current_statを計算する
-    //current_stat_.pos = prev_stat_.pos + prev_stat_.vel * timer_->DeltaSec();
+    // current_stat_.pos = prev_stat_.pos + prev_stat_.vel * timer_->DeltaSec();
 	current_stat_.pos = [&]()->VECTOR
 	{
 		VECTOR tmp_vel_ = prev_stat_.vel * timer_->DeltaSec();
-		tmp_vel_.y *= (jump_height_ / 5.0f) ; // 5を基準として倍数を求める
+		// Find the multiple with 5 as the base
+		tmp_vel_.y *= (jump_height_ / 5.0f);
 		return prev_stat_.pos + tmp_vel_;
 	}();
-    //current_stat_.vel = prev_stat_.vel + prev_stat_.acc * timer_->DeltaSec();
+    // current_stat_.vel = prev_stat_.vel + prev_stat_.acc * timer_->DeltaSec();
 	current_stat_.vel = [&]()->VECTOR
 	{
 		VECTOR tmp_acc_ = prev_stat_.acc * timer_->DeltaSec();
-		tmp_acc_.y *= (1.0f / flight_duration_ideal_) * (jump_height_ / 5.0f) ; // 5を基準として倍数を求める
+		// Find the multiple with 5 as the base
+		tmp_acc_.y *= (1.0f / flight_duration_ideal_) * (jump_height_ / 5.0f);
 		return prev_stat_.vel + tmp_acc_;
 	}();
     current_stat_.acc = prev_stat_.acc;
@@ -341,7 +347,7 @@ void FieldPlayer::Move()
     }
 
 
-    // 移動方向に障害物があるか、または床がない場合は移動不可能
+    // If there is an obstacle in the way or there is no floor, you cannot move
 	auto front_collides = (*stage_)->FrontCollides(
             0.4, current_stat_.pos, prev_stat_.pos,1.0 * (*stage_)->map_scale(), (model_height_ - 0.1) * (*stage_)->map_scale() ,128);
 
@@ -355,7 +361,7 @@ void FieldPlayer::Move()
 		current_stat_.pos.z = front_collides.second.z;
         current_stat_.vel.x = current_stat_.vel.z = 0;
 	}
-    // 50mの深さまで床検出
+    // Floor detection up to 50m deep
     auto floor_exists = (*stage_)->FloorExists(current_stat_.pos, model_height_, 50);
 	if(!floor_exists.first)
 	{
@@ -364,7 +370,7 @@ void FieldPlayer::Move()
         current_stat_.vel.x = current_stat_.vel.z = 0;
 	}
 
-    // 足が地面にめり込んでいるか
+    // Am I sinking into the ground?
     auto foot_floor_exists = (*stage_)->FloorExists(current_stat_.pos, model_height_, 0);
 
     const auto pos_diff = current_stat_.pos - prev_stat_.pos;
@@ -373,31 +379,31 @@ void FieldPlayer::Move()
     if (pos_diff_length > 0)
     {
 
-        // 前回キャラが接地していたなら、今回もキャラを地面に接地させる
+        // If the character was on the ground in the previous frame, they should still be on the ground in this frame
         if (prev_stat_.acc.y == 0)
         {
-            // 前回接地していた
+            // On the ground in the previous frame
             // std::cout << "  previous on the ground" << std::endl;
 
-			// 登ったり下ったりできる段差の大きさの制限を求める
+			// Requesting limits on step size that can be climbed
 			static const float y_max_limit_factor = sin(45 * DX_PI_F / 180);
 			static const float y_min_limit_factor = sin(-45 * DX_PI_F / 180);
 			const float y_max_limit = y_max_limit_factor * pos_diff_length;
 			const float y_min_limit = y_min_limit_factor * pos_diff_length;
 
-			// 接地点計算
-			//std::cout << "  ground collision check: current pos = " << current_stat_.pos << std::endl;
+			// Ground collision calculation
+			// std::cout << "  ground collision check: current pos = " << current_stat_.pos << std::endl;
 
 			auto coll_info = MV1CollCheck_Line((*stage_)->map_handle().handle(), -1,
 				current_stat_.pos + VGet(0, y_max_limit, 0),
 				current_stat_.pos + VGet(0, y_min_limit, 0));
 			if (coll_info.HitFlag && NearlyEqualRelative(coll_info.HitPosition.y, floor_exists.second.y, 0.001))
 			{
-				// 今回も接地できる
-				//std::cout << "    current on the ground" << std::endl;
+				// Make contact this time
+				// std::cout << "    current on the ground" << std::endl;
 				auto diff = coll_info.HitPosition - prev_stat_.pos;
 
-				// 角度が急になるほどdiffの長さが大きくなるから、補正する
+				// The steeper the angle the greater the length of the difference, so apply correction
 				if (VSize(diff) > 0)
 				{
 					current_stat_.pos = prev_stat_.pos + pos_diff_length * VNorm(diff);
@@ -407,19 +413,19 @@ void FieldPlayer::Move()
 			{
 				if (floor_exists.second.y < current_stat_.pos.y)
 				{
-					// 床はあるし、自分より低い位置なので落ちる
+					// A floor exists lower than where I am, so fall
 					current_stat_.acc.y = -9.8 * (*stage_)->map_scale();
 				}
 				else if (floor_exists.second.y < current_stat_.pos.y + 0.6 * (*stage_)->map_scale())
 				{
-					// 床があり、平らなので登る
+					// A floor exists and it's flat, so it can be climbed
 					auto delta = prev_stat_.pos - current_stat_.pos;
 					delta.y = floor_exists.second.y - current_stat_.pos.y;
 					float xz_size = VSize(VGet(delta.x, 0, delta.z));
 
 					if (xz_size > 0)
 					{
-						// 床の傾斜
+						// Floor slope
 						double angle = delta.y / xz_size;
 						if (angle < 1.0)
 						{
@@ -433,30 +439,30 @@ void FieldPlayer::Move()
 				}
 				else
 				{
-					// 床があるが、高すぎるので移動不可能
+					// There is a floor but it's too high
 					current_stat_.pos = prev_stat_.pos;
 				}
 			}
 			else
 			{
-				// 接地できない（移動可能範囲に地面が見つからない）
+				// Unable to land (no ground found in range)
 				current_stat_.pos = prev_stat_.pos;
 			}
         }
         else if (prev_stat_.acc.y < 0)
         {
-            //std::cout << "  falling now: current pos = " << current_stat_.pos << std::endl;
-            // 空中にいる
+            // std::cout << "  falling now: current pos = " << current_stat_.pos << std::endl;
+            // In the air
             if (current_stat_.pos.y <= prev_stat_.pos.y)
             {
-                // 落下している
+                // Falling
                 // std::cout << "  previous falling" << std::endl;
 
-                // 地面に食い込むのを防止する
+                // To prevent from going below the ground
 
                 if (foot_floor_exists.first)
                 {
-                    // 地面に到達した
+                    // Ground reached
                     // std::cout << "    current on the ground" << std::endl;
                     current_stat_.pos = foot_floor_exists.second;
                     current_stat_.acc.y = 0;
@@ -465,7 +471,7 @@ void FieldPlayer::Move()
             }
             else
             {
-                // 上昇している
+                // Rising
                 // std::cout << "  previous rising" << std::endl;
 
                 const auto player_top = VGet(0, model_height_ * (*stage_)->map_scale(), 0);
@@ -474,11 +480,12 @@ void FieldPlayer::Move()
                         current_stat_.pos + player_top);
                 if (coll_info.HitFlag)
                 {
-                    // 天井に到達した
+                    // Hit the ceiling
                     // std::cout << "    current collided to ceiling" << std::endl;
 
                     current_stat_.pos = coll_info.HitPosition - player_top;
-                    current_stat_.vel.y = -prev_stat_.vel.y * 1.0; // 反射
+					// Reflection
+                    current_stat_.vel.y = -prev_stat_.vel.y * 1.0;
                 }
             }
         }
@@ -488,8 +495,8 @@ void FieldPlayer::Move()
         }
 
     }
-
-    any_move_ = false; // キャラを動かすための入力があったかどうか
+	// Was there any input to move the character?
+    any_move_ = false;
 
     if (current_stat_.acc.y == 0)
     {
@@ -503,7 +510,7 @@ void FieldPlayer::Move()
 void FieldPlayer::InputFromUser()
 {
     InputManager& input = input_;
-    // myself_.current_statを更新する
+    // Update myself_.current_stat
     const auto roty = prev_stat_.roty;
     const auto move_speed = prev_stat_.motion == motion.walk_ ? 2.0f
         : prev_stat_.motion == motion.run_ ? 8.0f
@@ -528,13 +535,15 @@ void FieldPlayer::InputFromUser()
 			++move_dir;
 		}
 	} else {
-		//if (input.GetKeyCount(InputManager::KEYBIND_FORWARD) > 0)
-		if ((input.GetKeyCount(InputManager::KEYBIND_FORWARD) > 0 && GetActiveFlag() != 0)) // ※ 非アクティブ時はキーは効かない様に修正
+		// if (input.GetKeyCount(InputManager::KEYBIND_FORWARD) > 0)
+		// The bug where keys were still registered when the game was in the background was fixed
+		if ((input.GetKeyCount(InputManager::KEYBIND_FORWARD) > 0 && GetActiveFlag() != 0))
 		{
 			++move_dir;
 		}
-		//if (input.GetKeyCount(InputManager::KEYBIND_BACK) > 0)
-		if ((input.GetKeyCount(InputManager::KEYBIND_BACK) > 0 && GetActiveFlag() != 0)) // ※ 非アクティブ時はキーは効かない様に修正
+		// if (input.GetKeyCount(InputManager::KEYBIND_BACK) > 0)
+		// The bug where keys were still registered when the game was in the background was fixed
+		if ((input.GetKeyCount(InputManager::KEYBIND_BACK) > 0 && GetActiveFlag() != 0))
 		{
 			--move_dir;
 		}
@@ -545,7 +554,7 @@ void FieldPlayer::InputFromUser()
     } else if (input.GetGamepadAnalogY() < 0) {
         ++move_dir;
     }
-	// 空中にいるとき、上下の移動で着地地点を操作できるようにする
+	// In the air, you can control your landing point by moving up or down
 	int chg_acc = 0;
 	if (current_stat_.acc.y == 0)
 	{
@@ -561,12 +570,13 @@ void FieldPlayer::InputFromUser()
 		}
 	}
 
-    // Shiftで歩きと走りの切り替え
+    // Use Shift to switch between walking and running
 	switch((*stage_)->config_manager()->walk_change_type()){
 	case 0:
-		// おしっぱ
+		// Press and hold
+		// Added to support gamepads
 		if (input.GetKeyCount(InputManager::KEYBIND_CHANGE_SPEED) > 0 ||
-			input.GetGamepadCount(InputManager::PADBIND_SPEED) > 0 || // ※ ゲームパッド対応にするため追加
+			input.GetGamepadCount(InputManager::PADBIND_SPEED) > 0 || 
 			input.GetKeyCount(InputManager::KEYBIND_CHANGE_SPEED2) > 0)
 		{
 			current_stat_.is_walking = true;
@@ -575,9 +585,10 @@ void FieldPlayer::InputFromUser()
 		}
 		break;
 	case 1:
-		// 切り替え
+		// Switching
+		// Added to support gamepads
 		if (input.GetKeyCount(InputManager::KEYBIND_CHANGE_SPEED) == 1 ||
-			input.GetGamepadCount(InputManager::PADBIND_SPEED) == 1 || // ※ ゲームパッド対応にするため追加
+			input.GetGamepadCount(InputManager::PADBIND_SPEED) == 1 ||
 			input.GetKeyCount(InputManager::KEYBIND_CHANGE_SPEED2) == 1)
 		{
 			current_stat_.is_walking = !prev_stat_.is_walking;
@@ -588,7 +599,7 @@ void FieldPlayer::InputFromUser()
 
     if (current_stat_.acc.y == 0 && move_dir != 0)
     {
-        // 接地しており、かつ移動する
+        // Grounded and moving
         any_move_ = true;
         current_stat_.vel = VGet(sin(roty), 0, cos(roty)) * (-move_dir * move_speed * (*stage_)->map_scale());
         current_stat_.motion =
@@ -596,10 +607,12 @@ void FieldPlayer::InputFromUser()
     }
     else if (current_stat_.acc.y != 0)
     {
-        // 空中にいる
+        // In the air
         any_move_ = true;
         auto acc = 5.0f;
-		auto vel = current_stat_.vel + VGet(sin(roty), 0, cos(roty)) * (-move_dir * acc * (*stage_)->map_scale());// * timer_->DeltaSec());// * ((6.0f-current_stat_.vel.y)/((*stage_)->map_scale()*12.0f))
+		auto vel = current_stat_.vel + VGet(sin(roty), 0, cos(roty)) * (-move_dir * acc * (*stage_)->map_scale());
+		// * timer_->DeltaSec());// * ((6.0f-current_stat_.vel.y)/((*stage_)->map_scale()*12.0f))
+		// meant for the above auto vel =
         vel.y = 0;
 
         if (VSize(vel) > std::max(move_speed, 1.0f) * (*stage_)->map_scale())
@@ -615,18 +628,20 @@ void FieldPlayer::InputFromUser()
     }
     else
     {
-        // 接地しており、移動しない
+        // Grounded and stationary
         current_stat_.motion = motion.stand_;
     }
 
     int rot_dir = 0;
-    //if (input.GetKeyCount(InputManager::KEYBIND_RIGHT_TRUN) > 0)
-    if (input.GetKeyCount(InputManager::KEYBIND_RIGHT_TRUN) > 0 && GetActiveFlag() != 0)// ※ 非アクティブ時はキーは効かない様に修正
+    // if (input.GetKeyCount(InputManager::KEYBIND_RIGHT_TRUN) > 0)
+	// The bug where keys were still registered when the game was in the background was fixed
+    if (input.GetKeyCount(InputManager::KEYBIND_RIGHT_TRUN) > 0 && GetActiveFlag() != 0)
     {
         ++rot_dir;
     }
     //if (input.GetKeyCount(InputManager::KEYBIND_LEFT_TURN) > 0)
-    if (input.GetKeyCount(InputManager::KEYBIND_LEFT_TURN) > 0 && GetActiveFlag() != 0)// ※ 非アクティブ時はキーは効かない様に修正
+	// The bug where keys were still registered when the game was in the background was fixed
+    if (input.GetKeyCount(InputManager::KEYBIND_LEFT_TURN) > 0 && GetActiveFlag() != 0)
     {
         --rot_dir;
     }
@@ -650,8 +665,9 @@ void FieldPlayer::InputFromUser()
     }
 
     if (current_stat_.acc.y == 0 &&
-//		(input.GetKeyCount(InputManager::KEYBIND_JUMP) > 0 ||
-		((input.GetKeyCount(InputManager::KEYBIND_JUMP) > 0 && GetActiveFlag() != 0)|| // ※ 非アクティブ時はキーは効かない様に修正
+		// (input.GetKeyCount(InputManager::KEYBIND_JUMP) > 0 ||
+		// Modified so keys are not registered when the game is in the background
+		((input.GetKeyCount(InputManager::KEYBIND_JUMP) > 0 && GetActiveFlag() != 0)||
                     input.GetGamepadCount(InputManager::PADBIND_JUMP) > 0))
     {
 			any_move_ = true;
@@ -660,17 +676,19 @@ void FieldPlayer::InputFromUser()
 	}
 
 	std::string motion_num = "";
-// ※ ここから 非アクティブ時はキーは効かない様に修正
-	//if (input.GetKeyCount(InputManager::KEYBIND_MOTION_00) > 0)motion_num = "0";
-	//if (input.GetKeyCount(InputManager::KEYBIND_MOTION_01) > 0 && motion_num.empty())motion_num = "1";
-	//if (input.GetKeyCount(InputManager::KEYBIND_MOTION_02) > 0 && motion_num.empty())motion_num = "2";
-	//if (input.GetKeyCount(InputManager::KEYBIND_MOTION_03) > 0 && motion_num.empty())motion_num = "3";
-	//if (input.GetKeyCount(InputManager::KEYBIND_MOTION_04) > 0 && motion_num.empty())motion_num = "4";
-	//if (input.GetKeyCount(InputManager::KEYBIND_MOTION_05) > 0 && motion_num.empty())motion_num = "5";
-	//if (input.GetKeyCount(InputManager::KEYBIND_MOTION_06) > 0 && motion_num.empty())motion_num = "6";
-	//if (input.GetKeyCount(InputManager::KEYBIND_MOTION_07) > 0 && motion_num.empty())motion_num = "7";
-	//if (input.GetKeyCount(InputManager::KEYBIND_MOTION_08) > 0 && motion_num.empty())motion_num = "8";
-	//if (input.GetKeyCount(InputManager::KEYBIND_MOTION_09) > 0 && motion_num.empty())motion_num = "9";
+	// Modified so keys are not registered when the game is in the background
+	/*
+	if (input.GetKeyCount(InputManager::KEYBIND_MOTION_00) > 0)motion_num = "0";
+	if (input.GetKeyCount(InputManager::KEYBIND_MOTION_01) > 0 && motion_num.empty())motion_num = "1";
+	if (input.GetKeyCount(InputManager::KEYBIND_MOTION_02) > 0 && motion_num.empty())motion_num = "2";
+	if (input.GetKeyCount(InputManager::KEYBIND_MOTION_03) > 0 && motion_num.empty())motion_num = "3";
+	if (input.GetKeyCount(InputManager::KEYBIND_MOTION_04) > 0 && motion_num.empty())motion_num = "4";
+	if (input.GetKeyCount(InputManager::KEYBIND_MOTION_05) > 0 && motion_num.empty())motion_num = "5";
+	if (input.GetKeyCount(InputManager::KEYBIND_MOTION_06) > 0 && motion_num.empty())motion_num = "6";
+	if (input.GetKeyCount(InputManager::KEYBIND_MOTION_07) > 0 && motion_num.empty())motion_num = "7";
+	if (input.GetKeyCount(InputManager::KEYBIND_MOTION_08) > 0 && motion_num.empty())motion_num = "8";
+	if (input.GetKeyCount(InputManager::KEYBIND_MOTION_09) > 0 && motion_num.empty())motion_num = "9";
+	*/
    	if ((input.GetKeyCount(InputManager::KEYBIND_MOTION_00) > 0 && GetActiveFlag() != 0))motion_num = "0";
 	if ((input.GetKeyCount(InputManager::KEYBIND_MOTION_01) > 0 && GetActiveFlag() != 0) && motion_num.empty())motion_num = "1";
 	if ((input.GetKeyCount(InputManager::KEYBIND_MOTION_02) > 0 && GetActiveFlag() != 0) && motion_num.empty())motion_num = "2";
@@ -681,13 +699,12 @@ void FieldPlayer::InputFromUser()
 	if ((input.GetKeyCount(InputManager::KEYBIND_MOTION_07) > 0 && GetActiveFlag() != 0) && motion_num.empty())motion_num = "7";
 	if ((input.GetKeyCount(InputManager::KEYBIND_MOTION_08) > 0 && GetActiveFlag() != 0) && motion_num.empty())motion_num = "8";
 	if ((input.GetKeyCount(InputManager::KEYBIND_MOTION_09) > 0 && GetActiveFlag() != 0) && motion_num.empty())motion_num = "9";
-// ※ ここまで
 	if (!motion_num.empty()){
 		auto type = ResourceManager::set_motions().find(allocated_motion_[motion_num]);
 		if( type != ResourceManager::set_motions().end() )
 		{
 			auto IntToString = [](int num)->std::string{std::stringstream ss;ss << num;return ss.str();};
-			//モーションセット
+			// Set motion
 			if(type->second == "el"){
 				int cnt = 0;
 				bool flag = true;
@@ -727,7 +744,7 @@ void FieldPlayer::InputFromUser()
 				PlayMotion(unicode::ToTString(allocated_motion_[motion_num]),true);
 			}
 		}else{
-			//単一モーション
+			// One motion
 			PlayMotion(unicode::ToTString(allocated_motion_[motion_num]),false);
 		}
 		data_provider_.set_json("{\"type\":\"motion\",\"data\":\""+allocated_motion_[motion_num]+"\"}");
@@ -736,8 +753,8 @@ void FieldPlayer::InputFromUser()
 
 void FieldPlayer::PlayMotion(const tstring& name,bool isloop)
 {
-	//additional_motion_.handle_ = MV1GetAnimIndex(model_handle_.handle(),name.c_str());
-	//additional_motion_.isloop_ = isloop;
+	// additional_motion_.handle_ = MV1GetAnimIndex(model_handle_.handle(),name.c_str());
+	// additional_motion_.isloop_ = isloop;
 	MotionPlayer::ChainData chain_data;
 	chain_data.anim_index = MV1GetAnimIndex(model_handle_.handle(),name.c_str());
 	chain_data.isloop = isloop;

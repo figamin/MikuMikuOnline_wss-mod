@@ -29,7 +29,7 @@ class UILabel : public UIBase {
         static void DefineInstanceTemplate(Handle<ObjectTemplate>* object);
         
     private:
-        /* property */
+        // property
         static Handle<Value> Property_text(Local<String> property, const AccessorInfo &info);
         static void Property_set_text(Local<String> property, Local<Value> value, const AccessorInfo& info);
         static Handle<Value> Property_bgcolor(Local<String> property, const AccessorInfo &info);

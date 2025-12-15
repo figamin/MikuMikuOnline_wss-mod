@@ -34,7 +34,7 @@ void UILabel::set_text(const tstring& text)
 {
     text_ = text;
 
-    // 文字幅を計算
+    // Calculate the character width
     char_width_list_.clear();
     for (auto it = text_.begin(); it != text_.end(); ++it) {
         #ifdef UNICODE
@@ -88,7 +88,7 @@ UIBase::Color UILabel::bgcolor() const
  {
     assert(info.This()->InternalFieldCount() > 0);
     auto self = std::dynamic_pointer_cast<UILabel>(
-//          *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
+            // *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
 			*static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
     );
     assert(self);
@@ -99,7 +99,7 @@ UIBase::Color UILabel::bgcolor() const
  {
     assert(info.This()->InternalFieldCount() > 0);
     auto self = std::dynamic_pointer_cast<UILabel>(
-//          *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
+            // *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
 			*static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
     );
     assert(self);
@@ -111,7 +111,7 @@ UIBase::Color UILabel::bgcolor() const
  {
     assert(info.This()->InternalFieldCount() > 0);
     auto self = std::dynamic_pointer_cast<UILabel>(
-//          *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
+            // *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
 			*static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
     );
     assert(self);
@@ -122,7 +122,7 @@ UIBase::Color UILabel::bgcolor() const
  {
     assert(info.This()->InternalFieldCount() > 0);
     auto self = std::dynamic_pointer_cast<UILabel>(
-//          *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
+            // *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
 			*static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
     );
     assert(self);
@@ -134,7 +134,7 @@ UIBase::Color UILabel::bgcolor() const
  {
     assert(info.This()->InternalFieldCount() > 0);
     auto self = std::dynamic_pointer_cast<UILabel>(
-//          *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
+            // *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
 			*static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
     );
     assert(self);
@@ -145,7 +145,7 @@ UIBase::Color UILabel::bgcolor() const
  {
     assert(info.This()->InternalFieldCount() > 0);
     auto self = std::dynamic_pointer_cast<UILabel>(
-//          *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
+            // *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
 			*static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
     );
     assert(self);
@@ -161,7 +161,7 @@ void UILabel::DefineInstanceTemplate(Handle<ObjectTemplate>* object)
     Handle<ObjectTemplate>& instance_template = *object;
 
     /**
-     * 表示テキスト
+     * Display text
      *
      * @property text
      * @type String
@@ -169,9 +169,9 @@ void UILabel::DefineInstanceTemplate(Handle<ObjectTemplate>* object)
     SetProperty(&instance_template, "text", Property_text, Property_set_text);
 
     /**
-     * 背景色
+     * Background color
      *
-     * '#FFFFFFF' (RGB) または　'#FFFFFFFF' (RGBA) のフォーマットの文字列で指定します
+     * Specified in 6 or 8 length hex format (RGB or RGBA)
      *
      * @property bgcolor
      * @type String
@@ -179,7 +179,7 @@ void UILabel::DefineInstanceTemplate(Handle<ObjectTemplate>* object)
     SetProperty(&instance_template, "bgcolor" , Property_bgcolor, Property_set_bgcolor);
 
     /**
-     * 文字色
+     * Text color
      *
      * @property color
      * @type String
@@ -191,8 +191,8 @@ void UILabel::ProcessInput(InputManager* input)
 {
 	bool hover = (absolute_x()<= input->GetMouseX() && input->GetMouseX() <= absolute_x()+ absolute_width()
             && absolute_y() <= input->GetMouseY() && input->GetMouseY() <= absolute_y() + absolute_height());
-
-//	if (input->GetMouseLeftCount() == 1 && hover) { // ※ 非アクティブ時はマウスが効かないように修正
+    // Fixed so that the mouse does not work when the game is inactive
+    // if (input->GetMouseLeftCount() == 1 && hover) { 
 	if (input->GetMouseLeftCount() == 1 && hover && GetActiveFlag() != 0) {  
 		if (!on_click_.IsEmpty() && on_click_->IsFunction()) {
 			on_click_.As<Function>()->CallAsFunction(Context::GetCurrent()->Global(), 0, nullptr);
@@ -201,13 +201,15 @@ void UILabel::ProcessInput(InputManager* input)
 			parent_c_->set_visible(false);
 			input->CancelMouseLeft();
 		}
-//	}else if(hover && !hover_flag_){ // ※ 非アクティブ時はマウスが効かないように修正
-	}else if(hover && !hover_flag_ && GetActiveFlag() != 0){
+    // Fixed so that the mouse does not work when the game is inactive
+    // }else if(hover && !hover_flag_){ 
+	} else if(hover && !hover_flag_ && GetActiveFlag() != 0) {
 		if(!on_hover_function_._Empty()) {
 			on_hover_function_(this);
 			hover_flag_ = true;
 		}
-//	}else if(!hover && hover_flag_){ // ※ 非アクティブ時はマウスが効かないように修正
+    // Fixed so that the mouse does not work when the game is inactive
+    // } else if(!hover && hover_flag_){
 	}else if(!hover && hover_flag_ && GetActiveFlag() != 0){
 		if(!on_out_function_._Empty()) {
 			on_out_function_(this);
@@ -223,13 +225,13 @@ void UILabel::UpdatePosition()
         parent_width,
         parent_height;
 
-    // 親のサイズを取得
+    // Get the parent size
     if (parent_.IsEmpty()) {
         parent_x = 0;
         parent_y = 0;
         GetScreenState(&parent_width, &parent_height, nullptr);
     } else {
-//      UIBasePtr parent_ptr = *static_cast<UIBasePtr*>(parent_->GetPointerFromInternalField(0));
+        // UIBasePtr parent_ptr = *static_cast<UIBasePtr*>(parent_->GetPointerFromInternalField(0));
 		UIBasePtr parent_ptr = *static_cast<UIBasePtr*>(Local<External>::Cast(parent_->GetInternalField(0))->Value());
         parent_x = parent_ptr->absolute_x();
         parent_y = parent_ptr->absolute_y();
@@ -237,7 +239,7 @@ void UILabel::UpdatePosition()
         parent_height = parent_ptr->absolute_height();
     }
 
-    // 幅を計算
+    // Calculate the width
     if((docking_ & DOCKING_LEFT) &&
             (docking_ & DOCKING_RIGHT)) {
         int left = parent_x + left_;
@@ -251,9 +253,9 @@ void UILabel::UpdatePosition()
 		}
     }
 
-    // 行の折り返しを計算
+    // Calculate line wrapping
     int line_width = 0;
-    //int line_width_max = 0;
+    // int line_width_max = 0;
     int line_num = 1;
     substr_list_.clear();
     substr_list_.push_back(0);
@@ -264,7 +266,8 @@ void UILabel::UpdatePosition()
             line_num++;
             substr_list_.push_back(text_cursor);
             substr_list_.push_back(text_cursor + 1);
-            line_width = 0; // ※ メッセージに改行が含まれる際に後の行の折り返しがおかしくなるため追加
+            // Added because line breaks in the message were causing incorrect wrapping of later lines
+            line_width = 0;
         } else if (line_width + *it > absolute_width()) {
             line_width = *it;
             line_num++;
@@ -276,17 +279,16 @@ void UILabel::UpdatePosition()
 
         text_cursor++;
     }
-
-//    if (!stable_width) {
-//        line_width_max = max(line_width_max, line_width);
-//        absolute_rect_.width = line_width_max;
-//    }
-
+    /*
+    if (!stable_width) {
+        line_width_max = max(line_width_max, line_width);
+        absolute_rect_.width = line_width_max;
+    }
+    */
     substr_list_.push_back(text_.length());
 
-    // 高さを計算
-    if((docking_ & DOCKING_TOP) &&
-            (docking_ & DOCKING_BOTTOM)) {
+    // Calculate the height
+    if((docking_ & DOCKING_TOP) && (docking_ & DOCKING_BOTTOM)) {
         int top = parent_y + top_;
         int bottom = parent_y + parent_height - bottom_;
         absolute_rect_.height = bottom - top;
@@ -294,18 +296,20 @@ void UILabel::UpdatePosition()
         absolute_rect_.height = (ResourceManager::default_font_size() + 2) * line_num;
     }
 
-    // 左上X座標を計算
-    // TODO: 正しく計算されないバグあり
-//    if(docking_ & DOCKING_HCENTER) {
-//        absolute_rect_.x = parent_x + parent_width / 2 - offset_rect_.width / 2;
-//    } else if(docking_ & DOCKING_RIGHT) {
-//        absolute_rect_.x = parent_x + parent_width - right_ - offset_rect_.width;
-//    } else {
-//        absolute_rect_.x = parent_x + left_;
-//    }
+    // Calculate the top left X coordinate
+    // TODO: Fix the bug that causes incorrect calculations
+    /*
+    if(docking_ & DOCKING_HCENTER) {
+        absolute_rect_.x = parent_x + parent_width / 2 - offset_rect_.width / 2;
+    } else if(docking_ & DOCKING_RIGHT) {
+        absolute_rect_.x = parent_x + parent_width - right_ - offset_rect_.width;
+    } else {
+        absolute_rect_.x = parent_x + left_;
+    }
+    */
     absolute_rect_.x = parent_x + left_;
 
-    // 左上Y座標を計算
+    // Calculate the top left Y coordinate
     if(docking_ & DOCKING_VCENTER) {
         absolute_rect_.y = parent_y + parent_height / 2 - absolute_rect_.height / 2;
     } else if(docking_ & DOCKING_BOTTOM) {

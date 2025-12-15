@@ -146,7 +146,7 @@ void WindowManager::ProcessInputIcons(const Rect& rect, InputManager* input)
 
 			if (hover && input->GetMouseLeftCount() == 1) {
 				ptr->set_visible(!(ptr->visible()));
-				// ※ ここからウィンドウが画面外の場合は初期位置に戻す処理を追加
+				// Return the window to it's initial position if it is off screen
 			    int screen_width, screen_height;
 			    GetScreenState(&screen_width, &screen_height, nullptr);
 
@@ -159,7 +159,6 @@ void WindowManager::ProcessInputIcons(const Rect& rect, InputManager* input)
 					ptr->set_offset_width(0);
 					ptr->set_offset_height(0);
 				}
-				// ここまで
 				input->CancelMouseLeft();
 			}
 			x += 40;

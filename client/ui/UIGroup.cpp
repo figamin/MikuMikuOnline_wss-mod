@@ -41,13 +41,13 @@ void UIGroup::Update()
 {
     UpdatePosition();
 
-    //int max_y = 0;
+    // int max_y = 0;
     for(auto it = children_.begin(); it != children_.end(); ++it) {
         auto child = *it;
-//      UIBasePtr child_ptr = *static_cast<UIBasePtr*>(child->GetPointerFromInternalField(0));
+        // UIBasePtr child_ptr = *static_cast<UIBasePtr*>(child->GetPointerFromInternalField(0));
 		UIBasePtr child_ptr = *static_cast<UIBasePtr*>(Local<External>::Cast(child->GetInternalField(0))->Value());
         child_ptr->Update();
-        //max_y = max(max_y, child_ptr->)
+        // max_y = max(max_y, child_ptr->)
     }
 }
 

@@ -1,7 +1,7 @@
-// stdafx.h : 標準のシステム インクルード ファイルのインクルード ファイル、または
-// 参照回数が多く、かつあまり変更されない、プロジェクト専用のインクルード ファイル
-// を記述します。
-//
+// stdafx.h : 
+// This is an include file for standard system include files
+// or project specific include files that are used frequently
+// but rarely modified
 
 #pragma once
 
@@ -9,7 +9,7 @@
 #include <tchar.h>
 #endif
 
-// C ランタイム ヘッダー ファイル
+// C runtime header files
 #include <stdlib.h>
 #include <malloc.h>
 #include <memory.h>
@@ -18,7 +18,7 @@
 #include <cmath>
 #include <iostream>
 
-// TODO: プログラムに必要な追加ヘッダーをここで参照してください。
+// TODO: Refer to the additional headers required for the program
 
 #include <vector>
 #include <list>

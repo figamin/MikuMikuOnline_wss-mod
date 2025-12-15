@@ -21,7 +21,8 @@
 #include <shlwapi.h>
 #include "ServerChange.hpp"
 #include "../Music.hpp"
-#include "../../common/unicode.hpp" // ※ スクリーンショット採取時にメッセージを出すために追加
+// Added to display a message when taking a screenshot
+#include "../../common/unicode.hpp"
 
 namespace scene {
 MainLoop::MainLoop(const ManagerAccessorPtr& manager_accessor) :
@@ -92,7 +93,7 @@ void MainLoop::ProcessInput(InputManager* input)
 {
 	if(world_manager_->stage()->host_change_flag())
 	{
-		//account_manager_->set_host(world_manager_->stage()->host_change_flag().second);
+		// account_manager_->set_host(world_manager_->stage()->host_change_flag().second);
 		next_scene_ = std::make_shared<scene::ServerChange>(manager_accessor_);
 	} else if (input->GetKeyCount(KEY_INPUT_F1) == 1) {
 		inputbox_->Inactivate();
@@ -109,11 +110,11 @@ void MainLoop::ProcessInput(InputManager* input)
     card_manager_->ProcessInput(input);
     world_manager_->ProcessInput(input);
 
-// ※ ここから  ゲームパッド対応にするため修正
-//	if(input->GetKeyCount(InputManager::KEYBIND_SCREEN_SHOT) == 1)
-	if((input->GetKeyCount(InputManager::KEYBIND_SCREEN_SHOT) == 1 && GetActiveFlag() != 0)||  // ※ 非アクティブ時はキーは効かない様に修正
+	// Changes made to add gamepad support
+	// if(input->GetKeyCount(InputManager::KEYBIND_SCREEN_SHOT) == 1)
+	// The issue where inputs were still registered with the game inactive has been fixed
+	if((input->GetKeyCount(InputManager::KEYBIND_SCREEN_SHOT) == 1 && GetActiveFlag() != 0)||
 		input->GetGamepadCount(InputManager::PADBIND_SCREEN_SHOT) == 1)
-// ※ ここまで
 	{
 		snapshot_ = true;
 	}
@@ -125,12 +126,13 @@ void MainLoop::ProcessInput(InputManager* input)
 			const auto& pos = player_manager_->GetMyself()->position();
 
 			auto distance = VSize(warp_point.position - VGet(pos.x, pos.y, pos.z));
-// ※ ここから  ゲームパッド対応にするため修正
-//			if (distance < 50 && input->GetKeyCount(KEY_INPUT_M) == 1) {
-			if (distance < 50 && ((input->GetKeyCount(KEY_INPUT_M) == 1 && GetActiveFlag() != 0)||  // ※ 非アクティブ時はキーは効かない様に修正
+			// Changes made to add gamepad support
+			// if (distance < 50 && input->GetKeyCount(KEY_INPUT_M) == 1) {
+			// The issue where inputs were still registered with the game inactive has been fixed
+			if (distance < 50 && ((input->GetKeyCount(KEY_INPUT_M) == 1 && GetActiveFlag() != 0)||
 				input->GetGamepadCount(InputManager::PADBIND_WARP) == 1)) {
 
-				// 同一チャンネルの場合は移動するだけ
+				// If it's the same channel, just move
 				if (player_manager_->GetMyself()->channel() == warp_point.channel) {
 					if (warp_point.destination) {
 						world_manager_->myself()->ResetPosition(warp_point.destination);
@@ -173,7 +175,7 @@ void MainLoop::Draw()
 			}
 		}
 		SaveDrawScreenToPNG( 0, 0, config_manager_->screen_width(), config_manager_->screen_height(),tmp_str);
-		// ※ スクリンショット採取時に擬似メッセージが出るように修正　ここから
+		// Modified to display a dummy message when taking a screenshot
 		boost::posix_time::ptime now = boost::posix_time::second_clock::universal_time();
         auto time_string = to_iso_extended_string(now);
         std::string info_json;
@@ -182,10 +184,9 @@ void MainLoop::Draw()
         info_json += (boost::format("\"id\":\"%d\",") % id).str();
         info_json += (boost::format("\"time\":\"%s\"") % time_string).str();
         info_json += "}";
-//		_stprintf( tmp_str , _T("{\"type\":\"chat\",\"body\":\"スクリーンショットを保存しました:ss%03d.png\"}") , snapshot_number_ );
+		// _stprintf( tmp_str , _T("{\"type\":\"chat\",\"body\":\"スクリーンショットを保存しました:ss%03d.png\"}") , snapshot_number_ );
         _stprintf( tmp_str , _T("{\"private\":[%d,%d],\"body\":\"スクリーンショットを保存しました:ss%03d.png\"}") , id,id,snapshot_number_ );
 		card_manager_->OnReceiveJSON(info_json, unicode::ToString(tmp_str));
-		// ※ ここまで
 		snapshot_number_++;
 		snapshot_ = false;
 	}
@@ -207,6 +208,7 @@ void MainLoop::Draw()
 				label_.set_width(160);
 				auto text = _T("【") + unicode::ToTString(warp_point.name) + _T("】");
 				if (distance < 50) {
+					// This means "Press M to warp"
 					text += _T("\nＭキーで転送します");
 					label_.set_bgcolor(UIBase::Color(255,0,0,150));
 				} else {
@@ -228,6 +230,7 @@ void MainLoop::Draw()
 		SetDrawBlendMode(DX_BLENDMODE_MUL, 120);
 		DrawBox(0,0,config_manager_->screen_width(),config_manager_->screen_height(),GetColor(0,0,0),1);
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+		// This means "Disconnected from the server"
 		auto str = unicode::ToTString(_T("サーバーとの接続が切断されました"));
 		auto width = GetDrawStringWidthToHandle(str.c_str(),str.length(),ResourceManager::default_font_handle());
 		DrawStringToHandle(

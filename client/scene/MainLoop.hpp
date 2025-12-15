@@ -29,7 +29,7 @@ class MainLoop : public Base {
         std::function<void(const tstring&)> push_message_;
 
     private:
-        // アクセサ
+        // Accessories
         ManagerAccessorPtr manager_accessor_;
         PlayerManagerPtr player_manager_;
         CardManagerPtr card_manager_;
@@ -46,7 +46,7 @@ class MainLoop : public Base {
 		bool snapshot_;
 
 		int fade_counter_;
-		//SocketServer socket_server_;
+		// SocketServer socket_server_;
 };
 
 }

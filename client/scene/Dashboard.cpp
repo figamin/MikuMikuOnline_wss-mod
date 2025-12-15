@@ -46,8 +46,7 @@ Dashboard::~Dashboard()
 
 void Dashboard::Begin()
 {
-	// TODO: •`‰æ‚ðDashbord‚ÉˆÚŠÇ‚·‚é‚½‚ß‚ÉNull‚É‚µ‚Ä‚¢‚é‚ªA
-	// •´‚ç‚í‚µ‚¢‚Ì‚ÅC³—\’è
+	// TODO: This is set to NULL to transfer the rendering to the dashboard, but this is confusing and should be corrected
 	manager_accessor_->set_window_manager(WindowManagerWeakPtr());
 }
 

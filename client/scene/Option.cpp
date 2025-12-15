@@ -48,7 +48,8 @@ void Option::Begin()
 	tabs_.push_back(std::make_shared<StatusTab>(manager_accessor_));
 	tabs_.push_back(std::make_shared<DisplayTab>(manager_accessor_));
 	tabs_.push_back(std::make_shared<InputTab>(manager_accessor_));
-//	tabs_.push_back(std::make_shared<OtherTab>(manager_accessor_)); // ※ その他タブを有効化
+	// Enable the Other tab
+	// tabs_.push_back(std::make_shared<OtherTab>(manager_accessor_));
 }
 
 void Option::Update()
@@ -261,7 +262,7 @@ void OptionTabBase::Draw()
 	}
 }
 
-// ステータスタブ
+// Status tab
 
 StatusTab::StatusTab(const ManagerAccessorPtr& manager_accessor) :
 	OptionTabBase(_LT("option.status.name"), manager_accessor)
@@ -331,7 +332,7 @@ StatusTab::StatusTab(const ManagerAccessorPtr& manager_accessor) :
 }
 
 
-// 表示設定タブ
+// Display tab
 
 DisplayTab::DisplayTab(const ManagerAccessorPtr& manager_accessor) :
 	OptionTabBase(_LT("option.display.name"), manager_accessor)
@@ -374,7 +375,7 @@ DisplayTab::DisplayTab(const ManagerAccessorPtr& manager_accessor) :
 		manager_accessor_));
 }
 
-// 操作設定タブ
+// Input tab
 
 InputTab::InputTab(const ManagerAccessorPtr& manager_accessor) :
 	OptionTabBase(_LT("option.input.name"), manager_accessor)
@@ -398,7 +399,7 @@ InputTab::InputTab(const ManagerAccessorPtr& manager_accessor) :
 		}),
 		manager_accessor_));
 
-		// ※ ここから ゲームパッド有効をウインドウアクティブ時のみにもできる様に追加
+		// Added the ability to enable gamepad only when game is active
 		items_.push_back(std::make_shared<RadioButtonItem>(
 		_LT("option.input.gamepad_enable"),
 		_LT("option.input.gamepad_enable_json"),
@@ -417,9 +418,8 @@ InputTab::InputTab(const ManagerAccessorPtr& manager_accessor) :
 			}
 		}),
 		manager_accessor_));
-		// ※ ここまで
 
-		// ※ ここから ゲームパッドのボタンを変更できるように追加
+		// Added the ability to change gamepad buttons
 		items_.push_back(std::make_shared<RadioButtonItem>(
 		_LT("option.input.gamepad_jump"),
 		_LT("option.input.gamepad_jump_json"),
@@ -495,8 +495,7 @@ InputTab::InputTab(const ManagerAccessorPtr& manager_accessor) :
 			}
 		}),
 		manager_accessor_));
-		// ※ ここまで
-		// ※ ここから 移動速度変更タイプを設定で変更できるように追加
+		// Added the ability to change movement speed type
 		items_.push_back(std::make_shared<RadioButtonItem>(
 		_LT("option.input.walk_change_type"),
 		_LT("option.input.walk_change_type_json"),
@@ -515,7 +514,6 @@ InputTab::InputTab(const ManagerAccessorPtr& manager_accessor) :
 			}
 		}),
 		manager_accessor_));
-		// ※ ここまで
 		items_.push_back(std::make_shared<RadioButtonItem>(
 		_LT("option.input.camera_direction"),
 		_LT("option.input.camera_direction_json"),
@@ -536,30 +534,34 @@ InputTab::InputTab(const ManagerAccessorPtr& manager_accessor) :
 		manager_accessor_));
 }
 
-// その他設定タブ
+// Other tab
 
 OtherTab::OtherTab(const ManagerAccessorPtr& manager_accessor) :
 	OptionTabBase(_LT("option.others.name"), manager_accessor)
 {
-	//items_.push_back(std::make_shared<RadioButtonItem>(
-	//	_T("棒読みちゃんと連携"),
-	//	_T("{\"オフ\":0,\"オン\":1}"),
-	//	std::make_shared<RadioButtonItemGetter>(
-	//	[manager_accessor]() -> int{
-	//		auto config_manager = 
-	//			manager_accessor->config_manager().lock();
-	//		return config_manager->bouyomi_chan();
-	//	}),
-	//	std::make_shared<RadioButtonItemSetter>(
-	//	[manager_accessor](int value){
-	//		if (auto config_manager = 
-	//			manager_accessor->config_manager().lock()) {
-	//			return config_manager->set_bouyomi_chan(value);
-	//		}
-	//	}),
-	//	manager_accessor_));
+	/*
+	items_.push_back(std::make_shared<RadioButtonItem>(
+		// This means "Integration with Bouyomi-chan"
+		_T("棒読みちゃんと連携"),
+		// Off: 0, On: 1
+		_T("{\"オフ\":0,\"オン\":1}"),
+		std::make_shared<RadioButtonItemGetter>(
+		[manager_accessor]() -> int{
+			auto config_manager = 
+				manager_accessor->config_manager().lock();
+			return config_manager->bouyomi_chan();
+		}),
+		std::make_shared<RadioButtonItemSetter>(
+		[manager_accessor](int value){
+			if (auto config_manager = 
+				manager_accessor->config_manager().lock()) {
+				return config_manager->set_bouyomi_chan(value);
+			}
+		}),
+		manager_accessor_));
+	*/
 	
-	// ※ ここから  キャラクターの読み込み方法を変更できるように追加
+	// Add the option to change how characters are loaded
 	items_.push_back(std::make_shared<RadioButtonItem>(
 		_LT("option.others.modelload_mode"),
 		_LT("option.others.modelload_mode_json"),
@@ -577,7 +579,6 @@ OtherTab::OtherTab(const ManagerAccessorPtr& manager_accessor) :
 			}
 		}),
 		manager_accessor_));
-	// ※ ここまで
 }
 
 OptionItemBase::OptionItemBase(const ManagerAccessorPtr& manager_accessor) :
@@ -671,12 +672,11 @@ RadioButtonItem::RadioButtonItem(const tstring& name,
 		setter_(setter),
 		selecting_index_(0)
 {
-// ※ ここから  ボタンの文字数が少ないと正常に表示できないので修正(イメージ3分割→4分割)
-//  selecting_bg_image_handle_ = ResourceManager::LoadCachedDivGraph<3>(
-//            _T("system/images/gui/gui_option_selecting_bg.png"), 3, 1, 16, 24);　
+	// Button text wasn't displaying correctly because of limited characters, so the image was divided into 4 parts instead of 3
+	// selecting_bg_image_handle_ = ResourceManager::LoadCachedDivGraph<3>(
+			// _T("system/images/gui/gui_option_selecting_bg.png"), 3, 1, 16, 24);　
     selecting_bg_image_handle_ = ResourceManager::LoadCachedDivGraph<4>(
             _T("system/images/gui/gui_option_selecting_bg.png"), 4, 1, 12, 24);
-// ※ ここまで
 
 	ptree item_array;
 	read_json(std::stringstream(unicode::ToString(items)), item_array);
@@ -711,14 +711,13 @@ void RadioButtonItem::ProcessInput(InputManager* input)
 		if (item.hover && input->GetMouseLeftCount() == 1) {
 			(*setter_)(item.value);
 		}
-// ※ ここから  オプション画面でコントローラのボタンを押した際に該当のボタンがわかるように修正
-//     (明確な識別方法がないのでオプション選択数が13あるものがコントローラのボタン選択として処理)
+		// Modified so when a button is pressed in the options screen, the corresponding button is identified
+		// Since there is no clear identification method, options with 13 choices are treated as controller button selections
 
 		if (!item.hover) {
 			int botton_mask = ( item.value  == 0 ? 0 : 0x08 << item.value);
 			item.hover = (items_.size() == 13 && input->GetGamepadCount(botton_mask) > 0);
 		}
-// ※ ここまで
 		item_left += item.width + 20;
 		index++;
 	}
@@ -745,16 +744,17 @@ void RadioButtonItem::Draw()
 			}
 		}
 		DrawGraph(left - 8, base_rect_.y - 4, *selecting_bg_image_handle_[0], TRUE);
-// ※ ボタンの文字数が少ないと正常に表示できないので修正(イメージ分割数を3→4に変更)
-//		DrawRectExtendGraphF(left - 8 + 16, base_rect_.y - 4,
-//								right - 16 + 8, base_rect_.y + 20,
-//								0, 0, 1, 24, *selecting_bg_image_handle_[2], TRUE);
-//		DrawGraph(right - 16 + 8, base_rect_.y - 4, *selecting_bg_image_handle_[2], TRUE);
+		// Button text wasn't displaying correctly because of limited characters, so the image was divided into 4 parts instead of 3
+		/*
+		DrawRectExtendGraphF(left - 8 + 16, base_rect_.y - 4,
+								right - 16 + 8, base_rect_.y + 20,
+								0, 0, 1, 24, *selecting_bg_image_handle_[2], TRUE);
+		DrawGraph(right - 16 + 8, base_rect_.y - 4, *selecting_bg_image_handle_[2], TRUE);
+		*/
 		DrawRectExtendGraphF(left - 8 + 12, base_rect_.y - 4,
 								right - 12 + 8, base_rect_.y + 20,
 								0, 0, 1, 24, *selecting_bg_image_handle_[2], TRUE);
 		DrawGraph(right - 16 + 12, base_rect_.y - 4, *selecting_bg_image_handle_[3], TRUE);
-// ※ ここまで
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 4);
 
 		DrawStringToHandle(left, base_rect_.y,

@@ -1,6 +1,8 @@
 #pragma once
 
-// 自キャラ、他人のキャラ、NPCなど、あらゆるキャラクタの基底クラス
+// The base class for all characters.
+// Includes the player, other players, and NPCs.
+
 class Character
 {
 public:

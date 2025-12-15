@@ -29,7 +29,7 @@ namespace network {
         callback_ = std::make_shared<CallbackFunc>(
                 [&](network::Command c){
 
-            // ログアウト
+            // Log out
             if (c.header() == network::header::FatalConnectionError || 
 				c.header() == network::header::UserFatalConnectionError) {
                 if (callback) {
@@ -140,15 +140,15 @@ namespace network {
 			}
 			xml_ptree.put_child("players", player_array);
 		}
-
-		//{
-		//	ptree log_array;
-		//	BOOST_FOREACH(const std::string& msg, recent_chat_log_) {
-		//		log_array.push_back(std::make_pair("", msg));
-		//	}
-		//	xml_ptree.put_child("recent_chat_log", log_array);
-		//}
-
+		/*
+		{
+			ptree log_array;
+			BOOST_FOREACH(const std::string& msg, recent_chat_log_) {
+				log_array.push_back(std::make_pair("", msg));
+			}
+			xml_ptree.put_child("recent_chat_log", log_array);
+		}
+		*/
 		xml_ptree.put_child("channels", channel_.pt());
 		std::stringstream stream;
 		boost::archive::text_oarchive oa(stream);
@@ -195,7 +195,7 @@ namespace network {
 
 		const auto address = session->tcp_socket().remote_endpoint().address();
 
-		// 拒否IPでないか判定
+		// Determine if IP is blocked
 		if(IsBlockedAddress(address)) {
 			Logger::Info("Blocked IP Address: %s", address);
             session->Close();
@@ -205,7 +205,7 @@ namespace network {
             session->Start();
             sessions_.push_back(SessionWeakPtr(session));
 
-            // クライアント情報を要求
+            // Requesting client info
             session->Send(ClientRequestedClientInfo());
         }
 
@@ -218,13 +218,13 @@ namespace network {
 
 	void Server::RefreshSession()
 	{
-		// 使用済のセッションのポインタを破棄
+		// Discard the pointer to the used session
         auto it = std::remove_if(sessions_.begin(), sessions_.end(),
                 [](const SessionWeakPtr& ptr){
             return ptr.expired();
         });
         sessions_.erase(it, sessions_.end());
-		Logger::Info("Active connection: %d", GetUserCount());
+		Logger::Info("%d players online", GetUserCount());
 	}
 
     void Server::SendAll(const Command& command, int channel, bool limited)
@@ -336,21 +336,23 @@ namespace network {
 
     void Server::WriteUDP(const boost::system::error_code& error, boost::shared_ptr<std::string> holder)
     {
-//        if (!error) {
-//            if (!send_queue_.empty()) {
-//                  send_queue_.pop();
-//                  if (!send_queue_.empty())
-//                  {
-//                    boost::asio::async_write(socket_tcp_,
-//                        boost::asio::buffer(send_queue_.front().data(),
-//                          send_queue_.front().size()),
-//                        boost::bind(&Session::WriteTCP, this,
-//                          boost::asio::placeholders::error));
-//                  }
-//            }
-//        } else {
-//            FatalError();
-//        }
+		/*
+		if (!error) {
+			if (!send_queue_.empty()) {
+				send_queue_.pop();
+				if (!send_queue_.empty())
+				{
+					boost::asio::async_write(socket_tcp_,
+					boost::asio::buffer(send_queue_.front().data(),
+					send_queue_.front().size()),
+					boost::bind(&Session::WriteTCP, this,
+					boost::asio::placeholders::error));
+				}
+			}
+		} else {
+			FatalError();
+		}
+		*/
     }
 
     void Server::FetchUDP(const std::string& buffer, const boost::asio::ip::udp::endpoint endpoint)
@@ -359,7 +361,7 @@ namespace network {
         std::string body;
         SessionWeakPtr weak_session;
 
-		// IPアドレスとポートからセッションを特定
+		// Identify the session from the IP address and port
 		auto it = std::find_if(sessions_.begin(), sessions_.end(),
 			[&endpoint](const SessionWeakPtr& session) -> bool {
 				if (auto session_ptr = session.lock()) {
@@ -388,7 +390,7 @@ namespace network {
 			body = buffer.substr(sizeof(header));
 		}
 
-        // 復号
+        // Decryption
 		if (auto session = weak_session.lock()) {
 			if (header == header::ENCRYPT_HEADER) {
 				body.erase(0, sizeof(header));
@@ -412,14 +414,14 @@ namespace network {
     {
         online_ = true;
 
-        // Nagleアルゴリズムを無効化
+        // Disable the Nagle algorithm
         socket_tcp_.set_option(boost::asio::ip::tcp::no_delay(true));
 
-		// バッファサイズを変更 1MiB
+		// Change buffer size to 1MB
 		boost::asio::socket_base::receive_buffer_size option(1048576);
 		socket_tcp_.set_option(option);
 
-        // IPアドレスを取得
+        // Get the IP address
         global_ip_ = socket_tcp_.remote_endpoint().address().to_string();
 
         boost::asio::async_read_until(socket_tcp_,

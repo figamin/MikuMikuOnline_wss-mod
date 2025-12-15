@@ -47,7 +47,7 @@ namespace network {
         write_byte_sum_ += msg.size();
         UpdateWriteByteAverage();
 
-		// Logger::Debug(_T("%d byte/s"), GetWriteByteAverage()); ※ 
+		// Logger::Debug(_T("%d byte/s"), GetWriteByteAverage());
 
         io_service_tcp_.post(boost::bind(&Session::DoWriteTCP, this, msg, shared_from_this()));
     }
@@ -206,7 +206,7 @@ namespace network {
 			auto length = Utils::Serialize(static_cast<unsigned int>(msg.size()));
 			return length + msg;
 		} else {
-			// 圧縮
+			// Compression
 			if (body.size() >= COMPRESS_MIN_LENGTH) {
 				auto compressed = Utils::LZ4Compress(msg);
 				if (msg.size() > compressed.size() + sizeof(uint8_t)) {
@@ -217,7 +217,7 @@ namespace network {
 				}
 			}
 
-			// 暗号化
+			// Encryption
 			if (encryption_) {
 				msg = Utils::Serialize(static_cast<uint8_t>(header::ENCRYPT_HEADER))
 					+ encrypter_.Encrypt(msg);
@@ -234,14 +234,14 @@ namespace network {
         uint8_t header;
         Utils::Deserialize(decoded_msg, &header);
 
-        // 復号
+        // Decryption
         if (header == header::ENCRYPT_HEADER) {
             decoded_msg.erase(0, sizeof(header));
             decoded_msg = encrypter_.Decrypt(decoded_msg);
             Utils::Deserialize(decoded_msg, &header);
         }
 
-        // 伸長
+        // Extension (or expansion)
         if (header == header::LZ4_COMPRESS_HEADER) {
             uint16_t original_size;
             Utils::Deserialize(decoded_msg, &header, &original_size);

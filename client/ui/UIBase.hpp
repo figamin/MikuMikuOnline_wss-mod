@@ -29,14 +29,15 @@ class UIBase : public UISuper {
         virtual void ProcessInput(InputManager* input);
         virtual void Update();
         virtual void Draw();
-        virtual void AsyncUpdate(); // 毎ループ実行する必要のない処理
+        // Processes that don't need to run in every loop
+        virtual void AsyncUpdate();
 
-        /* function */
+        // function
         static Handle<Value> Function_addChild(const Arguments& args);
         static Handle<Value> Function_removeChild(const Arguments& args);
         static Handle<Value> Function_parent(const Arguments& args);
 
-        /* property */
+        // property
         static Handle<Value> Property_visible(Local<String> property, const AccessorInfo &info);
         static void Property_set_visible(Local<String> property, Local<Value> value, const AccessorInfo& info);
         static Handle<Value> Property_width(Local<String> property, const AccessorInfo &info);
@@ -54,7 +55,7 @@ class UIBase : public UISuper {
         static Handle<Value> Property_docking(Local<String> property, const AccessorInfo &info);
         static void Property_set_docking(Local<String> property, Local<Value> value, const AccessorInfo& info);
 
-        /* event */
+        // event
         static Handle<Value> Property_on_click(Local<String> property, const AccessorInfo &info);
         static void Property_set_on_click(Local<String> property, Local<Value> value, const AccessorInfo& info);
 
@@ -100,7 +101,7 @@ class UIBase : public UISuper {
         void Focus();
 
 	public:
-		/* Property */
+		// Property
 		template<class F>
 		void set_on_click_function_(F function);
 		template<class F>
@@ -120,13 +121,13 @@ class UIBase : public UISuper {
 
 		bool hover_flag_;
 
-		/*C++からクラスを伝達するためのメンバ*/
+		// Members for passing classes from C++
 		UIBasePtr parent_c_;
 		Input* input_adaptor_;
 
 };
 
-//inline void Destruct(Persistent<Value> handle, void* parameter) {
+// inline void Destruct(Persistent<Value> handle, void* parameter) {
 inline void Destruct(Isolate* isolate,Persistent<Value> handle, void* parameter) {
     auto instance = static_cast<UIBasePtr*>(parameter);
     delete instance;
@@ -140,8 +141,9 @@ Handle<Value> Construct(const Arguments& args) {
     assert(thisObject->InternalFieldCount() > 0);
 	thisObject->SetInternalField(0, External::New(instance));
     Persistent<v8::Object> holder = Persistent<v8::Object>::New(thisObject);
-//  holder.MakeWeak(instance, Destruct);
-	holder.MakeWeak(Isolate::GetCurrent(),instance, Destruct); // ※ V8のバージョンを上げるために変更
+    // holder.MakeWeak(instance, Destruct);
+    // Changes made to update the v8 version
+	holder.MakeWeak(Isolate::GetCurrent(),instance, Destruct);
     return thisObject;
 }
 

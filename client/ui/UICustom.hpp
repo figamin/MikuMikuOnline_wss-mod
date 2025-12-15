@@ -30,7 +30,7 @@ class UICustom : public UIBase {
 		static void Property_set_draw(Local<String> property, Local<Value> value, const AccessorInfo& info);
 
 	private:
-		/* function */
+		// function
 		static Handle<Value> Function_DrawLine(const Arguments& args);
 		static Handle<Value> Function_DrawBox(const Arguments& args);
 		static Handle<Value> Function_DrawEdgeBox(const Arguments& args);
@@ -55,7 +55,7 @@ class UICustom : public UIBase {
 		static Handle<Value> Function_DrawText(const Arguments& args);
 
 	private:
-		/* member */
+		// member
 		static std::list<int> graphic_handles_;
 };
 

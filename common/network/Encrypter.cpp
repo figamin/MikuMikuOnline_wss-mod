@@ -206,7 +206,7 @@ std::string Encrypter::GetTrip(const std::string& in)
 
 bool Encrypter::CheckKeyPair()
 {
-    // 復号化できるかチェック
+    // Check if pair can be decrypted
     std::string test_data("test");
     bool result = (PublicDecrypt(PublicEncrypt(test_data)).substr(0, 4) == test_data);
     return result;

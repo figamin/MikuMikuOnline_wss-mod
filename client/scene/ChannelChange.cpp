@@ -46,15 +46,14 @@ void ChannelChange::Update()
 	if (fade_counter_ < 120) {
 		fade_counter_++;
 	} else {
-		// 古いステージを削除
+		// Reset the stage
 		player_manager_->ResetStage();
 		manager_accessor_->set_world_manager(WorldManagerPtr());
 
 		ResourceManager::ClearModelHandle();
-// ※ ログイン通知のユーザ名が???になるのでユーザ名を送るように修正
+		// The username in the login notif is "???", so we need to modify the system to send the correct username
         auto name=account_manager_->name();
         command_manager_->Write(network::ServerUpdateAccountProperty(NAME, name));
-// ここまで
 		command_manager_->Write(network::ServerUpdateAccountProperty(CHANNEL, network::Utils::Serialize(channel_)));
 		auto channel_ptr = command_manager_->channels().at(channel_);
 		StagePtr stage = std::make_shared<Stage>(channel_ptr,manager_accessor_->config_manager().lock());

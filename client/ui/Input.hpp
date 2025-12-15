@@ -71,11 +71,11 @@ class Input{
 
         std::vector<tstring> message_lines_;
 
-// public に変更  ここから
+    // Changed to public (begin)
     public:     
 		std::vector<tstring> lines_;
     private:
-// public に変更  ここまで
+    // Changed to public (end)
 		std::vector<tstring> candidates_;
         int candidate_x_, candidate_y_;
 
@@ -96,7 +96,7 @@ class Input{
         bool reverse_color_;
         int blink_count_;
 		bool rightmenu_show_;
-		//std::pair<int, int> mouse_pos_;
+		// std::pair<int, int> mouse_pos_;
 
 		UIList right_click_list_;
 

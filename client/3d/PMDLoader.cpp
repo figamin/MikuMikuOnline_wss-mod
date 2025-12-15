@@ -9,7 +9,7 @@ unsigned int VMDNumberToInt(const tstring& vmd_path)
     auto dot_pos = vmd_path.find('.');
     tstring vmd_number = (dot_pos != tstring::npos) ? vmd_path.substr(0, dot_pos) : vmd_path;
 
-//    std::cout << "vmd number = " << vmd_number << std::endl;
+    // std::cout << "vmd number = " << vmd_number << std::endl;
 
     if (vmd_number.length() == 4 && vmd_number[3] == 'L')
     {
@@ -60,7 +60,7 @@ int PMDLoader::Load(const tstring& pmd_path, const tstring& dir_path, const std:
 
     basic_motion_paths_ = basic_motion_paths;
 
-//    std::cout << "PMDLoader::Load: PMD=" << pmd_path << ", DATA_DIR=" << data_dir_path_ << std::endl;
+    // std::cout << "PMDLoader::Load: PMD=" << pmd_path << ", DATA_DIR=" << data_dir_path_ << std::endl;
 
     std::ifstream pmd_file(unicode::ToString(pmd_path), std::ios::binary);
     auto end_pos = pmd_file.seekg(0, std::ios::end).tellg();
@@ -96,12 +96,14 @@ int PMDLoader::FileReadFunc(const TCHAR* file_path, void** file_image_addr, int*
         */
         if (static_cast<unsigned>(vmd_number) < this_->basic_motion_paths_.size())
         {
-//            if ((vmd_number == BasicMotion::STAND && loop_motion) ||
-//                    (vmd_number == BasicMotion::WALK && !loop_motion) ||
-//                    (vmd_number == BasicMotion::RUN && !loop_motion))
-//            {
-//                return -1;
-//            }
+            /*
+            if ((vmd_number == BasicMotion::STAND && loop_motion) ||
+                (vmd_number == BasicMotion::WALK && !loop_motion) ||
+                (vmd_number == BasicMotion::RUN && !loop_motion))
+            {
+                return -1;
+            }
+            */
             file_path_ = this_->basic_motion_paths_[vmd_number];
         }
         else
@@ -124,7 +126,7 @@ int PMDLoader::FileReadFunc(const TCHAR* file_path, void** file_image_addr, int*
     std::ifstream file(unicode::ToString(path), std::ios::binary);
     if (!file)
     {
-//        std::cout << "can't find in specified data directory: " << file_path_ << std::endl;
+        // std::cout << "can't find in specified data directory: " << file_path_ << std::endl;
         path = this_->data_dir_path_ + _T("toon/") + file_path_;
         file.open(unicode::ToString(path), std::ios::binary);
         if (!file)

@@ -128,7 +128,8 @@ namespace network {
                  retval[outpos++] = b64_table[(accumulator >> bits_collected) & 0x3fu];
               }
            }
-           if (bits_collected > 0) { // Any trailing bits that are missing.
+           // Any trailing bits that are missing.
+           if (bits_collected > 0) {
               assert(bits_collected < 6);
               accumulator <<= 6 - bits_collected;
               retval[outpos++] = b64_table[accumulator & 0x3fu];

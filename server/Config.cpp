@@ -84,9 +84,7 @@ void Config::Reload()
 	}
 }
 
-//
-// アクセサ
-//
+// Accessories
 
 uint16_t Config::port() const
 {

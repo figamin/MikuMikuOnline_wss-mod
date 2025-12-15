@@ -17,7 +17,8 @@ Stage::Stage(const ChannelPtr& channel,const ConfigManagerPtr &config_manager) :
 	config_manager_(config_manager)
 	{
     MV1SetScale(map_handle_.handle(), VGet(map_scale_, map_scale_, map_scale_));
-    MV1SetupCollInfo(map_handle_.handle(), -1, 128, 64, 128);// 元の数値は256,256,256
+	// The original number is 256, 256, 256
+    MV1SetupCollInfo(map_handle_.handle(), -1, 128, 64, 128);
 
     auto start_points_array = map_handle_.property().get_child("stage.start_points", ptree());
     for (auto it = start_points_array.begin(); it != start_points_array.end(); ++it) {
@@ -39,6 +40,7 @@ Stage::Stage(const ChannelPtr& channel,const ConfigManagerPtr &config_manager) :
 	}
 
 	BOOST_FOREACH(const auto& warp_point, channel_->warp_points) {
+		// This means "Warp Object"
 		auto handle = ResourceManager::LoadModelFromName(_T("warpobj:ワープオブジェクト"));
 		float scale = handle.property().get<float>("scale", 80.0);
 		MV1SetPosition(handle.handle(), warp_point.position);
@@ -46,6 +48,7 @@ Stage::Stage(const ChannelPtr& channel,const ConfigManagerPtr &config_manager) :
 		warpobj_handles_.push_back(handle);
 	}
 
+	// This means "Skydome"
     auto skymap_name = unicode::ToString(_T("skydome:スカイドーム"));
     skymap_handle_ = ResourceManager::LoadModelFromName(unicode::ToTString(skymap_name));
 
@@ -147,7 +150,7 @@ std::pair<bool, VECTOR> Stage::FloorExists(const VECTOR& foot_pos, float model_h
 {
 	MMO_PROFILE_FUNCTION;
 
-    // 床検出
+    // Ground detection
     auto coll_info = MV1CollCheck_Line(map_handle_.handle(), -1,
             foot_pos + VGet(0, 0.5 * model_height * map_scale_, 0),
             foot_pos - VGet(0, collision_depth_limit * map_scale_, 0));
@@ -185,7 +188,7 @@ bool Stage::IsFlatFloor(const VECTOR& foot_pos, const VECTOR& direction) const
         }
         if (coll_info2.HitFlag && flat_min == -(z - 1))
         {
-            // 初めて衝突しなかった
+            // Not a collision
             --flat_min;
         }
     }
@@ -193,16 +196,18 @@ bool Stage::IsFlatFloor(const VECTOR& foot_pos, const VECTOR& direction) const
     return flat_max - flat_min >= 10;
 }
 
-// 移動方向に障害物があるかどうか（当たり判定）
+// Is there obstacles in front when moving (collision detection)
 std::pair<bool,VECTOR> Stage::FrontCollides(float collision_length, const VECTOR& current_pos, const VECTOR& prev_pos,
         float height_begin, float height_end, size_t num_division) const
 {
 	MMO_PROFILE_FUNCTION;
 
 	auto direction = current_pos - prev_pos;
-	direction.y = 0; // 水平な進行方向を求める
+	// Horizontal direction
+	direction.y = 0;
 	const auto collision_vector =
-		//VNorm(direction) * (collision_length * map_scale_); // 体中心から15cm前方までの線分で当たり判定
+		// Collision detection is based on a line extending 15cm forward from the center of the body
+		// VNorm(direction) * (collision_length * map_scale_);
 		VAdjustLength(direction, collision_length * map_scale_);
 
 	auto tmp_pos = prev_pos + VGet(0,height_begin,0);
@@ -225,7 +230,8 @@ std::pair<bool,VECTOR> Stage::FrontCollides(float collision_length, const VECTOR
 			NowPos += SlideVec;
 
 			const auto slide_collision_vector =
-				//VNorm(direction) * (collision_length * map_scale_); // 体中心から15cm前方までの線分で当たり判定
+				// Collision detection is based on a line extending 15cm forward from the center of the body
+				// VNorm(direction) * (collision_length * map_scale_);
 				VAdjustLength(NowPos - prev_pos, collision_length * map_scale_);
 			auto flag = false;
 			auto slide_coll_info = MV1CollCheck_Capsule(map_handle_.handle(), -1,
@@ -247,15 +253,15 @@ std::pair<bool,VECTOR> Stage::FrontCollides(float collision_length, const VECTOR
 				}
 				if(!flag)NowPos = prev_pos;
 			}
-			// 当たり判定情報の後始末
+			// Cleaning up collision info
 			MV1CollResultPolyDimTerminate(slide_coll_info);
 			break;
 		}
-		// 当たり判定情報の後始末
+		// Cleaning up collision info
 		MV1CollResultPolyDimTerminate(coll_info);
 		return std::make_pair(true,NowPos);;
 	}
-	// 当たり判定情報の後始末
+	// Cleaning up collision info
 	MV1CollResultPolyDimTerminate(coll_info);
 	return std::make_pair(false,prev_pos);
 }

@@ -33,7 +33,7 @@ void ServerChange::Update()
 {
 	if(world_manager_->stage()->host_change_flag())
 	{
-		//account_manager_->set_host(world_manager_->stage()->host_change_flag().second);
+		// account_manager_->set_host(world_manager_->stage()->host_change_flag().second);
 		next_scene_ = std::make_shared<scene::MainLoop>(manager_accessor_);
 	}
 }

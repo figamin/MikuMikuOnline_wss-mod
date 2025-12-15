@@ -69,4 +69,5 @@ inline tstring ToTString(const std::string& s)
 #endif
 }
 
-} // unicode
+} 
+// unicode

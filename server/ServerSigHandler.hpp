@@ -1,5 +1,5 @@
 //
-// 割り込みハンドラーを用いてgracefull delete
+// Using an interrupt handler for graceful deletion
 //
 
 #pragma once
@@ -16,9 +16,9 @@ public:
     sigset_t ss;
     sigemptyset( &ss );
     sigaddset( &ss, sig_to_wait );
-    // マスクをセットして現在のマスクのバックアップも行う
+    // Set the mask and also backup the current mask
     sigprocmask( SIG_BLOCK, &ss, &backup );
-    // シグナルを待機して、補足、メンバー関数の実行をするスレッドを実行
+    // This thread waits for a signal, captures it, and then runs a member function
     signal_thread = new boost::thread( boost::bind(&ServerSigHandler::wait_and_exec, this) );
     signal_thread->detach();
     server=_server;
@@ -26,14 +26,15 @@ public:
   
   ~ServerSigHandler() {
     sigprocmask( SIG_SETMASK, &backup, NULL );
-    //signal_thread->join(); いらない
+    // not needed
+    // signal_thread->join(); 
     delete signal_thread;
   }
 
 private:
-  // トラップするシグナル
+  // Signals to be trapped
   int sig_to_wait;
-  // マスクのバックアップ
+  // Mask backup
   sigset_t backup;
   boost::thread *signal_thread;
   Server *server;
@@ -43,14 +44,14 @@ private:
     int ret = sigaddset(&ss, sig_to_wait);
     if (ret != 0) 
       return false;
-    // シグナルをブロック
+    // Block the signal
     ret = pthread_sigmask(SIG_BLOCK, &ss, NULL);
     if (ret != 0) 
       return false;
     while(1) {
       int signo;
       if (sigwait(&ss, &signo) == 0) {
-	//Serverをstopする.
+	// Stop the server
 	(server->Stop)( signo );
 	break;
       }

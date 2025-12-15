@@ -6,7 +6,7 @@
 #include "Timer.hpp"
 #include "Stage.hpp"
 
-// 他人のキャラ
+// Other player characters
 class PlayerCharacter : public Character
 {
 public:

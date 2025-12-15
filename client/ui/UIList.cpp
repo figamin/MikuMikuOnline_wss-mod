@@ -39,7 +39,7 @@ Handle<Value> UIList::Function_addItem(const Arguments& args)
 {
     assert(args.This()->InternalFieldCount() > 0);
     auto self = std::dynamic_pointer_cast<UIList>(
-//          *static_cast<UIBasePtr*>(args.This()->GetPointerFromInternalField(0))
+            // *static_cast<UIBasePtr*>(args.This()->GetPointerFromInternalField(0))
 			*static_cast<UIBasePtr*>(Local<External>::Cast(args.This()->GetInternalField(0))->Value())
     );
     assert(self);
@@ -48,7 +48,7 @@ Handle<Value> UIList::Function_addItem(const Arguments& args)
         auto child = args[0]->ToObject();
 
         if (args.This() != child) {
-//          UIBasePtr child_ptr = *static_cast<UIBasePtr*>(child->GetPointerFromInternalField(0));
+            // UIBasePtr child_ptr = *static_cast<UIBasePtr*>(child->GetPointerFromInternalField(0));
 			UIBasePtr child_ptr = *static_cast<UIBasePtr*>(Local<External>::Cast(child->GetInternalField(0))->Value());
             child_ptr->set_parent(args.This());
             self->items_.push_back(child_ptr);
@@ -61,7 +61,7 @@ Handle<Value> UIList::Function_removeItem(const Arguments& args)
 {
     assert(args.This()->InternalFieldCount() > 0);
     auto self = std::dynamic_pointer_cast<UIList>(
-//          *static_cast<UIBasePtr*>(args.This()->GetPointerFromInternalField(0))
+            // *static_cast<UIBasePtr*>(args.This()->GetPointerFromInternalField(0))
 			*static_cast<UIBasePtr*>(Local<External>::Cast(args.This()->GetInternalField(0))->Value())
     );
     assert(self);
@@ -81,7 +81,7 @@ Handle<Value> UIList::Function_clearItems(const Arguments& args)
 {
     assert(args.This()->InternalFieldCount() > 0);
     auto self = std::dynamic_pointer_cast<UIList>(
-//          *static_cast<UIBasePtr*>(args.This()->GetPointerFromInternalField(0))
+            // *static_cast<UIBasePtr*>(args.This()->GetPointerFromInternalField(0))
 			*static_cast<UIBasePtr*>(Local<External>::Cast(args.This()->GetInternalField(0))->Value())
     );
     assert(self);
@@ -99,7 +99,7 @@ Handle<Value> UIList::Property_scroll_y(Local<String> property, const AccessorIn
 {
     assert(info.This()->InternalFieldCount() > 0);
     auto self = std::dynamic_pointer_cast<UIList>(
-//          *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
+            // *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
 			*static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
     );
     assert(self);
@@ -111,7 +111,7 @@ void UIList::Property_set_scroll_y(Local<String> property, Local<Value> value, c
 {
     assert(info.This()->InternalFieldCount() > 0);
     auto self = std::dynamic_pointer_cast<UIList>(
-//          *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
+            // *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
 			*static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
     );
     assert(self);
@@ -124,37 +124,37 @@ void UIList::DefineInstanceTemplate(Handle<ObjectTemplate>* object)
     UIBase::DefineInstanceTemplate(object);
 
     /**
-     * アイテムを追加します
+     * Adds an item
      *
      * @method addItem
      * @param {UIObject} item
-     * @return {UIObject}　自分自身
+     * @return {UIObject} Myself (?)
      * @chainable
      */
     SetFunction(object, "addItem", Function_addItem);
 
 
     /**
-     * アイテムを削除します
+     * Removes an item
      *
      * @method removeItem
      * @param {UIObject} item
-     * @return {UIObject}　自分自身
+     * @return {UIObject} Myself (?)
      * @chainable
      */
     SetFunction(object, "removeItem", Function_removeItem);
 
     /**
-     * アイテムをすべて削除します
+     * Deletes all items
      *
      * @method clearItem
-     * @return {UIObject}　自分自身
+     * @return {UIObject} Myself (?)
      * @chainable
      */
     SetFunction(object, "clearItems", Function_clearItems);
 
     /**
-     * スクロール量(px)
+     * Scroll amount (px)
      *
      * @property scroll_y
      * @type Integer
@@ -224,12 +224,12 @@ void UIList::UpdateScrollBar(InputManager* input)
             && input->GetMouseY()
                     <= absolute_y() + scrollbar_y_ + scrollbar_height_);
 
-    // アクティブ
+    // Active
     if (hover_scrollbar && input->GetMouseLeftCount() == 1) {
         Focus();
     }
 
-    // ドラッグ処理
+    // Drag handling
     if (input->GetMouseLeft()) {
         if (input->GetPrevMouseLeft() == 0 && drag_offset_y_ < 0 && hover_scrollbar) {
             drag_offset_y_ = input->GetMouseY() - (absolute_y() + scrollbar_y_);
@@ -256,7 +256,7 @@ void UIList::UpdateScrollBar(InputManager* input)
 
 void UIList::Update()
 {
-    // TODO: 子供に対してabsolute_系とは別のサイズを与える必要あり
+    // TODO: The child nodes need a different size than the absolute_ types
     UpdatePosition();
 
     int offset_y = -scroll_y_;

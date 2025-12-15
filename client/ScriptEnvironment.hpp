@@ -43,7 +43,7 @@ class ScriptEnvironment {
         void ParseJSON(const std::string& json,
                 const V8ValueCallBack& callback);
 
-//      void With(const V8Block& block);
+        // void With(const V8Block& block);
         void With(const V8Block& block) const;
         void TimedWith(const V8Block& block);
 
@@ -119,10 +119,10 @@ template<class T>
 void ScriptEnvironment::SetFunction(const std::string& name,
         T func)
 {
-    //Locker locker(isolate_);
-    //Isolate::Scope isolate_scope(isolate_);
-    //HandleScope handle;
-    //Context::Scope scope(context_);
+    // Locker locker(isolate_);
+    // Isolate::Scope isolate_scope(isolate_);
+    // HandleScope handle;
+    // Context::Scope scope(context_);
 
     std::string name_buffer(name);
     std::vector<std::string> name_list;
@@ -149,10 +149,10 @@ void ScriptEnvironment::SetFunction(const std::string& name,
 template<class G, class S>
 void ScriptEnvironment::SetProperty(const std::string& name, G getter, S setter)
 {
-    //Locker locker(isolate_);
-    //Isolate::Scope isolate_scope(isolate_);
-    //HandleScope handle;
-    //Context::Scope scope(context_);
+    // Locker locker(isolate_);
+    // Isolate::Scope isolate_scope(isolate_);
+    // HandleScope handle;
+    // Context::Scope scope(context_);
 
     std::string name_buffer(name);
     std::vector<std::string> name_list;
@@ -177,10 +177,10 @@ void ScriptEnvironment::SetProperty(const std::string& name, G getter, S setter)
 
 void ScriptEnvironment::SetConstant(const std::string& name, int value)
 {
-    //Locker locker(isolate_);
-    //Isolate::Scope isolate_scope(isolate_);
-    //HandleScope handle;
-    //Context::Scope scope(context_);
+    // Locker locker(isolate_);
+    // Isolate::Scope isolate_scope(isolate_);
+    // HandleScope handle;
+    // Context::Scope scope(context_);
 
     std::string name_buffer(name);
     std::vector<std::string> name_list;
@@ -205,10 +205,10 @@ void ScriptEnvironment::SetConstant(const std::string& name, int value)
 
 void ScriptEnvironment::SetConstant(const std::string& name, Handle<Value> value)
 {
-    //Locker locker(isolate_);
-    //Isolate::Scope isolate_scope(isolate_);
-    //HandleScope handle;
-    //Context::Scope scope(context_);
+    // Locker locker(isolate_);
+    // Isolate::Scope isolate_scope(isolate_);
+    // HandleScope handle;
+    // Context::Scope scope(context_);
 
     std::string name_buffer(name);
     std::vector<std::string> name_list;

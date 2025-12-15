@@ -13,11 +13,11 @@ void MotionPlayer::Play(int anim_index, bool connect_prev, int blend_time, int a
  	if(nextanim_handle != -1)
 	{
 		prev_anim_index_ = nextanim_handle;
-	}else{
+	} else {
 		prev_anim_index_ = MV1GetAttachAnim(model_handle_,current_attach_index_);
 	}
 
-	// まだ前回の移行期間の最中なら、移行を中止する
+	// If you are still in a previous motion, cancel it
     DetachPrevMotionIfExist();
 
     connect_prev_ = connect_prev;
@@ -55,7 +55,7 @@ void MotionPlayer::ChainPlay(const std::vector<ChainData> chain_data)
 void MotionPlayer::_ChainPlay(const std::vector<ChainData>::const_iterator &it)
 {
 
-	// まだ前回の移行期間の最中なら、移行を中止する
+	// If you are still in a previous motion, cancel it
     DetachPrevMotionIfExist();
 
 	chain_data_it_ = it;
@@ -92,7 +92,7 @@ void MotionPlayer::Stop()
     }
 }
 
-// diff_time [ms]だけ時刻をすすめる
+// Advance by diff_time (ms)
 void MotionPlayer::Next(int diff_time)
 {
     if (current_attach_index_ != -1)

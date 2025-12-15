@@ -36,7 +36,7 @@ Handle<Value> UIBoard::Property_max_width(Local<String> property, const Accessor
 {
     assert(info.This()->InternalFieldCount() > 0);
     auto self = std::dynamic_pointer_cast<UIBoard>(
-//          *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
+            // *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
 			*static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
     );
     assert(self);
@@ -47,7 +47,7 @@ void UIBoard::Property_set_max_width(Local<String> property, Local<Value> value,
 {
     assert(info.This()->InternalFieldCount() > 0);
     auto self = std::dynamic_pointer_cast<UIBoard>(
-//          *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
+            // *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
 			*static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
     );
     assert(self);
@@ -58,7 +58,7 @@ Handle<Value> UIBoard::Property_min_width(Local<String> property, const Accessor
 {
     assert(info.This()->InternalFieldCount() > 0);
     auto self = std::dynamic_pointer_cast<UIBoard>(
-//          *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
+            // *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
 			*static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
 	);
     assert(self);
@@ -69,7 +69,7 @@ void UIBoard::Property_set_min_width(Local<String> property, Local<Value> value,
 {
     assert(info.This()->InternalFieldCount() > 0);
     auto self = std::dynamic_pointer_cast<UIBoard>(
-//          *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
+            // *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
 			*static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
     );
     assert(self);
@@ -80,7 +80,7 @@ Handle<Value> UIBoard::Property_max_height(Local<String> property, const Accesso
 {
     assert(info.This()->InternalFieldCount() > 0);
     auto self = std::dynamic_pointer_cast<UIBoard>(
-//          *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
+            // *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
 			*static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
     );
     assert(self);
@@ -91,7 +91,7 @@ void UIBoard::Property_set_max_height(Local<String> property, Local<Value> value
 {
     assert(info.This()->InternalFieldCount() > 0);
     auto self = std::dynamic_pointer_cast<UIBoard>(
-//          *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
+            // *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
 			*static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
     );
     assert(self);
@@ -102,7 +102,7 @@ Handle<Value> UIBoard::Property_min_height(Local<String> property, const Accesso
 {
     assert(info.This()->InternalFieldCount() > 0);
     auto self = std::dynamic_pointer_cast<UIBoard>(
-//          *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
+            // *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
 			*static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
     );
     assert(self);
@@ -113,7 +113,7 @@ void UIBoard::Property_set_min_height(Local<String> property, Local<Value> value
 {
     assert(info.This()->InternalFieldCount() > 0);
     auto self = std::dynamic_pointer_cast<UIBoard>(
-//          *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
+            // *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
 			*static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
     );
     assert(self);
@@ -125,7 +125,7 @@ void UIBoard::DefineInstanceTemplate(Handle<ObjectTemplate>* object)
     UIBase::DefineInstanceTemplate(object);
 
     /**
-     * 幅の最大値(px)
+     * Max width (px)
      *
      * @property max_width
      * @type Integer
@@ -134,7 +134,7 @@ void UIBoard::DefineInstanceTemplate(Handle<ObjectTemplate>* object)
     SetProperty(object, "max_width", Property_max_width, Property_set_max_width);
 
     /**
-     * 幅の最小(px)
+     * Min width (px)
      *
      * @property min_width
      * @type Integer
@@ -143,7 +143,7 @@ void UIBoard::DefineInstanceTemplate(Handle<ObjectTemplate>* object)
     SetProperty(object, "min_width", Property_min_width, Property_set_min_width);
 
     /**
-     * 高さの最大値(px)
+     * Max height (px)
      *
      * @property max_height
      * @type Integer
@@ -152,7 +152,7 @@ void UIBoard::DefineInstanceTemplate(Handle<ObjectTemplate>* object)
     SetProperty(object, "max_height", Property_max_height, Property_set_max_height);
 
     /**
-     * 高さの最小(px)
+     * Min height (px)
      *
      * @property min_height
      * @type Integer
@@ -175,29 +175,29 @@ void UIBoard::UpdateDrag(InputManager* input, bool resizeable)
             && absolute_y() + absolute_height() - 18 <= input->GetMouseY()
             && input->GetMouseY() <= absolute_y() + absolute_height());
 
-    // アクティブ
-//  if (hover && input->GetMouseLeftCount() == 1) {
-    if (hover && input->GetMouseLeftCount() == 1 && GetActiveFlag() != 0) { // ※ 非アクティブ時はマウスが効かないように修正
+    // Active
+    // if (hover && input->GetMouseLeftCount() == 1) {
+    // Fixed so the mouse dosen't work when inactive
+    if (hover && input->GetMouseLeftCount() == 1 && GetActiveFlag() != 0) { 
         Focus();
     }
 
-    //Logger::Log("%d, %d, %d", hover, input->GetMouseLeftCount(), drag_resize_offset_rect_.x);
+    // Logger::Log("%d, %d, %d", hover, input->GetMouseLeftCount(), drag_resize_offset_rect_.x);
 
-    // ドラッグ処理
-//  if (input->GetMouseLeft()) {
-    if (input->GetMouseLeft() && GetActiveFlag() != 0 ) { // ※ 非アクティブ時はマウスが効かないように修正
+    // Drag handling
+    // if (input->GetMouseLeft()) {
+    // Fixed so the mouse dosen't work when inactive
+    if (input->GetMouseLeft() && GetActiveFlag() != 0 ) {
         if (input->GetMouseLeftCount() == 1) {
-            if (drag_offset_rect_.x < 0 && hover
-                    && !corner_hover) {
-                //drag_offset_rect_.x = input->GetMouseX() - x_;
-                //drag_offset_rect_.y = input->GetMouseY() - y_;
+            if (drag_offset_rect_.x < 0 && hover && !corner_hover) {
+                // drag_offset_rect_.x = input->GetMouseX() - x_;
+                // drag_offset_rect_.y = input->GetMouseY() - y_;
                 drag_offset_rect_.x = input->GetMouseX() - offset_rect_.x;
                 drag_offset_rect_.y = input->GetMouseY() - offset_rect_.y;
             }
-            if (drag_resize_offset_rect_.x < 0
-                    && corner_hover) {
-                //drag_resize_offset_rect_.x = x_ + width_ - input->GetMouseX();
-                //drag_resize_offset_rect_.y = y_ + height_ - input->GetMouseY();
+            if (drag_resize_offset_rect_.x < 0 && corner_hover) {
+                // drag_resize_offset_rect_.x = x_ + width_ - input->GetMouseX();
+                // drag_resize_offset_rect_.y = y_ + height_ - input->GetMouseY();
                 drag_resize_offset_rect_.x = input->GetMouseX() - offset_rect_.width;
                 drag_resize_offset_rect_.y = input->GetMouseY() - offset_rect_.height;
             }

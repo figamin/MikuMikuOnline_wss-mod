@@ -93,21 +93,21 @@ namespace network {
             void FatalError(SessionPtr session_holder = SessionPtr());
 
         protected:
-            // ソケット
+            // Socket
             boost::asio::io_service& io_service_tcp_;
             tcp::socket socket_tcp_;
 
-            // 暗号化通信
+            // Encrypted communication
             Encrypter encrypter_;
             bool encryption_;
 
-            // 送受信のためのバッファ
+            // Buffer for sending and receiveing data
             boost::asio::streambuf receive_buf_;
             std::queue<std::string> send_queue_;
 
             CallbackFuncPtr on_receive_;
 
-            // UDPパケット送信の宛先
+            // UDP destination IP and port
             std::string global_ip_;
             uint16_t udp_port_;
 

@@ -82,19 +82,19 @@ void Connect::Update()
 
 	switch (command_manager_->status()) {
 	case CommandManager::STATUS_ERROR:
-		message_.set_text(_T("エラー：接続に失敗しました"));
+		message_.set_text(_T("Error: Connection failed"));
 		command_manager_->set_client(ClientUniqPtr());
 		break;
 	case CommandManager::STATUS_ERROR_CROWDED:
-		message_.set_text(_T("エラー：人数が多すぎます"));
+		message_.set_text(_T("Error: Server full"));
 		command_manager_->set_client(ClientUniqPtr());
 		break;
 	case CommandManager::STATUS_ERROR_VERSION:
-		message_.set_text(_T("エラー：サーバーとクライアントのバージョンが対応していません"));
+		message_.set_text(_T("Error: Server and client are on different versions"));
 		command_manager_->set_client(ClientUniqPtr());
 		break;
 	case CommandManager::STATUS_ERROR_NOSTAGE:
-		message_.set_text(_T("エラー：必要なステージデータが見つかりません"));
+		message_.set_text(_T("Error: Stage data not found"));
 		command_manager_->set_client(ClientUniqPtr());
 		break;
 	}

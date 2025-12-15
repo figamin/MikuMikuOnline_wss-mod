@@ -49,20 +49,22 @@ SocketServerManager::Session::Session(const ManagerAccessorPtr& manager_accessor
 	card_(std::make_shared<Card>(manager_accessor, "", "sock", "", "",
                             std::vector<std::string>()))
 {
-//	auto callback = std::make_shared<std::function<void(const std::string&)>>(
-	auto callback = std::make_shared<std::function<bool(const std::string&)>>(	// ※ エラー発生を認識できる様に修正
-//		[this](const std::string& str){
-		[this](const std::string& str)-> bool{									// ※ エラー発生を認識できる様に修正
-// ※ ソケットへの書き込み時に切断されていた場合例外が発生するので修正
+	// auto callback = std::make_shared<std::function<void(const std::string&)>>(
+	// Modified to add error detection
+	auto callback = std::make_shared<std::function<bool(const std::string&)>>(
+		// [this](const std::string& str){
+		// Modified to add error detection
+		[this](const std::string& str)-> bool{
+		// An exception occurs if the connection is broken when writing to the socket
+		// This needs to be fixed
 			boost::system::error_code err;
-//			boost::asio::write(socket_, boost::asio::buffer(str.data(), str.size()));
+			// boost::asio::write(socket_, boost::asio::buffer(str.data(), str.size()));
 			boost::asio::write(socket_, boost::asio::buffer(str.data(), str.size()),err);
 			if (err == 0) {
 				return true; 
 			} else {
 				return false;
 			}
-// ※ここまで  
 		});
 		card_->set_on_socket_reply(callback);
 		if (auto card_manager = manager_accessor->card_manager().lock()) {
@@ -97,11 +99,10 @@ void SocketServerManager::Session::ReceiveTCP(const boost::system::error_code& e
 						if (!error.empty()) {
 							std::string return_str(error);
 							return_str += DELIMITOR;
-// ※ ソケットへの書き込み時に切断されていた場合に例外が発生しない様に修正
+							// Modified to prevent exceptions if the connection is lost while writing to the socket
 							boost::system::error_code err;
-//							boost::asio::write(socket_, boost::asio::buffer(return_str.data(), return_str.size()));
+							// boost::asio::write(socket_, boost::asio::buffer(return_str.data(), return_str.size()));
 							boost::asio::write(socket_, boost::asio::buffer(return_str.data(), return_str.size()),err);
-// ※ ここまで
 						}
 					});
             }

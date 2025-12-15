@@ -23,26 +23,32 @@ struct PlayerStatus
         roty_speed(roty_speed_), motion(motion_), prev_motion(prev_motion_),
         blend_ratio(blend_ratio_), is_walking(is_walking_)
     {}
-
-    VECTOR pos, vel, acc; // プレイヤーのマップ上での位置、速度、加速度
-    float roty, roty_speed; // プレイヤーの鉛直軸周りの回転角
-    int motion, prev_motion; // モーションの種類(BasicMotion::hoge)
-    float blend_ratio; // モーションのブレンド比
-    bool is_walking; // true:歩き, false:走り
+    // Position, velocity, and acceleration
+    VECTOR pos, vel, acc;
+    // Rotation angle around the vertical axis
+    float roty, roty_speed;
+    // Type of motion (BasicMotion::hoge)
+    int motion, prev_motion;
+    // Motion blending ratio
+    float blend_ratio;
+    // True: walking, False: running
+    bool is_walking;
 };
 
-// フィールド上のキャラクタ
+// Characters on the field
 class FieldPlayer : public Character
 {
-	//struct AdditionalMotion
-	//{
-	//	AdditionalMotion() : flag_(false), handle_(-1), isloop_(true), nextanim_handle_(-1),loopcheck_(false){}
-	//	bool flag_;
-	//	int handle_;
-	//	bool isloop_;
-	//	int nextanim_handle_;
-	//	bool loopcheck_;
-	//};
+    /*
+	struct AdditionalMotion
+	{
+		AdditionalMotion() : flag_(false), handle_(-1), isloop_(true), nextanim_handle_(-1),loopcheck_(false){}
+		bool flag_;
+		int handle_;
+		bool isloop_;
+		int nextanim_handle_;
+	    bool loopcheck_;
+	};
+    */
 	struct AdditionalMotion
 	{
 		std::vector<MotionPlayer::ChainData> chain_data;
@@ -57,8 +63,9 @@ public:
     void ResetPosition(const std::shared_ptr<VECTOR>& init_position);
     void RescuePosition();
 
-//	void LoadModel(const tstring& name);
-    void LoadModel(const tstring& name,const bool async = false); // ※　非同期読み込みの指定ができるように修正
+    // void LoadModel(const tstring& name);
+    // Modified to support async loading
+    void LoadModel(const tstring& name,const bool async = false);
     void SetModel(const ModelHandle& model);
 	void PlayMotion(const tstring& name,bool isloop);
 	void FieldPlayer::ResetMotion();
@@ -72,7 +79,8 @@ public:
     void LinkToCamera(float* roty);
     void UnlinkToCamera();
     void UpdateInput(InputManager* input);
-	ModelHandle loading_model_handle_; // ※非同期読み込みを復活させるため追加
+    // Added async loading
+	ModelHandle loading_model_handle_;
 
 private:
     void Move();

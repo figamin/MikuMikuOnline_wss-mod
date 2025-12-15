@@ -19,7 +19,8 @@
 
 const float  camera_min_fov = 10.0f;
 const float  camera_max_fov = 60.0f;
-static float camera_fov=60.0f; // ※ 視野角を変更できるようにするため追加
+// Added to allow changing the FOV
+static float camera_fov = 60.0f;
 
 
 int KeyChecker::Check()
@@ -57,7 +58,8 @@ GameLoop::GameLoop(const ManagerAccessorPtr& manager_accessor, const StagePtr& s
       camera(camera_default_stat),
 	  light( 34.4100f, 135.2900f, stage)
 {
-    SetupCamera_Perspective(DX_PI_F * 60.0f / 180.0f); // 視野角60度
+	// Viewing angle is 60 degrees
+    SetupCamera_Perspective(DX_PI_F * 60.0f / 180.0f);
     SetCameraNearFar(1.0f * stage_->map_scale(), 700.0f * stage_->map_scale());
 }
 
@@ -94,7 +96,7 @@ int GameLoop::Update()
 
 int GameLoop::Draw()
 {
-	//std::cout << "\nDraw" << std::endl;
+	// std::cout << "\nDraw" << std::endl;
 
 	FixCameraPosition();
 
@@ -102,14 +104,15 @@ int GameLoop::Draw()
 	for (auto it = charmgr_->GetAll().begin(); it != charmgr_->GetAll().end(); ++it) {
 		auto character = *it;
 
-		// ※ チャンネル移動時にキャラクタデータを解放しなくした関係で別チャンネルのユーザを描画しないように ここから
-		if (character.first != 0) { // id:0は自分なので常に描画
+		// Due to a change that prevents character data from being released when switching channels, users in other channels are no longer rendered. 
+		// ID 0 is the player so it is always rendered
+		if (character.first != 0) {
 			auto player_manager = manager_accessor_->player_manager().lock();
 			if (player_manager->GetMyself()->channel() !=  player_manager->GetFromId(character.first)->channel()) {
-				continue; // キャラクターを描画しない
+				// Do not draw the character
+				continue;
 			}
 		}
-		// ※ ここまで
 		character.second->Draw();
 	}
 
@@ -128,13 +131,14 @@ void GameLoop::FixCameraPosition()
 	auto config_manager = manager_accessor_->config_manager().lock();
 
     if (config_manager->camera_direction() == 0 &&
-		!camera.manual_control/* && myself_->current_stat().motion != BasicMotion::STAND*/)
+		!camera.manual_control)
+		// && myself_->current_stat().motion != BasicMotion::STAND)
     {
-        //　camera = camera_default_stat;
+        // camera = camera_default_stat;
         camera.theta = myself_->current_stat().roty;
     }
 
-    //std::cout << "camera.theta = " << camera.theta << ", roty = " << myself_->current_stat().roty << std::endl;
+    // std::cout << "camera.theta = " << camera.theta << ", roty = " << myself_->current_stat().roty << std::endl;
 
     const auto target_pos = myself_->current_stat().pos +
         VGet(0, myself_->model_height() * camera.target_height + 0.2f, 0) * stage_->map_scale();
@@ -168,10 +172,11 @@ void GameLoop::FixCameraPosition()
 	}
 
 	auto camera_pos_delta = VScale(camera_pos - GetCameraPosition(),(float)0.3);
-	// if (VSize(camera_pos_delta) > 10) {
-	//    camera_pos_delta = VNorm(camera_pos_delta) * 10;
-	//}
-
+	/*
+	if (VSize(camera_pos_delta) > 10) {
+		camera_pos_delta = VNorm(camera_pos_delta) * 10;
+	}
+	*/
 	SetCameraPositionAndTarget_UpVecY(
 		GetCameraPosition() + camera_pos_delta, target_pos);
 }
@@ -183,7 +188,7 @@ void GameLoop::ResetCameraPosition()
 
 void GameLoop::MoveCamera(InputManager* input)
 {
-	// 非アクティブ時はマウス操作無効
+	// Mouse input is disabled while the game is inactive
 	if (GetActiveFlag() == 0) {
 		return;
 	}
@@ -195,13 +200,14 @@ void GameLoop::MoveCamera(InputManager* input)
 
     if ((right && !prev_right && !left) || (left && !prev_left && !right))
     {
-        // クリックした瞬間
+        // When you click
         if (!camera.manual_control)
         {
             camera.manual_control = true;
         }
         camera.manual_control_startpos = input->GetMousePos();
-        SetMouseDispFlag(FALSE); // カーソル消去
+		// Delete cursor
+        SetMouseDispFlag(FALSE);
 
         if (left)
         {
@@ -210,7 +216,7 @@ void GameLoop::MoveCamera(InputManager* input)
     }
     else if ((right && prev_right) || (left && prev_left))
     {
-        // ドラッグしている
+        // Dragging
         // assert(camera.manual_control);
 
         int diff_x, diff_y;
@@ -220,7 +226,8 @@ void GameLoop::MoveCamera(InputManager* input)
         diff_x = current_pos.first - camera.manual_control_startpos.first;
         diff_y = current_pos.second - camera.manual_control_startpos.second;
 
-		// ジャンプ時のみカメラ回転速度 x 3/5 y 2/5
+		// Camera rotation speed during jumps:
+		// x 3/5, y 2/5
 		if(myself_->current_stat().acc.y != 0)
 		{
        	    camera.theta += diff_x * 0.003f;
@@ -239,7 +246,7 @@ void GameLoop::MoveCamera(InputManager* input)
     }
     else
     {
-        // 左右ボタンを離した瞬間以降
+        // After mouse buttons are released
         myself_->UnlinkToCamera();
         if (!GetMouseDispFlag())
         {
@@ -253,8 +260,7 @@ void GameLoop::MoveCamera(InputManager* input)
     }
 
     if (!right && !left) {
-        if (!camera.manual_control &&
-                (input->GetGamepadPOVX() != 0 || input->GetGamepadPOVY() != 0)) {
+        if (!camera.manual_control && (input->GetGamepadPOVX() != 0 || input->GetGamepadPOVY() != 0)) {
             camera.manual_control = true;
         }
 
@@ -270,7 +276,7 @@ void GameLoop::MoveCamera(InputManager* input)
         }
     }
 
-// ※ ここから  カメラが自キャラに衝突後は視野角を変更するように修正
+	// Camera will change the viewing angle after colliding with your character
     const auto target_pos = myself_->current_stat().pos +
         VGet(0, myself_->model_height() * camera.target_height + 0.2f, 0) * stage_->map_scale();
 	auto camera_pos = target_pos +
@@ -328,14 +334,12 @@ void GameLoop::MoveCamera(InputManager* input)
     }
     // Logger::Debug(_T("camera.radius col %f %f"), camera.radius,model_coll_size);
 
-// ※ ここまで
-
 }
 
 void LightStatus::Init()
 {
 	time_ = boost::posix_time::second_clock::local_time();
-	//time_ = boost::posix_time::ptime(time_.date(),boost::posix_time::time_duration(6,10,0));
+	// time_ = boost::posix_time::ptime(time_.date(),boost::posix_time::time_duration(6,10,0));
 	time_differ_ = time_ - boost::posix_time::second_clock::universal_time();
 
 	auto time_differ = time_differ_.hours();
@@ -343,11 +347,11 @@ void LightStatus::Init()
 	auto yy = date.year();
 	auto mm = date.month();
 	auto dd = date.day();
-	//auto h = time_.time_of_day().hours();
-	//auto m = time_.time_of_day().minutes();
-	//auto s = time_.time_of_day().seconds();
+	// auto h = time_.time_of_day().hours();
+	// auto m = time_.time_of_day().minutes();
+	// auto s = time_.time_of_day().seconds();
 
-	// boost::gregorian::date::modjulian_day()は負の値になるときにバグるので使用しない
+	// boost::gregorian::date::modjulian_day() has a bug when it returns a negative value, so don't use
 
 	auto julius_year		=	JuliusYear(yy,mm,dd - 1,23,59,0,time_differ);
 	auto sidereal_hour	=	SiderealHour(julius_year,23,59,0,calc_location_.x,time_differ);
@@ -374,11 +378,12 @@ void LightStatus::Init()
 			solar_position4	=	SolarPosition4(julius_year);
 			calc_altitude	=	SolarAltitude(calc_location_.y,sidereal_hour,solar_position3,solar_position4);
 			calc_direction	=	SolarDirection(calc_location_.y,sidereal_hour,solar_position3,solar_position4);
-			//tt = SolarApparentAltitude1(elevation_,solar_position2);
+			// tt = SolarApparentAltitude1(elevation_,solar_position2);
 			t4 = SolarApparentAltitude2(elevation_,solar_position2);
 			if( ( altitude < t4 ) && ( calc_altitude > t4 ) ){
 				moning_glow_ = boost::posix_time::ptime(time_.date(),boost::posix_time::time_duration(hh,m,0));
-				//hh += 8;	// 冬至の際の日出～日没間時間は８時間程度なのでその分スキップする
+				// Since the tie between sunrise and sunset is aprox 8 hours during the winter, skip that part of the day
+				// hh += 8;
 			}
 			if( ( altitude > t4 ) && ( calc_altitude < t4 ) ){
 				sunset_ = boost::posix_time::ptime(time_.date(),boost::posix_time::time_duration(hh,m,0));
@@ -390,17 +395,17 @@ void LightStatus::Init()
 		}	
 	}
 
-	//light_handle_ = CreateDirLightHandle(VSub(VGet(0,0,0),light_pos_));
+	// light_handle_ = CreateDirLightHandle(VSub(VGet(0,0,0),light_pos_));
 
 	SetGlobalAmbientLight(GetColorF(0,0,0,0));
-	//SetLightDifColorHandle( light_handle_ ,GetColorF(0.603f,0.603f,0.603f,0));
-	//SetLightSpcColorHandle( light_handle_ ,GetColorF(0.603f,0.603f,0.603f,0));
-	//SetLightAmbColorHandle( light_handle_ ,GetColorF(1,1,1,0));
+	// SetLightDifColorHandle( light_handle_ ,GetColorF(0.603f,0.603f,0.603f,0));
+	// SetLightSpcColorHandle( light_handle_ ,GetColorF(0.603f,0.603f,0.603f,0));
+	// SetLightAmbColorHandle( light_handle_ ,GetColorF(1,1,1,0));
 	SetLightDifColor( GetColorF(0.603f,0.603f,0.603f,0));
 	SetLightSpcColor( GetColorF(0.603f,0.603f,0.603f,0));
 	SetLightAmbColor( GetColorF(1,1,1,0));
 
-	//Calc();
+	// Calc();
 
 }
 
@@ -419,7 +424,7 @@ void LightStatus::Calc()
 	auto m = time_.time_of_day().minutes();
 	auto s = time_.time_of_day().seconds();
 
-	// boost::gregorian::date::modjulian_day()は負の値になるときにバグるので使用しない
+	// boost::gregorian::date::modjulian_day() has a bug when it returns a negative value, so don't use
 
 	auto julius_year		=	JuliusYear(yy,mm,dd,h,m,s,time_differ);
 	auto sidereal_hour	=	SiderealHour(julius_year,h,m,s,calc_location_.x,time_differ);
@@ -429,8 +434,8 @@ void LightStatus::Calc()
 	auto solar_position4	=	SolarPosition4(julius_year);
 	auto altitude	=	SolarAltitude(calc_location_.y,sidereal_hour,solar_position3,solar_position4);
 	auto direction	=	SolarDirection(calc_location_.y,sidereal_hour,solar_position3,solar_position4);
-	//auto tt = SolarApparentAltitude1(elevation_,solar_position2);
-	//auto t4 = SolarApparentAltitude2(elevation_,solar_position2);
+	// auto tt = SolarApparentAltitude1(elevation_,solar_position2);
+	// auto t4 = SolarApparentAltitude2(elevation_,solar_position2);
 
 	light_distance_ = 100;
 
@@ -459,8 +464,9 @@ void LightStatus::Update()
 	}
 	if(frame_count_++ % ( 60 * 60 ) == 0 && !init_flag_){
 		Calc();
-		frame_count_ = 1;	// オーバーフロー対策
-		//SetLightDirectionHandle(light_handle_,VSub(VGet(0,0,0),light_pos_));
+		// Overflow countermeasures
+		frame_count_ = 1;
+		// SetLightDirectionHandle(light_handle_,VSub(VGet(0,0,0),light_pos_));
 		SetLightPosition(light_pos_);
 		SetLightDirection(VSub(VGet(0,0,0),light_pos_));
 	}
@@ -624,11 +630,11 @@ void LightStatus::SetGrobalAmbientColorMatchToTime()
 		mooning_glow_seconds + end_offset >= now_seconds ){
 			int ColorCoefficient =  now_seconds - (mooning_glow_seconds - start_offset);
 			if(0 <= ColorCoefficient && ColorCoefficient <= start_offset ) {
-//				MV1SetMaterialDrawBlendParam(stage_->skymap_handle().handle(),material_index_of_name_[_T("夕方")],(static_cast<float>(ColorCoefficient) / static_cast<float>(start_offset)) * 255.0f);
+				// MV1SetMaterialDrawBlendParam(stage_->skymap_handle().handle(),material_index_of_name_[_T("夕方")],(static_cast<float>(ColorCoefficient) / static_cast<float>(start_offset)) * 255.0f);
 				MV1SetMaterialDrawBlendParam(stage_->skymap_handle().handle(),1,(static_cast<float>(ColorCoefficient) / static_cast<float>(start_offset)) * 255.0f);
 			}
 			if(start_offset < ColorCoefficient && ColorCoefficient <= start_offset + end_offset ) {
-//				MV1SetMaterialDrawBlendParam(stage_->skymap_handle().handle(),material_index_of_name_[_T("昼")],(static_cast<float>(ColorCoefficient - start_offset) / static_cast<float>(end_offset)) * 255.0f);
+				// MV1SetMaterialDrawBlendParam(stage_->skymap_handle().handle(),material_index_of_name_[_T("昼")],(static_cast<float>(ColorCoefficient - start_offset) / static_cast<float>(end_offset)) * 255.0f);
 				MV1SetMaterialDrawBlendParam(stage_->skymap_handle().handle(),2,(static_cast<float>(ColorCoefficient - start_offset) / static_cast<float>(end_offset)) * 255.0f);
 			}
 			auto r = 0.9f/2.55f * sin(0.001f * (ColorCoefficient - 1000) / 2.0f);
@@ -644,11 +650,13 @@ void LightStatus::SetGrobalAmbientColorMatchToTime()
 		sunset_seconds + end_offset >= now_seconds ){
 			int ColorCoefficient =  now_seconds - (sunset_seconds - start_offset);
 			if(0 <= ColorCoefficient && ColorCoefficient <= start_offset ) {
-//				MV1SetMaterialDrawBlendParam(stage_->skymap_handle().handle(),material_index_of_name_[_T("昼")],(static_cast<float>(start_offset - ColorCoefficient) / static_cast<float>(start_offset)) * 255.0f);
+				// This means "noon"
+				// MV1SetMaterialDrawBlendParam(stage_->skymap_handle().handle(),material_index_of_name_[_T("昼")],(static_cast<float>(start_offset - ColorCoefficient) / static_cast<float>(start_offset)) * 255.0f);
 				MV1SetMaterialDrawBlendParam(stage_->skymap_handle().handle(),1,(static_cast<float>(start_offset - ColorCoefficient) / static_cast<float>(start_offset)) * 255.0f);
 			}
 			if(start_offset < ColorCoefficient && ColorCoefficient <= start_offset + end_offset ) {
-//				MV1SetMaterialDrawBlendParam(stage_->skymap_handle().handle(),material_index_of_name_[_T("夕方")],(static_cast<float>(end_offset - ( ColorCoefficient - start_offset ) ) / static_cast<float>(end_offset)) * 255.0f);
+				// This means "evening"
+				// MV1SetMaterialDrawBlendParam(stage_->skymap_handle().handle(),material_index_of_name_[_T("夕方")],(static_cast<float>(end_offset - ( ColorCoefficient - start_offset ) ) / static_cast<float>(end_offset)) * 255.0f);
 				MV1SetMaterialDrawBlendParam(stage_->skymap_handle().handle(),2,(static_cast<float>(end_offset - ( ColorCoefficient - start_offset ) ) / static_cast<float>(end_offset)) * 255.0f);
 			}
 			auto r = 1.2f/2.55f * sin(0.001f * (ColorCoefficient) / 1.8f);
@@ -663,8 +671,10 @@ void LightStatus::SetGrobalAmbientColorMatchToTime()
 	}else if(sunset_seconds + end_offset < now_seconds ||
 		mooning_glow_seconds - start_offset > now_seconds ){
 			if ( night_flag_ ) {
-//				MV1SetMaterialDrawBlendParam(stage_->skymap_handle().handle(),material_index_of_name_[_T("昼")],0);
-//				MV1SetMaterialDrawBlendParam(stage_->skymap_handle().handle(),material_index_of_name_[_T("夕方")],0);
+				// This means "noon"
+				// MV1SetMaterialDrawBlendParam(stage_->skymap_handle().handle(),material_index_of_name_[_T("昼")],0);
+				// This means "evening"
+				// MV1SetMaterialDrawBlendParam(stage_->skymap_handle().handle(),material_index_of_name_[_T("夕方")],0);
    				MV1SetMaterialDrawBlendParam(stage_->skymap_handle().handle(),1,0);
 				MV1SetMaterialDrawBlendParam(stage_->skymap_handle().handle(),2,0);
 
@@ -674,8 +684,10 @@ void LightStatus::SetGrobalAmbientColorMatchToTime()
 			SetLightSpcColor(GetColorF(0,0,0,0));
 	}else{
 			if ( noon_flag_ ) {
-//				MV1SetMaterialDrawBlendParam(stage_->skymap_handle().handle(),material_index_of_name_[_T("昼")],255);
-//				MV1SetMaterialDrawBlendParam(stage_->skymap_handle().handle(),material_index_of_name_[_T("夕方")],255);
+				// This means "noon"
+				// MV1SetMaterialDrawBlendParam(stage_->skymap_handle().handle(),material_index_of_name_[_T("昼")],255);
+				// This means "evening"
+				// MV1SetMaterialDrawBlendParam(stage_->skymap_handle().handle(),material_index_of_name_[_T("夕方")],255);
 				MV1SetMaterialDrawBlendParam(stage_->skymap_handle().handle(),1,255);
 				MV1SetMaterialDrawBlendParam(stage_->skymap_handle().handle(),2,255);
 				noon_flag_ = false;

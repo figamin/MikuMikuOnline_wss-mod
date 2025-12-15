@@ -91,7 +91,7 @@ std::string Account::GetUserRevisionPatch(UserID user_id, uint32_t revision)
 
 void Account::Remove(UserID user_id)
 {
-	// 30分後に削除
+	// Removed in 30 minutes
 	boost::thread t([this, user_id](){
 
 		boost::this_thread::sleep(boost::posix_time::minutes(30));
@@ -138,12 +138,14 @@ void Account::ApplyRevisionPatch(const std::string& patch)
 UserID Account::GetUserIdFromFingerPrint(const std::string& finger_print)
 {
 	return 0;
-    //FingerprintMap::iterator it;
-    //if ((it = fingerprint_map_.find(finger_print)) != fingerprint_map_.end()) {
-    //    return it->second;
-    //} else {
-    //    return 0;
-    //}
+    /*
+    FingerprintMap::iterator it;
+    if ((it = fingerprint_map_.find(finger_print)) != fingerprint_map_.end()) {
+        return it->second;
+    } else {
+        return 0;
+    }
+    */
 }
 
 std::string Account::GetPublicKey(UserID user_id)
@@ -159,7 +161,7 @@ UserID Account::RegisterPublicKey(const std::string& public_key)
     std::string finger_print = network::Encrypter::GetHash(public_key);
 
     if (GetUserIdFromFingerPrint(finger_print) == 0) {
-        // ユーザーIDを発行
+        // Issue a UserID
         user_id = ++max_user_id_;
         fingerprint_map_[finger_print] = user_id;
 
@@ -183,9 +185,11 @@ void Account::LogOut(UserID user_id)
 
 void Account::LogOutAll()
 {
-    //for (uint32_t user_id = 1; user_id <= max_user_id_; user_id++) {
-    //    Set(user_id, LOGIN, (char)0);
-    //}
+    /*
+    for (uint32_t user_id = 1; user_id <= max_user_id_; user_id++) {
+        Set(user_id, LOGIN, (char)0);
+    }
+    */
 }
 
 std::string Account::GetUserName(UserID user_id) const
