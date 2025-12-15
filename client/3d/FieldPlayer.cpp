@@ -284,7 +284,6 @@ void FieldPlayer::Update()
         }
 
         motion_player_->Play(current_stat_.motion, connect_prev, 200, -1, false);
-	/
 	/*
 	}else if(additional_motion_.flag_)
 	{
@@ -294,7 +293,7 @@ void FieldPlayer::Update()
 		additional_motion_.flag_ = false;
 		additional_motion_.nextanim_handle_ = -1;
 	*/
-	}else if(additional_motion_.flag_)
+	} else if (additional_motion_.flag_)
 	{
 		motion_player_->ChainPlay(additional_motion_.chain_data);
 		additional_motion_.flag_ = false;
