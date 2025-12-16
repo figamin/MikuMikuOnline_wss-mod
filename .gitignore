@@ -58,3 +58,10 @@ client_wss-mod_beta21_64.lib
 server_64.lib
 MikuMikuOnline.opensdf
 MikuMikuOnline.sdf
+
+user/
+system/
+motions/
+models/
+log/
+cache/
