@@ -67,15 +67,17 @@ void server()
     auto callback = std::make_shared<std::function<void(network::Command)>>(
             [&server, &sign](network::Command c){
 
-        // ログを出力
+        // Output logs
         auto msg = (boost::format("Receive: 0x%08x %dbyte") % c.header() % c.body().size()).str();
         if (auto session = c.session().lock()) {
             msg += " from " + session->global_ip();
         }
 
-        // if (auto session = c.session().lock()) {
-        //     std::cout << "Write Average: " << session->GetReadByteAverage() << "bytes" << std::endl;
-        // }
+        /*
+        if (auto session = c.session().lock()) {
+            std::cout << "Write Average: " << session->GetReadByteAverage() << "bytes" << std::endl;
+        }
+        */
 		auto header = c.header();
         switch (c.header()) {
 
@@ -89,21 +91,23 @@ void server()
 
 		case network::header::ServerRequestedPlainFullServerInfo:
 		{
-			//if (auto session = c.session().lock()) {
-			//	session->Send(network::ClientReceivePlainFullServerInfo(server.GetFullStatus()));
-			//}
+            /*
+			if (auto session = c.session().lock()) {
+                session->Send(network::ClientReceivePlainFullServerInfo(server.GetFullStatus()));
+			}
+            */
 		}
 		break;
 
-		// ステータス要求
+		// Status request
 		case network::header::ServerRequstedStatus:
 		{
-			// ステータスを送り返す
+			// Send the status JSON
 			server.SendUDP(server.GetStatusJSON(), c.udp_endpoint());
 		}
 		break;
 
-        // JSONメッセージ受信
+        // Received JSON message
         case network::header::ServerReceiveJSON:
         {
             if (auto session = c.session().lock()) {
@@ -119,7 +123,7 @@ void server()
 				ptree message_tree;
 				json_parser::read_json(message_json, message_tree);
 
-				// プライベートメッセージの処理
+				// Processing private messages
 				std::list<uint32_t> destination_list;
 				auto private_list_tree =  message_tree.get_child("private", ptree());
 				BOOST_FOREACH(const auto& user_id, private_list_tree) {
@@ -155,7 +159,7 @@ void server()
             break;
 
 
-        // 位置情報受信
+        // Position info received
         case network::header::ServerUpdatePlayerPosition:
         {
             if (auto session = c.session().lock()) {
@@ -168,12 +172,12 @@ void server()
         }
             break;
 
-        // 公開鍵フィンガープリント受信
+        // Received public key fingerprint
         case network::header::ServerReceiveClientInfo:
         {
             if (auto session = c.session().lock()) {
 
-				// 最大接続数を超えていないか判定
+				// Check if server is full
 				if (server.GetUserCount() >= server.config().capacity()) {
 					Logger::Info("Refused Session");
 					session->SyncSend(network::ClientReceiveServerCrowdedError());
@@ -189,28 +193,28 @@ void server()
 
                 network::Utils::Deserialize(c.body(), &finger_print, &version, &udp_port);
 
-                // クライアントのプロトコルバージョンをチェック
+                // Check client protocol version
                 if (version != MMO_PROTOCOL_VERSION) {
                     Logger::Info("Unsupported Client Version : v%d", version);
                     session->Send(network::ClientReceiveUnsupportVersionError(1));
                     return;
                 }
 
-                // UDPパケットの宛先を設定
+                // Set UDP destination port
                 session->set_udp_port(udp_port);
 
                 Logger::Info("UDP destination is %s:%d", session->global_ip(), session->udp_port());
 
-                // テスト送信
+                // Test transmission
                 server.SendUDPTestPacket(session->global_ip(), session->udp_port());
 
                 uint32_t id = server.account().GetUserIdFromFingerPrint(finger_print);
                 if (id == 0) {
-                    // 未登録の場合、公開鍵を要求
+                    // If you aren't logged in, request a public key
                     session->Send(network::ClientRequestedPublicKey());
                 } else {
                     uint32_t user_id = static_cast<uint32_t>(id);
-                    // ログイン
+                    // Login
                     session->set_id(user_id);
                     server.account().LogIn(user_id);
                     session->encrypter().SetPublicKey(server.account().GetPublicKey(user_id));
@@ -218,7 +222,7 @@ void server()
                     server.account().SetUserIPAddress(session->id(), session->global_ip());
                     server.account().SetUserUDPPort(session->id(), session->udp_port());
 
-                    // 共通鍵を送り返す
+                    // Send the common key
                     auto key = session->encrypter().GetCryptedCommonKey();
                     session->Send(network::ClientReceiveCommonKey(key, sign.Sign(key), user_id));
 
@@ -228,7 +232,7 @@ void server()
         }
             break;
 
-        // 公開鍵受信
+        // Public key received
         case network::header::ServerReceivePublicKey:
         {
             if (auto session = c.session().lock()) {
@@ -239,7 +243,7 @@ void server()
 
 				session->ResetReadByteAverage();
 
-                // ログイン
+                // Login
                 session->set_id(user_id);
                 server.account().LogIn(user_id);
                 session->encrypter().SetPublicKey(server.account().GetPublicKey(user_id));
@@ -247,7 +251,7 @@ void server()
                 server.account().SetUserIPAddress(session->id(), session->global_ip());
                 server.account().SetUserUDPPort(session->id(), session->udp_port());
 
-                // 共通鍵を送り返す
+                // Send the common key
                 auto key = session->encrypter().GetCryptedCommonKey();
                 session->Send(network::ClientReceiveCommonKey(key, sign.Sign(key), user_id));
 
@@ -256,7 +260,7 @@ void server()
         }
             break;
 
-        // 暗号化通信開始
+        // Start of encrypted communication
         case network::header::ServerStartEncryptedSession:
         {
             if (auto session = c.session().lock()) {
@@ -271,7 +275,7 @@ void server()
         }
             break;
 
-        // アカウント初期化情報の受信
+        // Receiving account initialization data
         case network::header::ServerReceiveAccountInitializeData:
         {
             if (auto session = c.session().lock()) {
@@ -293,7 +297,7 @@ void server()
         }
         break;
 
-        // アカウント更新情報の要求
+        // Request to update account information
         case network::header::ServerRequestedAccountRevisionPatch:
         {
             if (auto session = c.session().lock()) {
@@ -367,7 +371,7 @@ void server()
         }
         break;
 
-        // エラー
+        // Error
         case network::header::UserFatalConnectionError:
         {
             if (c.body().size() > 0) {
@@ -424,7 +428,7 @@ void client_sync(network::Server& server)
         execute_with_client = false;
     }
 
-    // クライアントから起動している場合、クライアントの状態を監視
+    // When launched from the client, monitor the client's status
 	#ifdef _WIN32
     if (execute_with_client) {
         boost::thread([&server](){

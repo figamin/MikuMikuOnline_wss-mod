@@ -1,0 +1,11 @@
+{
+    "name": "char:Unnamed",
+    "character": {
+        "height": 1.5,
+        "motions": {
+            "stand": "basic_stand.vmd",
+            "walk": "basic_walk.vmd",
+            "run": "basic_run.vmd"
+        }
+    }
+}
