@@ -235,11 +235,11 @@ void MiniMap::DrawPosAndCalc()
 	int color;
 	if (command_manager->status() == CommandManager::STATUS_ERROR) {
         // This means "offline"
-		login_num = _T("オフライン");
+		login_num = _T("Offline");
 		color = GetColor(255,163,167);
 	} else {
         // Players online: %d
-		login_num = (tformat(_T("ログイン人数: %d")) % player_manager->GetAll().size()).str();
+		login_num = (tformat(_T("%d players online")) % player_manager->GetAll().size()).str();
 		color = GetColor(133,211,192);
 	}
 	DrawBox(absolute_x() + 12,absolute_y() + absolute_height() - 24,absolute_x() + absolute_width() - 12,absolute_y() + absolute_height() - 6,color,TRUE);

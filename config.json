@@ -1,7 +1,7 @@
 {
     "fullscreen": false,
     "screen_width": 1280,
-    "screen_height": 600,
+    "screen_height": 720,
     "antialias": false,
     "port": 39390,
     "max_script_execution_time": 5000,

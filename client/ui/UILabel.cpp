@@ -21,10 +21,13 @@
 
 const int UILabel::BASE_BLOCK_SIZE = 12;
 
-UILabel::UILabel() :
-                font_handle_(ResourceManager::default_font_handle())
+UILabel::UILabel()
+    : font_handle_(ResourceManager::default_font_handle()),
+      shadowColor_(0, 0, 0),   // default shadow off
+      shadowAlpha_(0)             // fully transparent
 {
 }
+
 
 UILabel::~UILabel()
 {
@@ -55,7 +58,7 @@ void UILabel::set_text(const tstring& text)
                 width = GetDrawStringWidthToHandle(string, 1, font_handle_);
             }
         #endif
-            char_width_list_.push_back(width);
+        char_width_list_.push_back(width);
     }
 }
 
@@ -84,75 +87,133 @@ UIBase::Color UILabel::bgcolor() const
     return bgcolor_;
 }
 
- Handle<Value> UILabel::Property_text(Local<String> property, const AccessorInfo &info)
- {
+// New shadow properties
+void UILabel::set_shadow_color(const Color& color)
+{
+    shadowColor_ = color;
+}
+
+UIBase::Color UILabel::shadow_color() const
+{
+    return shadowColor_;
+}
+
+void UILabel::set_shadow_alpha(int alpha)
+{
+    shadowAlpha_ = alpha;
+}
+
+int UILabel::shadow_alpha() const
+{
+    return shadowAlpha_;
+}
+
+// --- JS bindings ---
+Handle<Value> UILabel::Property_text(Local<String> property, const AccessorInfo &info)
+{
     assert(info.This()->InternalFieldCount() > 0);
     auto self = std::dynamic_pointer_cast<UILabel>(
-            // *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
-			*static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
+        *static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
     );
     assert(self);
     return String::New(unicode::ToString(self->text()).c_str());
- }
+}
 
- void UILabel::Property_set_text(Local<String> property, Local<Value> value, const AccessorInfo& info)
- {
+void UILabel::Property_set_text(Local<String> property, Local<Value> value, const AccessorInfo& info)
+{
     assert(info.This()->InternalFieldCount() > 0);
     auto self = std::dynamic_pointer_cast<UILabel>(
-            // *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
-			*static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
+        *static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
     );
     assert(self);
 
     self->set_text(unicode::ToTString(*String::Utf8Value(value->ToString())));
- }
+}
 
- Handle<Value> UILabel::Property_bgcolor(Local<String> property, const AccessorInfo &info)
- {
+Handle<Value> UILabel::Property_bgcolor(Local<String> property, const AccessorInfo &info)
+{
     assert(info.This()->InternalFieldCount() > 0);
     auto self = std::dynamic_pointer_cast<UILabel>(
-            // *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
-			*static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
+        *static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
     );
     assert(self);
     return String::New(self->bgcolor().ToString().c_str());
- }
+}
 
- void UILabel::Property_set_bgcolor(Local<String> property, Local<Value> value, const AccessorInfo& info)
- {
+void UILabel::Property_set_bgcolor(Local<String> property, Local<Value> value, const AccessorInfo& info)
+{
     assert(info.This()->InternalFieldCount() > 0);
     auto self = std::dynamic_pointer_cast<UILabel>(
-            // *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
-			*static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
+        *static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
     );
     assert(self);
 
     self->set_bgcolor(UIBase::Color::FromString(*String::Utf8Value(value->ToString())));
- }
+}
 
- Handle<Value> UILabel::Property_color(Local<String> property, const AccessorInfo &info)
- {
+Handle<Value> UILabel::Property_color(Local<String> property, const AccessorInfo &info)
+{
     assert(info.This()->InternalFieldCount() > 0);
     auto self = std::dynamic_pointer_cast<UILabel>(
-            // *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
-			*static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
+        *static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
     );
     assert(self);
     return String::New(self->textcolor().ToString().c_str());
- }
+}
 
- void UILabel::Property_set_color(Local<String> property, Local<Value> value, const AccessorInfo& info)
- {
+void UILabel::Property_set_color(Local<String> property, Local<Value> value, const AccessorInfo& info)
+{
     assert(info.This()->InternalFieldCount() > 0);
     auto self = std::dynamic_pointer_cast<UILabel>(
-            // *static_cast<UIBasePtr*>(info.This()->GetPointerFromInternalField(0))
-			*static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
+        *static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
     );
     assert(self);
 
     self->set_textcolor(UIBase::Color::FromString(*String::Utf8Value(value->ToString())));
- }
+}
 
+// Shadow JS bindings
+Handle<Value> UILabel::Property_shadow_color(Local<String> property, const AccessorInfo &info)
+{
+    assert(info.This()->InternalFieldCount() > 0);
+    auto self = std::dynamic_pointer_cast<UILabel>(
+        *static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
+    );
+    assert(self);
+    return String::New(self->shadow_color().ToString().c_str());
+}
+
+void UILabel::Property_set_shadow_color(Local<String> property, Local<Value> value, const AccessorInfo& info)
+{
+    assert(info.This()->InternalFieldCount() > 0);
+    auto self = std::dynamic_pointer_cast<UILabel>(
+        *static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
+    );
+    assert(self);
+
+    self->set_shadow_color(UIBase::Color::FromString(*String::Utf8Value(value->ToString())));
+}
+
+Handle<Value> UILabel::Property_shadow_alpha(Local<String> property, const AccessorInfo &info)
+{
+    assert(info.This()->InternalFieldCount() > 0);
+    auto self = std::dynamic_pointer_cast<UILabel>(
+        *static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
+    );
+    assert(self);
+    return Integer::New(self->shadow_alpha());
+}
+
+void UILabel::Property_set_shadow_alpha(Local<String> property, Local<Value> value, const AccessorInfo& info)
+{
+    assert(info.This()->InternalFieldCount() > 0);
+    auto self = std::dynamic_pointer_cast<UILabel>(
+        *static_cast<UIBasePtr*>(Local<External>::Cast(info.This()->GetInternalField(0))->Value())
+    );
+    assert(self);
+
+    self->set_shadow_alpha(value->Int32Value());
+}
 
 void UILabel::DefineInstanceTemplate(Handle<ObjectTemplate>* object)
 {
@@ -160,102 +221,69 @@ void UILabel::DefineInstanceTemplate(Handle<ObjectTemplate>* object)
 
     Handle<ObjectTemplate>& instance_template = *object;
 
-    /**
-     * Display text
-     *
-     * @property text
-     * @type String
-     */
     SetProperty(&instance_template, "text", Property_text, Property_set_text);
-
-    /**
-     * Background color
-     *
-     * Specified in 6 or 8 length hex format (RGB or RGBA)
-     *
-     * @property bgcolor
-     * @type String
-     */
-    SetProperty(&instance_template, "bgcolor" , Property_bgcolor, Property_set_bgcolor);
-
-    /**
-     * Text color
-     *
-     * @property color
-     * @type String
-     */
+    SetProperty(&instance_template, "bgcolor", Property_bgcolor, Property_set_bgcolor);
     SetProperty(&instance_template, "color", Property_color, Property_set_color);
+
+    // Shadow properties
+    SetProperty(&instance_template, "shadow_color", Property_shadow_color, Property_set_shadow_color);
+    SetProperty(&instance_template, "shadow_alpha", Property_shadow_alpha, Property_set_shadow_alpha);
 }
 
 void UILabel::ProcessInput(InputManager* input)
 {
-	bool hover = (absolute_x()<= input->GetMouseX() && input->GetMouseX() <= absolute_x()+ absolute_width()
+    bool hover = (absolute_x()<= input->GetMouseX() && input->GetMouseX() <= absolute_x()+ absolute_width()
             && absolute_y() <= input->GetMouseY() && input->GetMouseY() <= absolute_y() + absolute_height());
-    // Fixed so that the mouse does not work when the game is inactive
-    // if (input->GetMouseLeftCount() == 1 && hover) { 
-	if (input->GetMouseLeftCount() == 1 && hover && GetActiveFlag() != 0) {  
-		if (!on_click_.IsEmpty() && on_click_->IsFunction()) {
-			on_click_.As<Function>()->CallAsFunction(Context::GetCurrent()->Global(), 0, nullptr);
-		}else if(!on_click_function_._Empty()) {
-			on_click_function_(this);
-			parent_c_->set_visible(false);
-			input->CancelMouseLeft();
-		}
-    // Fixed so that the mouse does not work when the game is inactive
-    // }else if(hover && !hover_flag_){ 
-	} else if(hover && !hover_flag_ && GetActiveFlag() != 0) {
-		if(!on_hover_function_._Empty()) {
-			on_hover_function_(this);
-			hover_flag_ = true;
-		}
-    // Fixed so that the mouse does not work when the game is inactive
-    // } else if(!hover && hover_flag_){
-	}else if(!hover && hover_flag_ && GetActiveFlag() != 0){
-		if(!on_out_function_._Empty()) {
-			on_out_function_(this);
-			hover_flag_ = false;
-		}
-	}
+    if (input->GetMouseLeftCount() == 1 && hover && GetActiveFlag() != 0) {  
+        if (!on_click_.IsEmpty() && on_click_->IsFunction()) {
+            on_click_.As<Function>()->CallAsFunction(Context::GetCurrent()->Global(), 0, nullptr);
+        } else if(!on_click_function_._Empty()) {
+            on_click_function_(this);
+            parent_c_->set_visible(false);
+            input->CancelMouseLeft();
+        }
+    } else if(hover && !hover_flag_ && GetActiveFlag() != 0) {
+        if(!on_hover_function_._Empty()) {
+            on_hover_function_(this);
+            hover_flag_ = true;
+        }
+    } else if(!hover && hover_flag_ && GetActiveFlag() != 0) {
+        if(!on_out_function_._Empty()) {
+            on_out_function_(this);
+            hover_flag_ = false;
+        }
+    }
 }
 
 void UILabel::UpdatePosition()
 {
-    int parent_x,
-        parent_y,
-        parent_width,
-        parent_height;
+    int parent_x, parent_y, parent_width, parent_height;
 
-    // Get the parent size
     if (parent_.IsEmpty()) {
         parent_x = 0;
         parent_y = 0;
         GetScreenState(&parent_width, &parent_height, nullptr);
     } else {
-        // UIBasePtr parent_ptr = *static_cast<UIBasePtr*>(parent_->GetPointerFromInternalField(0));
-		UIBasePtr parent_ptr = *static_cast<UIBasePtr*>(Local<External>::Cast(parent_->GetInternalField(0))->Value());
+        UIBasePtr parent_ptr = *static_cast<UIBasePtr*>(Local<External>::Cast(parent_->GetInternalField(0))->Value());
         parent_x = parent_ptr->absolute_x();
         parent_y = parent_ptr->absolute_y();
         parent_width = parent_ptr->absolute_width();
         parent_height = parent_ptr->absolute_height();
     }
 
-    // Calculate the width
-    if((docking_ & DOCKING_LEFT) &&
-            (docking_ & DOCKING_RIGHT)) {
+    if((docking_ & DOCKING_LEFT) && (docking_ & DOCKING_RIGHT)) {
         int left = parent_x + left_;
         int right = parent_x + parent_width - right_;
         absolute_rect_.width = right - left;
     } else {
-		if (width_ > 0) { 
-			absolute_rect_.width = width_;
-		} else {
-			absolute_rect_.width = std::accumulate(char_width_list_.begin(), char_width_list_.end(), 0);
-		}
+        if (width_ > 0) { 
+            absolute_rect_.width = width_;
+        } else {
+            absolute_rect_.width = std::accumulate(char_width_list_.begin(), char_width_list_.end(), 0);
+        }
     }
 
-    // Calculate line wrapping
     int line_width = 0;
-    // int line_width_max = 0;
     int line_num = 1;
     substr_list_.clear();
     substr_list_.push_back(0);
@@ -266,7 +294,6 @@ void UILabel::UpdatePosition()
             line_num++;
             substr_list_.push_back(text_cursor);
             substr_list_.push_back(text_cursor + 1);
-            // Added because line breaks in the message were causing incorrect wrapping of later lines
             line_width = 0;
         } else if (line_width + *it > absolute_width()) {
             line_width = *it;
@@ -279,15 +306,8 @@ void UILabel::UpdatePosition()
 
         text_cursor++;
     }
-    /*
-    if (!stable_width) {
-        line_width_max = max(line_width_max, line_width);
-        absolute_rect_.width = line_width_max;
-    }
-    */
     substr_list_.push_back(text_.length());
 
-    // Calculate the height
     if((docking_ & DOCKING_TOP) && (docking_ & DOCKING_BOTTOM)) {
         int top = parent_y + top_;
         int bottom = parent_y + parent_height - bottom_;
@@ -296,20 +316,8 @@ void UILabel::UpdatePosition()
         absolute_rect_.height = (ResourceManager::default_font_size() + 2) * line_num;
     }
 
-    // Calculate the top left X coordinate
-    // TODO: Fix the bug that causes incorrect calculations
-    /*
-    if(docking_ & DOCKING_HCENTER) {
-        absolute_rect_.x = parent_x + parent_width / 2 - offset_rect_.width / 2;
-    } else if(docking_ & DOCKING_RIGHT) {
-        absolute_rect_.x = parent_x + parent_width - right_ - offset_rect_.width;
-    } else {
-        absolute_rect_.x = parent_x + left_;
-    }
-    */
     absolute_rect_.x = parent_x + left_;
 
-    // Calculate the top left Y coordinate
     if(docking_ & DOCKING_VCENTER) {
         absolute_rect_.y = parent_y + parent_height / 2 - absolute_rect_.height / 2;
     } else if(docking_ & DOCKING_BOTTOM) {
@@ -330,8 +338,8 @@ void UILabel::Draw()
         return;
     }
 
-    int color =   GetColor(textcolor_.r, textcolor_.g ,textcolor_.b);
-    int bgcolor = GetColor(bgcolor_.r, bgcolor_.g ,bgcolor_.b);
+    int color = GetColor(textcolor_.r, textcolor_.g, textcolor_.b);
+    int bgcolor = GetColor(bgcolor_.r, bgcolor_.g, bgcolor_.b);
 
     if (bgcolor_.a > 0) {
         SetDrawBlendMode(DX_BLENDMODE_ALPHA, bgcolor_.a);
@@ -341,13 +349,27 @@ void UILabel::Draw()
     }
 
     int line_y = 1;
+    int shadowOffsetX = 1;
+    int shadowOffsetY = 1;
+    int shadowColorInt = GetColor(shadowColor_.r, shadowColor_.g, shadowColor_.b);
+
     for (auto it = substr_list_.begin(); it != substr_list_.end(); ++it) {
         int begin = *it;
         int end = *(++it);
-        DrawStringToHandle(absolute_x() , absolute_y() + line_y,
-            unicode::ToTString(text_.substr(begin, end - begin)).c_str(), color, font_handle_ );
+        std::wstring lineText = unicode::ToTString(text_.substr(begin, end - begin));
+
+        if (shadowAlpha_ > 0) {
+            SetDrawBlendMode(DX_BLENDMODE_ALPHA, shadowAlpha_);
+            DrawStringToHandle(absolute_x() + shadowOffsetX,
+                               absolute_y() + line_y + shadowOffsetY,
+                               lineText.c_str(), shadowColorInt, font_handle_);
+            SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+        }
+
+        DrawStringToHandle(absolute_x(),
+                           absolute_y() + line_y,
+                           lineText.c_str(), color, font_handle_);
+
         line_y += ResourceManager::default_font_size() + 2;
     }
-
 }
-
