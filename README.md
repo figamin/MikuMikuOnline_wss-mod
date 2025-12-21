@@ -16,7 +16,7 @@ Note that the v8_base.x64 library was too big to upload as is so it is compresse
 
 ## How to run the client:
 
-You will need the rest of the MMO models and maps from [MikuMikuTogether](https://mikumikutogether.neocities.org/pages/dl). Just swap out **client_wss-mod_beta21_64.exe**.
+If you already have [MikuMikuTogether](https://mikumikutogether.neocities.org/pages/dl), you can just add the **MMO 39chan Fork** exe files and overwrite the **system** folder. Otherwise you can download the 7z which has all the needed files already included.
 
 ## How to run the server
-The server requires separate files which will be uploaded soon.
+Just run it from the command line.
