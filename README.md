@@ -16,7 +16,7 @@ Note that the v8_base.x64 library was too big to upload as is so it is compresse
 
 ## How to run the client:
 
-If you already have [MikuMikuTogether](https://mikumikutogether.neocities.org/pages/dl), you can just add the **MMO 39chan Fork** exe files and overwrite the **system** folder. Otherwise you can download the 7z which has all the needed files already included.
+You need [MikuMikuTogether](https://mikumikutogether.neocities.org/pages/dl). Add the **MMO 39chan Fork** exe files and overwrite the **system** folder. 
 
 ## How to run the server
 Just run it from the command line.
