@@ -595,10 +595,27 @@ void ResourceManager::ClearModelHandle()
 	BOOST_FOREACH(const tstring& key, erase_keys) {
 		// Modified the code so the model is not released if it's a skydome or warp object
 		auto path = key.substr(0,key.rfind('\\'))+ _T("\\info.json");
+		Logger::Debug(_T("REGULAR PATH %d"), path);
 		auto json_path = boost::filesystem::wpath(unicode::ToWString(path));
+		Logger::Debug(_T("JSON PATH %d"), json_path);
 		if (exists(json_path)) {
 			ptree pt_json;
-			read_json(json_path.string(), pt_json);
+			std::wstring wpath = json_path.native();
+
+std::ifstream file(wpath.c_str(), std::ios::in | std::ios::binary);
+
+if (!file.is_open()) {
+    Logger::Debug(_T("Failed to open JSON file"));
+}
+else {
+    try {
+        boost::property_tree::read_json(file, pt_json);
+    }
+    catch (const boost::property_tree::json_parser_error& e) {
+        Logger::Debug(_T("JSON ERROR: %S at line %d"),
+            e.message().c_str(), e.line());
+    }
+}
 			auto type = pt_json.get<std::string>("name", "");
 			type = type.substr(0,type.find(':'));
 			if (type=="skydome" || type=="warpobj" ) {

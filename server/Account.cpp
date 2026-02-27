@@ -165,7 +165,7 @@ UserID Account::RegisterPublicKey(const std::string& public_key)
         user_id = ++max_user_id_;
         fingerprint_map_[finger_print] = user_id;
 
-        SetUserName(user_id, "???");
+        SetUserName(user_id, "Mikudayo");
         Set(user_id, PUBLIC_KEY, public_key, false);
         Set(user_id, REVISION, (uint32_t)1, false);
     }

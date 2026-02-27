@@ -49,7 +49,7 @@ Stage::Stage(const ChannelPtr& channel,const ConfigManagerPtr &config_manager) :
 	}
 
 	// This means "Skydome"
-    auto skymap_name = unicode::ToString(_T("skydome:スカイドーム"));
+    auto skymap_name = unicode::ToString(_T("skydome"));
     skymap_handle_ = ResourceManager::LoadModelFromName(unicode::ToTString(skymap_name));
 
     float skymap_scale = skymap_handle_.property().get<float>("scale", 80.0);
