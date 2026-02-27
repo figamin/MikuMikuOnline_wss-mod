@@ -56,6 +56,7 @@ server/Win32/
 server/x64/
 client_wss-mod_beta21_64.lib
 server_64.lib
+server_64d.lib
 MikuMikuOnline.opensdf
 MikuMikuOnline.sdf
 
@@ -65,3 +66,6 @@ motions/
 models/
 log/
 cache/
+system.7z
+Log.txt
+check_json.bat
